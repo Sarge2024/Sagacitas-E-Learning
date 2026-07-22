@@ -1,0 +1,6 @@
+{
+  "name": "Sagacitas E-Learning",
+  "description": "Plataforma oficial de E-Learning com o treinamento Alchymist Manager | Dominando a DRE do Restaurante.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
