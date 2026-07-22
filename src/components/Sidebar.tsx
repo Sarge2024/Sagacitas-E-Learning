@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewMode } from '../types';
-import { LayoutDashboard, GraduationCap, User, Sparkles, Calculator, Layers, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { LayoutDashboard, GraduationCap, User, Sparkles, Calculator, Layers, ChevronLeft, ChevronRight, Menu, Inbox, HelpCircle } from 'lucide-react';
 
 interface SidebarProps {
   currentView: ViewMode;
@@ -8,6 +8,7 @@ interface SidebarProps {
   onOpenProModal: () => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  pendingQuestionsCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -16,6 +17,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenProModal,
   isCollapsed = false,
   onToggleCollapse,
+  pendingQuestionsCount = 1,
 }) => {
   return (
     <aside
@@ -117,6 +119,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <Layers className="w-5 h-5 shrink-0" />
           {!isCollapsed && <span className="text-sm font-medium truncate">Matriz & Ritual DRE</span>}
+        </button>
+
+        <button
+          id="nav-instructor-portfolio-btn"
+          onClick={() => onSelectView('instructor-portfolio')}
+          title={isCollapsed ? 'Carteira do Instrutor' : undefined}
+          className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-200 ${
+            isCollapsed ? 'justify-center' : 'text-left'
+          } ${
+            currentView === 'instructor-portfolio'
+              ? 'text-[#2fd9f4] border-l-4 border-[#2fd9f4] bg-white/5 font-semibold shadow-[0_0_15px_rgba(47,217,244,0.15)]'
+              : 'text-[#c7c4d7] hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <Inbox className="w-5 h-5 shrink-0 text-[#8083ff]" />
+            {!isCollapsed && <span className="text-sm font-medium truncate">Carteira do Instrutor</span>}
+          </div>
+          {!isCollapsed && pendingQuestionsCount > 0 && (
+            <span className="px-2 py-0.5 text-[10px] font-black rounded-full bg-amber-500 text-slate-950 font-mono shadow-xs">
+              {pendingQuestionsCount}
+            </span>
+          )}
         </button>
 
         <button

@@ -30,6 +30,7 @@ interface LessonSlideDeckViewerProps {
   lessonTitle: string;
   lessonNumber: string;
   onOpenAITutor?: (query?: string) => void;
+  onOpenSlideQuestionModal?: (slide: Slide) => void;
   showToast?: (message: string) => void;
 }
 
@@ -38,6 +39,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
   lessonTitle,
   lessonNumber,
   onOpenAITutor,
+  onOpenSlideQuestionModal,
   showToast,
 }) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -479,7 +481,16 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          {onOpenAITutor && (
+          {onOpenSlideQuestionModal ? (
+            <button
+              onClick={() => onOpenSlideQuestionModal(activeSlide)}
+              className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-extrabold text-xs transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+              title="Enviar dúvida deste slide para a Carteira do Instrutor"
+            >
+              <HelpCircle className="w-4 h-4 text-white" />
+              <span>Dúvida do Slide</span>
+            </button>
+          ) : onOpenAITutor ? (
             <button
               onClick={() => onOpenAITutor(`Me explique melhor o conteúdo do Slide ${activeSlide.slideNumber}: ${activeSlide.title}`)}
               className="px-3 py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 border border-purple-200 cursor-pointer shadow-xs"
@@ -488,7 +499,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
               <MessageSquare className="w-3.5 h-3.5 text-purple-600" />
               <span>Dúvida do Slide</span>
             </button>
-          )}
+          ) : null}
 
           <button
             onClick={handleNext}

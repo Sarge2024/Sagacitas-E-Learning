@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Course, Lesson, Comment } from '../types';
+import { Slide, Course, Lesson, Comment } from '../types';
 import { INITIAL_COMMENTS } from '../data/coursesData';
 import { LessonSlideDeckViewer } from './LessonSlideDeckViewer';
 import { getSlidesForLesson } from '../data/lessonSlidesData';
@@ -41,6 +41,7 @@ interface LessonPlayerViewProps {
   course: Course;
   onBackToDashboard: () => void;
   onOpenAITutor: (initialQuery?: string) => void;
+  onOpenSlideQuestionModal?: (slide: Slide) => void;
   isSidebarCollapsed?: boolean;
   onToggleCollapse?: () => void;
 }
@@ -49,6 +50,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
   course,
   onBackToDashboard,
   onOpenAITutor,
+  onOpenSlideQuestionModal,
   isSidebarCollapsed = true,
   onToggleCollapse,
 }) => {
@@ -266,6 +268,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
               lessonTitle={activeLesson.title}
               lessonNumber={activeLesson.number}
               onOpenAITutor={onOpenAITutor}
+              onOpenSlideQuestionModal={onOpenSlideQuestionModal}
               showToast={showToast}
             />
           )}
@@ -397,6 +400,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
                 lessonTitle={activeLesson.title}
                 lessonNumber={activeLesson.number}
                 onOpenAITutor={onOpenAITutor}
+                onOpenSlideQuestionModal={onOpenSlideQuestionModal}
                 showToast={showToast}
               />
             </div>

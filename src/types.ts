@@ -1,4 +1,21 @@
-export type ViewMode = 'dashboard' | 'lesson' | 'courses' | 'profile' | 'dre-simulator' | 'matrix';
+export type ViewMode = 'dashboard' | 'lesson' | 'courses' | 'profile' | 'dre-simulator' | 'matrix' | 'instructor-portfolio';
+
+export interface InstructorQuestion {
+  id: string;
+  studentName: string;
+  studentAvatar?: string;
+  courseTitle: string;
+  lessonTitle: string;
+  lessonNumber: string;
+  slideNumber: number;
+  slideTitle: string;
+  slideCategory?: string;
+  questionText: string;
+  timestamp: string;
+  status: 'pendente' | 'respondida';
+  instructorResponse?: string;
+  responseTimestamp?: string;
+}
 
 export interface LessonAttachment {
   id: string;
@@ -88,6 +105,15 @@ export interface Certificate {
   credentialId: string;
   hours: number;
   pdfName: string;
+  studentName?: string;
+  studentEmail?: string;
+  institutionName?: string;
+  registrationNumber?: string;
+  description?: string;
+  imageUrl?: string;
+  templateType?: 'oficial_alchymist' | 'pergaminho_sagacitas' | 'custom_upload';
+  signatoryRole?: string;
+  signatoryName?: string;
 }
 
 export interface Comment {
@@ -105,3 +131,15 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
 }
+
+export interface OAuthUser {
+  id: string;
+  name: string;
+  email: string;
+  provider: string;
+  avatar: string;
+  role: string;
+  authenticatedAt: string;
+  token?: string;
+}
+

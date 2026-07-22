@@ -4,15 +4,20 @@ import { USER_PROFILE, INITIAL_CERTIFICATES } from '../data/coursesData';
 import { Award, BookOpen, Clock, ShieldCheck, Download, ExternalLink, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface ProfileViewProps {
+  certificates: Certificate[];
   onOpenCertificateModal: (cert: Certificate) => void;
   onOpenProModal: () => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
+  certificates,
   onOpenCertificateModal,
   onOpenProModal,
 }) => {
-  const [certificates] = useState<Certificate[]>(INITIAL_CERTIFICATES);
+  const userCertificates = certificates.filter(
+    (c) => !c.studentName || c.studentName === USER_PROFILE.name || c.studentEmail === USER_PROFILE.email
+  );
+  const displayCertificates = userCertificates.length > 0 ? userCertificates : certificates;
 
   return (
     <div id="profile-view-container" className="pt-20 px-8 pb-12 max-w-[1440px] mx-auto space-y-10">
@@ -67,7 +72,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
             <Award className="w-8 h-8 text-[#2fd9f4]" />
             <div>
-              <p className="text-2xl font-bold text-[#dae2fd]">{USER_PROFILE.activeCertificatesCount}</p>
+              <p className="text-2xl font-bold text-[#dae2fd]">{displayCertificates.length}</p>
               <p className="text-xs text-[#c7c4d7]">Certificados Verificados</p>
             </div>
           </div>
@@ -90,12 +95,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <span>Certificados Conquistados</span>
           </h3>
           <span className="text-xs text-[#2fd9f4] font-semibold uppercase tracking-wider">
-            {certificates.length} Documentos Autenticados
+            {displayCertificates.length} Documentos Autenticados
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {certificates.map((cert) => (
+          {displayCertificates.map((cert) => (
             <div
               key={cert.id}
               id={`certificate-card-${cert.id}`}
@@ -105,17 +110,27 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <div className="space-y-1">
                   <span className="text-[10px] text-[#2fd9f4] font-extrabold uppercase tracking-widest flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" />
-                    <span>Certificação Sagacitas E-Learning</span>
+                    <span>{cert.institutionName || 'Certificação Sagacitas E-Learning'}</span>
                   </span>
                   <h4 className="text-lg font-bold text-[#dae2fd] group-hover:text-[#c0c1ff] transition-colors">
                     {cert.courseTitle}
                   </h4>
-                  <p className="text-xs text-[#c7c4d7]/70">Emitido em {cert.issueDate}</p>
+                  <p className="text-xs text-[#c7c4d7]/70">
+                    Emitido em {cert.issueDate} {cert.registrationNumber ? `• ${cert.registrationNumber}` : ''}
+                  </p>
                 </div>
 
-                <div className="w-12 h-12 bg-[#2fd9f4]/10 rounded-xl flex items-center justify-center text-[#2fd9f4] shrink-0 border border-[#2fd9f4]/20">
-                  <Award className="w-6 h-6" />
-                </div>
+                {cert.imageUrl ? (
+                  <img
+                    src={cert.imageUrl}
+                    alt={cert.courseTitle}
+                    className="w-14 h-14 object-cover rounded-xl border border-[#2fd9f4]/30 shrink-0"
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-[#2fd9f4]/10 rounded-xl flex items-center justify-center text-[#2fd9f4] shrink-0 border border-[#2fd9f4]/20">
+                    <Award className="w-6 h-6" />
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t border-white/5 text-xs text-[#c7c4d7]/60">
