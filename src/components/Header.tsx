@@ -45,12 +45,6 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
-        {/* Brand Logo Header */}
-        <div className="flex items-center gap-2 pr-2 border-r border-slate-200">
-          <span className="font-bold text-lg text-[#1890ff] tracking-tight whitespace-nowrap">
-            Sagacitas E-Learning
-          </span>
-        </div>
 
         {/* Search Bar on Left */}
         <div className="relative w-full">
