@@ -1,4 +1,4 @@
-export type ViewMode = 'dashboard' | 'lesson' | 'courses' | 'profile' | 'dre-simulator' | 'matrix' | 'instructor-portfolio';
+export type ViewMode = 'dashboard' | 'lesson' | 'courses' | 'profile' | 'dre-simulator' | 'matrix' | 'instructor-portfolio' | 'manager';
 
 export interface InstructorQuestion {
   id: string;

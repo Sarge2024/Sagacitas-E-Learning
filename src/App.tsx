@@ -11,6 +11,7 @@ import { ProfileView } from './components/ProfileView';
 import { DRESimulatorView } from './components/DRESimulatorView';
 import { DRERitualMatrixView } from './components/DRERitualMatrixView';
 import { InstructorPortfolioView } from './components/InstructorPortfolioView';
+import { ManagerToolsView } from './components/ManagerToolsView';
 import { SlideQuestionModal } from './components/SlideQuestionModal';
 import { OAuthLoginModal } from './components/OAuthLoginModal';
 import { AITutorChat } from './components/AITutorChat';
@@ -24,6 +25,7 @@ export default function App() {
   const [certificates, setCertificates] = useState<Certificate[]>(INITIAL_CERTIFICATES);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [managerActiveTab, setManagerActiveTab] = useState<'students' | 'trainings' | 'certificates' | 'settings' | 'logs'>('students');
 
   // OAuth Authentication State
   const [oauthUser, setOauthUser] = useState<OAuthUser | null>(() => {
@@ -110,8 +112,11 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSelectView = (view: ViewMode) => {
+  const handleSelectView = (view: ViewMode, subTab?: string) => {
     setCurrentView(view);
+    if (view === 'manager' && subTab) {
+      setManagerActiveTab(subTab as any);
+    }
     if (view === 'lesson') {
       setIsSidebarCollapsed(true);
     }
@@ -173,6 +178,7 @@ export default function App() {
       {/* Sidebar navigation */}
       <Sidebar
         currentView={currentView}
+        managerActiveTab={managerActiveTab}
         onSelectView={handleSelectView}
         onOpenProModal={() => setIsProModalOpen(true)}
         isCollapsed={isSidebarCollapsed}
@@ -252,6 +258,20 @@ export default function App() {
             onRegisterCertificate={handleRegisterCertificate}
             onSelectLessonView={() => handleSelectView('lesson')}
             onOpenCertificateModal={(cert) => setSelectedCertificate(cert)}
+          />
+        )}
+
+        {currentView === 'manager' && (
+          <ManagerToolsView
+            courses={courses}
+            certificates={certificates}
+            onRegisterCertificate={handleRegisterCertificate}
+            onSelectView={handleSelectView}
+            onOpenCertificateModal={(cert) => setSelectedCertificate(cert)}
+            oauthUser={oauthUser}
+            activeTab={managerActiveTab}
+            onTabChange={(tab) => setManagerActiveTab(tab)}
+            onUpdateCourses={(updated) => setCourses(updated)}
           />
         )}
       </div>

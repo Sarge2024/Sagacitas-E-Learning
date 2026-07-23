@@ -1,10 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ViewMode } from '../types';
-import { LayoutDashboard, GraduationCap, User, Sparkles, Calculator, Layers, ChevronLeft, ChevronRight, Menu, Inbox, HelpCircle } from 'lucide-react';
+import {
+  LayoutDashboard,
+  GraduationCap,
+  User,
+  Sparkles,
+  Calculator,
+  Layers,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Menu,
+  Inbox,
+  HelpCircle,
+  ShieldCheck,
+  Users,
+  BookOpen,
+  Award,
+  Sliders,
+} from 'lucide-react';
 
 interface SidebarProps {
   currentView: ViewMode;
-  onSelectView: (view: ViewMode) => void;
+  managerActiveTab?: string;
+  onSelectView: (view: ViewMode, managerTab?: string) => void;
   onOpenProModal: () => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -13,12 +32,14 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({
   currentView,
+  managerActiveTab = 'students',
   onSelectView,
   onOpenProModal,
   isCollapsed = false,
   onToggleCollapse,
   pendingQuestionsCount = 1,
 }) => {
+  const [isManagerMenuOpen, setIsManagerMenuOpen] = useState(true);
   return (
     <aside
       id="main-sidebar"
@@ -143,6 +164,83 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </span>
           )}
         </button>
+
+        {/* Menu Gestor with expandable submenus */}
+        <div className="space-y-1">
+          <button
+            id="nav-manager-btn"
+            onClick={() => {
+              if (currentView !== 'manager') {
+                onSelectView('manager', 'students');
+              }
+              setIsManagerMenuOpen(!isManagerMenuOpen);
+            }}
+            title={isCollapsed ? 'Menu Gestor' : undefined}
+            className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-200 ${
+              isCollapsed ? 'justify-center' : 'text-left'
+            } ${
+              currentView === 'manager'
+                ? 'text-[#2fd9f4] border-l-4 border-[#2fd9f4] bg-white/5 font-semibold shadow-[0_0_15px_rgba(47,217,244,0.15)]'
+                : 'text-[#c7c4d7] hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <ShieldCheck className="w-5 h-5 shrink-0 text-[#2fd9f4]" />
+              {!isCollapsed && <span className="text-sm font-medium truncate">Menu Gestor</span>}
+            </div>
+            {!isCollapsed && (
+              <ChevronDown
+                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                  isManagerMenuOpen ? 'rotate-180' : ''
+                }`}
+              />
+            )}
+          </button>
+
+          {/* Submenus under Menu Gestor */}
+          {!isCollapsed && isManagerMenuOpen && (
+            <div className="pl-4 space-y-1 py-1 border-l-2 border-[#2fd9f4]/20 ml-5 animate-fadeIn">
+              <button
+                id="nav-manager-sub-alunos"
+                onClick={() => onSelectView('manager', 'students')}
+                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2.5 transition-all cursor-pointer ${
+                  currentView === 'manager' && managerActiveTab === 'students'
+                    ? 'text-[#2fd9f4] bg-[#2fd9f4]/15 border border-[#2fd9f4]/30 font-bold'
+                    : 'text-[#c7c4d7] hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5 shrink-0 text-[#2fd9f4]" />
+                <span className="truncate">Alunos</span>
+              </button>
+
+              <button
+                id="nav-manager-sub-trainings"
+                onClick={() => onSelectView('manager', 'trainings')}
+                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2.5 transition-all cursor-pointer ${
+                  currentView === 'manager' && managerActiveTab === 'trainings'
+                    ? 'text-[#2fd9f4] bg-[#2fd9f4]/15 border border-[#2fd9f4]/30 font-bold'
+                    : 'text-[#c7c4d7] hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5 shrink-0 text-[#8083ff]" />
+                <span className="truncate">Gestão de Treinamentos</span>
+              </button>
+
+              <button
+                id="nav-manager-sub-certs"
+                onClick={() => onSelectView('manager', 'certificates')}
+                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2.5 transition-all cursor-pointer ${
+                  currentView === 'manager' && managerActiveTab === 'certificates'
+                    ? 'text-[#2fd9f4] bg-[#2fd9f4]/15 border border-[#2fd9f4]/30 font-bold'
+                    : 'text-[#c7c4d7] hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Award className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                <span className="truncate">Certificados</span>
+              </button>
+            </div>
+          )}
+        </div>
 
         <button
           id="nav-profile-btn"
