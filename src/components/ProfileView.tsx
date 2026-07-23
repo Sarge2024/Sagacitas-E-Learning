@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Certificate } from '../types';
+import { Certificate, OAuthUser } from '../types';
 import { USER_PROFILE, INITIAL_CERTIFICATES } from '../data/coursesData';
 import { Award, BookOpen, Clock, ShieldCheck, Download, ExternalLink, Sparkles, CheckCircle2 } from 'lucide-react';
 
@@ -7,15 +7,25 @@ interface ProfileViewProps {
   certificates: Certificate[];
   onOpenCertificateModal: (cert: Certificate) => void;
   onOpenProModal: () => void;
+  oauthUser: OAuthUser | null;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
   certificates,
   onOpenCertificateModal,
   onOpenProModal,
+  oauthUser,
 }) => {
+  const displayName = oauthUser?.name || USER_PROFILE.name;
+  const displayEmail = oauthUser?.email || USER_PROFILE.email;
+  const displayAvatar = oauthUser?.avatar || USER_PROFILE.avatar;
+  const displayRole = oauthUser?.role || USER_PROFILE.role;
+  const companyName = oauthUser?.company_name || 'Nenhuma (Inscrição Individual)';
+  const enrollmentType = oauthUser?.enrollment_type === 'corporate' ? 'Empresarial (B2B)' : 'Individual (B2C)';
+  const enrollmentNumber = oauthUser?.enrollment_number || 'Não matriculado em turmas vigentes';
+
   const userCertificates = certificates.filter(
-    (c) => !c.studentName || c.studentName === USER_PROFILE.name || c.studentEmail === USER_PROFILE.email
+    (c) => !c.studentName || c.studentName === displayName || c.studentEmail === displayEmail
   );
   const displayCertificates = userCertificates.length > 0 ? userCertificates : certificates;
 
@@ -27,8 +37,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="relative">
             <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-[#1890ff] p-1 shadow-2xs">
               <img
-                src={USER_PROFILE.avatar}
-                alt={USER_PROFILE.name}
+                src={displayAvatar}
+                alt={displayName}
                 className="w-full h-full object-cover rounded-full"
               />
             </div>
@@ -37,16 +47,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </span>
           </div>
 
-          <div className="flex-1 text-center md:text-left space-y-1">
+          <div className="flex-1 text-center md:text-left space-y-2">
             <div className="flex flex-col md:flex-row md:items-center gap-2">
-              <h2 className="text-2xl font-black text-slate-900">{USER_PROFILE.name}</h2>
+              <h2 className="text-2xl font-black text-slate-900">{displayName}</h2>
               <span className="px-2.5 py-0.5 bg-blue-50 border border-blue-200 text-[#1890ff] text-xs font-bold rounded w-fit mx-auto md:mx-0">
                 Aluno Sagacitas Pro
               </span>
             </div>
 
-            <p className="text-xs text-slate-600 font-bold">{USER_PROFILE.role}</p>
-            <p className="text-xs text-slate-500 font-medium">{USER_PROFILE.email}</p>
+            <p className="text-xs text-slate-600 font-bold">{displayRole}</p>
+            <p className="text-xs text-slate-500 font-medium">{displayEmail}</p>
+
+            {/* Container com dados do banco de dados */}
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 bg-slate-50 p-3.5 rounded border border-slate-200 text-left max-w-lg mx-auto md:mx-0 font-medium">
+              <div><strong>🏢 Empresa:</strong> {companyName}</div>
+              <div><strong>🎟️ Inscrição:</strong> {enrollmentType}</div>
+              <div className="sm:col-span-2"><strong>🔢 Matrícula:</strong> <code className="text-[#1890ff] font-mono font-bold">{enrollmentNumber}</code></div>
+            </div>
           </div>
 
           <button

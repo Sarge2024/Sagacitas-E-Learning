@@ -5,7 +5,7 @@ import { GoogleGenAI } from "@google/genai";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT) : 12000;
 
   app.use(express.json());
 
@@ -369,7 +369,12 @@ Responda de forma direta e estruturada (2 a 4 parágrafos) focando em aplicaçã
   // Vite development middleware or Static server
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        hmr: {
+          port: 12001
+        }
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);
@@ -382,7 +387,7 @@ Responda de forma direta e estruturada (2 a 4 parágrafos) focando em aplicaçã
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Lumina Academy Server running on http://0.0.0.0:${PORT}`);
+    console.log(`Sagacitas E-Learning Server running on http://0.0.0.0:${PORT}`);
   });
 }
 

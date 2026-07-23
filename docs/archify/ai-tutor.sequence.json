@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "AI Tutor Request Sequence",
+    "subtitle": "Flow including auth verification, prompt caching, Gemini fallback, and observability",
+    "output": "ai-tutor-sequence.html",
+    "viewBox": [820, 760],
+    "animation": "trace",
+    "quality_profile": "standard",
+    "views": [
+      { "id": "request-and-auth", "label": "Request and Auth", "focus": ["student", "spa", "api", "auth"], "note": "Student initiates a tutor request and session is verified." },
+      { "id": "cache-fallback", "label": "Cache Fallback", "focus": ["api", "cache", "gemini"], "note": "Check cache for previous identical prompts, fallback to Gemini AI on miss." },
+      { "id": "return-and-trace", "label": "Return and Trace", "focus": ["gemini", "api", "cache", "trace", "spa", "student"], "note": "Return answer to user, persist to cache, and asynchronously log the event." }
+    ]
+  },
+  "participants": [
+    { "id": "student", "type": "external", "label": "Student", "sublabel": "Browser" },
+    { "id": "spa", "type": "frontend", "label": "React SPA", "sublabel": "Web App" },
+    { "id": "api", "type": "backend", "label": "Express API", "sublabel": "Tutor Route" },
+    { "id": "auth", "type": "security", "label": "Auth Layer", "sublabel": "Session/JWT" },
+    { "id": "cache", "type": "database", "label": "Cache", "sublabel": "Prompt Hash" },
+    { "id": "gemini", "type": "cloud", "label": "Gemini AI", "sublabel": "GenAI Model" },
+    { "id": "trace", "type": "messagebus", "label": "Trace Logs", "sublabel": "Async Event" }
+  ],
+  "segments": [
+    { "from": 150, "to": 295, "label": "Request & Auth" },
+    { "from": 315, "to": 505, "label": "Cache & AI Fallback" },
+    { "from": 525, "to": 665, "label": "Response & Observability" }
+  ],
+  "messages": [
+    { "id": "ask-question", "from": "student", "to": "spa", "y": 185, "label": "submit question", "variant": "default" },
+    { "id": "api-request", "from": "spa", "to": "api", "y": 228, "label": "POST /api/tutor", "variant": "emphasis" },
+    { "id": "verify-session", "from": "api", "to": "auth", "y": 270, "label": "verify session", "variant": "security" },
+    { "id": "auth-ok", "from": "auth", "to": "api", "y": 305, "label": "session valid", "variant": "return" },
+    
+    { "id": "cache-read", "from": "api", "to": "cache", "y": 354, "label": "check prompt hash", "variant": "default" },
+    { "id": "cache-miss", "from": "cache", "to": "api", "y": 391, "label": "cache miss", "variant": "return" },
+    { "id": "gemini-prompt", "from": "api", "to": "gemini", "y": 443, "label": "generateContent", "variant": "emphasis" },
+    { "id": "gemini-response", "from": "gemini", "to": "api", "y": 489, "label": "AI response", "variant": "return" },
+    
+    { "id": "cache-write", "from": "api", "to": "cache", "y": 536, "label": "save prompt result", "variant": "dashed" },
+    { "id": "trace-emit", "from": "api", "to": "trace", "y": 580, "label": "emit QA event", "variant": "dashed" },
+    
+    { "id": "api-response", "from": "api", "to": "spa", "y": 625, "label": "200 JSON reply", "variant": "return" },
+    { "id": "page-render", "from": "spa", "to": "student", "y": 662, "label": "render chat bubble", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "spa", "from": 220, "to": 668, "type": "frontend" },
+    { "participant": "api", "from": 228, "to": 632, "type": "backend" },
+    { "participant": "auth", "from": 265, "to": 310, "type": "security" },
+    { "participant": "cache", "from": 349, "to": 398, "type": "database" },
+    { "participant": "gemini", "from": 438, "to": 496, "type": "cloud" },
+    { "participant": "trace", "from": 575, "to": 630, "type": "messagebus" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Primary AI Request Path",
+      "items": [
+        "The flow follows strict sequence: authentication, caching, external call, then response.",
+        "Clear activation bars represent the duration each service holds responsibility."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Fallback Mechanism",
+      "items": [
+        "The system attempts to resolve identical prompts using a cache first.",
+        "On cache miss, it seamlessly falls back to querying the Google Gemini GenAI API."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Asynchronous Observability",
+      "items": [
+        "Writing the prompt cache and emitting telemetry events are handled asynchronously.",
+        "These operations are dashed to show they do not block returning the AI response."
+      ]
+    }
+  ]
+}

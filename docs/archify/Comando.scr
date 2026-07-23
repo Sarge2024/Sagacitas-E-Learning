@@ -1,0 +1,9 @@
+Analise este repositório e, em seguida, utilize o Archify para atualizar ou criar um diagrama de arquitetura de alto nível. Inclua de 8 a 12 componentes principais de tempo de execução, um fluxo principal de solicitação ou de dados, dependências externas e limites de propriedade ou de confiança; além disso, coloque detalhes de suporte em cartões, em vez de adicionar mais conexões.
+
+Utilize o modo de fluxo de trabalho do Archify para explicar este ciclo de chamada de ferramentas pelo agente. Organize a interface do usuário, o tempo de execução do agente, o limite de políticas, o tratamento de exceções, a execução de ferramentas e a observabilidade em raias distintas. Destaque o caminho de sucesso como principal e apresente explicitamente os caminhos de aprovação, nova tentativa, bloqueio e evidência.
+
+Utilize o modo de sequência do Archify para ilustrar o fluxo, desde a solicitação do chamador até a resposta final. Inclua autenticação, ocorrência ou não de *cache hit*, *fallback* de persistência, mensagens de retorno e rastreamento assíncrono ou emissão de eventos. Mantenha os rótulos das mensagens concisos e a ordem inequívoca.
+
+Utilize o modo de fluxo de dados do Archify para desenhar esta topologia de fluxo de eventos. Nomeie produtores, eventos, tópicos, processadores ordenados, grupos de consumidores, armazenamentos de estado, caminhos de reexecução e a DLQ. Indique a propriedade e a semântica de entrega apenas quando houver evidências que as sustentem.
+
+Use Archify lifecycle mode to model this object. Separate main progress, waiting or interruption states, and terminal outcomes. Label transitions with events, include retry, cancellation, timeout, success, and failure where real, and never hide an ending.

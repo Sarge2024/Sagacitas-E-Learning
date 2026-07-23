@@ -84,12 +84,25 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                   {course.badge}
                 </span>
               )}
+
+              {course.status && course.status !== 'active' && (
+                <span className="absolute top-4 right-4 bg-red-500/30 border border-red-500/50 text-red-200 text-[10px] uppercase font-extrabold tracking-widest px-3 py-1 rounded-full backdrop-blur-md">
+                  {course.status === 'blocked' ? 'Bloqueado' : 'Cancelado'}
+                </span>
+              )}
             </div>
 
             <div className="p-4 flex flex-col flex-1">
-              <span className="text-[10px] text-[#1890ff] uppercase font-black tracking-wider mb-1">
-                {course.category}
-              </span>
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="text-[10px] text-[#1890ff] uppercase font-black tracking-wider">
+                  {course.category}
+                </span>
+                {course.course_code && (
+                  <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-700 text-[9px] font-mono rounded font-bold">
+                    {course.course_code}
+                  </span>
+                )}
+              </div>
 
               <h3 className="text-sm font-extrabold text-slate-900 mb-1 line-clamp-2">
                 {course.title}
@@ -130,13 +143,25 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                   </div>
                 )}
 
-                <button
-                  id={`access-course-btn-${course.id}`}
-                  onClick={() => onSelectCourse(course)}
-                  className="w-full py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold transition-all text-xs uppercase tracking-wider active:scale-98 shadow-2xs cursor-pointer"
-                >
-                  {course.progress > 0 ? 'Continuar Aprendendo' : 'Acessar Curso'}
-                </button>
+                {(() => {
+                  const isBlockedOrCancelled = course.status === 'blocked' || course.status === 'cancelled';
+                  return (
+                    <button
+                      id={`access-course-btn-${course.id}`}
+                      disabled={isBlockedOrCancelled}
+                      onClick={() => onSelectCourse(course)}
+                      className={`w-full py-2 rounded font-bold transition-all text-xs uppercase tracking-wider active:scale-98 shadow-2xs ${
+                        isBlockedOrCancelled
+                          ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                          : 'bg-[#1890ff] hover:bg-[#096dd9] text-white cursor-pointer'
+                      }`}
+                    >
+                      {isBlockedOrCancelled 
+                        ? 'Curso Indisponível' 
+                        : course.progress > 0 ? 'Continuar Aprendendo' : 'Acessar Curso'}
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           </div>
