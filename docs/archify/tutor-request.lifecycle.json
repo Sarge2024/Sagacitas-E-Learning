@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Tutor Request Lifecycle",
+    "subtitle": "State machine for AI Tutor requests: progress, interruptions, retries, and outcomes",
+    "output": "tutor-request-lifecycle.html",
+    "viewBox": [980, 660],
+    "animation": "trace",
+    "quality_profile": "standard",
+    "views": [
+      { "id": "main-lifecycle", "label": "Main Path", "focus": ["queued", "verifying", "generating", "persisting", "completed"], "note": "Follow the ordered phases from request intake to response delivery." },
+      { "id": "interruptions", "label": "Interruptions", "focus": ["generating", "rate_limited", "verifying", "blocked"], "note": "See where the request pauses or gets blocked by policy/limits." },
+      { "id": "exits-and-retries", "label": "Exits & Retries", "focus": ["generating", "failed", "blocked", "cancelled", "expired"], "note": "Terminal outcomes (cancelled, expired) and retryable failures." }
+    ]
+  },
+  "lanes": [
+    { "id": "main", "label": "Progress Phases" },
+    { "id": "waiting", "label": "Interruptions & Errors" },
+    { "id": "terminal", "label": "Final Outcomes" }
+  ],
+  "states": [
+    { "id": "queued", "type": "start", "label": "Queued", "sublabel": "request received", "lane": "main", "col": 0, "step": "01", "tag": "entry" },
+    { "id": "verifying", "type": "active", "label": "Verifying", "sublabel": "auth & cache", "lane": "main", "col": 1, "step": "02", "tag": "security" },
+    { "id": "generating", "type": "active", "label": "Generating", "sublabel": "gemini ai", "lane": "main", "col": 2, "step": "03", "tag": "work" },
+    { "id": "persisting", "type": "active", "label": "Persisting", "sublabel": "cache & trace", "lane": "main", "col": 3, "step": "04", "tag": "async" },
+    { "id": "completed", "type": "success", "label": "Completed", "sublabel": "response sent", "lane": "main", "col": 4, "step": "05", "tag": "success" },
+    
+    { "id": "blocked", "type": "waiting", "label": "Blocked", "sublabel": "policy pause", "lane": "waiting", "col": 0, "tag": "consent" },
+    { "id": "rate_limited", "type": "waiting", "label": "Rate Limited", "sublabel": "api backoff", "lane": "waiting", "col": 1, "tag": "wait" },
+    { "id": "failed", "type": "failure", "label": "Failed", "sublabel": "api error", "lane": "waiting", "col": 2, "tag": "retryable" },
+    
+    { "id": "cancelled", "type": "failure", "label": "Cancelled", "sublabel": "user aborted", "lane": "terminal", "col": 0, "tag": "terminal" },
+    { "id": "expired", "type": "failure", "label": "Expired", "sublabel": "timeout", "lane": "terminal", "col": 2, "tag": "terminal" }
+  ],
+  "transitions": [
+    { "id": "verify-blocked", "from": "verifying", "to": "blocked", "label": "policy flag", "variant": "security", "route": "auto" },
+    { "id": "gen-limited", "from": "generating", "to": "rate_limited", "label": "429 Too Many", "variant": "security", "route": "drop", "labelDy": 24 },
+    { "id": "gen-failed", "from": "generating", "to": "failed", "label": "500 Error", "variant": "security", "route": "auto", "labelAt": [554, 202] },
+    { "id": "retry-attempt", "from": "failed", "to": "generating", "label": "retry (3x)", "variant": "dashed", "route": "auto", "labelDy": 20 },
+    { "id": "queue-cancel", "from": "queued", "to": "cancelled", "label": "abort()", "variant": "security", "fromSide": "left", "toSide": "left", "route": "left-channel", "labelDy": -20 },
+    { "id": "limit-expired", "from": "rate_limited", "to": "expired", "label": "timeout", "variant": "security", "route": "auto" },
+    { "id": "fail-expired", "from": "failed", "to": "expired", "label": "max retries", "variant": "security", "route": "drop", "labelDy": 24 }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Main Request Lifecycle",
+      "items": [
+        "The flow strictly progresses through queueing, verification, generation, and persistence.",
+        "The final success state (Completed) sits naturally at the end of the rail."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Waiting & Interruption",
+      "items": [
+        "Requests can be paused dynamically for policy blocks or rate limits.",
+        "Waiting states allow for resumption instead of immediate failure."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Recovery & Exits",
+      "items": [
+        "Transient 500 errors loop through a retryable 'Failed' state up to 3 times.",
+        "Terminal outcomes (Cancelled, Expired) permanently exit the state machine."
+      ]
+    }
+  ]
+}

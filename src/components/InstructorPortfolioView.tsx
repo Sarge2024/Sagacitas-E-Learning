@@ -23,6 +23,8 @@ import {
   ShieldCheck,
   ExternalLink,
   Download,
+  Users,
+  Calendar,
 } from 'lucide-react';
 
 interface InstructorPortfolioViewProps {
@@ -44,7 +46,46 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
   onSelectLessonView,
   onOpenCertificateModal,
 }) => {
-  const [activeTab, setActiveTab] = useState<'duvidas' | 'certificados'>('duvidas');
+  const [activeTab, setActiveTab] = useState<'duvidas' | 'certificados' | 'turmas'>('duvidas');
+
+  const mockClasses = [
+    {
+      id: 'c-1',
+      title: 'Turma DRE Alfa - Julho 2026',
+      courseTitle: 'Alchymist Manager | Dominando a DRE do Restaurante',
+      disciplineTitle: 'Mapeamento de CMV e Lucro Bruto',
+      startDate: '2026-07-01',
+      endDate: '2026-07-31',
+      maxStudents: 100,
+      enrolledCount: 78,
+      status: 'active',
+      instructorConfirmed: true,
+    },
+    {
+      id: 'c-2',
+      title: 'Turma Engenharia Beta - 2026.2',
+      courseTitle: 'Engenharia de Cardápio e Precificação para Restaurantes',
+      disciplineTitle: 'Precificação Científica e Margem de Contribuição',
+      startDate: '2026-08-01',
+      endDate: '2026-10-31',
+      maxStudents: 100,
+      enrolledCount: 42,
+      status: 'planned',
+      instructorConfirmed: true,
+    },
+    {
+      id: 'c-3',
+      title: 'Turma Gestão Operacional Histórico',
+      courseTitle: 'Gestão de Compras, Fichas Técnicas e Controle de Estoque',
+      disciplineTitle: 'Giro de Estoque e Auditoria de Insumos',
+      startDate: '2026-01-01',
+      endDate: '2026-04-30',
+      maxStudents: 100,
+      enrolledCount: 100,
+      status: 'completed',
+      instructorConfirmed: false,
+    }
+  ];
   const [filterStatus, setFilterStatus] = useState<'todas' | 'pendente' | 'respondida'>('todas');
   const [searchQuery, setSearchQuery] = useState('');
   const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
@@ -250,6 +291,18 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
         >
           <Award className="w-4 h-4 text-[#8083ff]" />
           <span>Gestão & Cadastro de Certificados ({certificates.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('turmas')}
+          className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+            activeTab === 'turmas'
+              ? 'bg-slate-900 text-white shadow-md'
+              : 'bg-white text-slate-600 hover:bg-slate-200 border border-slate-200'
+          }`}
+        >
+          <Users className="w-4 h-4 text-indigo-500" />
+          <span>Minhas Turmas Virtuais ({mockClasses.length})</span>
         </button>
       </div>
 
@@ -535,6 +588,99 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: MINHAS TURMAS VIRTUAIS */}
+      {activeTab === 'turmas' && (
+        <div className="space-y-6 animate-fade-in">
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-1">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <Users className="w-5 h-5 text-indigo-600" />
+                <span>Gestão de Turmas Virtuais (Cohorts)</span>
+              </h3>
+              <p className="text-xs text-slate-500">
+                Acompanhe o fluxo de alunos matriculados, as datas de início e fim da turma e a confirmação de continuidade do instrutor.
+              </p>
+            </div>
+            <div className="text-xs text-slate-400 font-medium bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl">
+              Limite técnico padrão: <strong>100 alunos por turma</strong>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {mockClasses.map((item) => {
+              const capPercent = Math.min(100, Math.round((item.enrolledCount / item.maxStudents) * 100));
+              const isFull = item.enrolledCount >= item.maxStudents;
+              
+              return (
+                <div key={item.id} className="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col justify-between space-y-6 shadow-xs hover:shadow-md transition-all">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase font-extrabold tracking-wider ${
+                        item.status === 'active' 
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                          : item.status === 'planned'
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200'
+                      }`}>
+                        {item.status === 'active' ? 'Ativa / Vigente' : item.status === 'planned' ? 'Planejada' : 'Concluída'}
+                      </span>
+                      
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 ${
+                        item.instructorConfirmed 
+                          ? 'bg-indigo-50 text-indigo-700 border border-indigo-150' 
+                          : 'bg-amber-50 text-amber-700 border border-amber-150'
+                      }`}>
+                        {item.instructorConfirmed ? '✓ Continuidade Confirmada' : '⚠️ Confirmação Pendente'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h4 className="text-base font-black text-slate-900 leading-tight">{item.title}</h4>
+                      <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider mt-1">{item.courseTitle}</p>
+                      <p className="text-xs text-slate-500 mt-1 font-medium">Disciplina: {item.disciplineTitle}</p>
+                    </div>
+
+                    <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-150 text-[11px] text-slate-600 font-medium">
+                      <Calendar className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                      <span>
+                        Validade: {new Date(item.startDate).toLocaleDateString('pt-BR')} até {new Date(item.endDate).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 border-t border-slate-100 pt-4">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-slate-500 font-medium">Alunos Matriculados:</span>
+                      <strong className={`${isFull ? 'text-red-600' : 'text-slate-800'}`}>
+                        {item.enrolledCount} / {item.maxStudents} {isFull && '(Lotada)'}
+                      </strong>
+                    </div>
+
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${isFull ? 'bg-red-500' : 'bg-indigo-600'}`}
+                        style={{ width: `${capPercent}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button className="flex-1 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all">
+                      Gerenciar Alunos
+                    </button>
+                    {!item.instructorConfirmed && (
+                      <button className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-250 rounded-xl font-bold text-xs">
+                        Confirmar Período
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

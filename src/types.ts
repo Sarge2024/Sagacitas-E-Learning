@@ -96,6 +96,8 @@ export interface Course {
   totalHours?: string;
   level?: 'Iniciante' | 'Intermediário' | 'Avançado';
   modules?: Module[];
+  course_code?: string;
+  status?: 'active' | 'blocked' | 'cancelled';
 }
 
 export interface Certificate {
@@ -141,5 +143,110 @@ export interface OAuthUser {
   role: string;
   authenticatedAt: string;
   token?: string;
+  company_name?: string;
+  enrollment_type?: string;
+  enrollment_number?: string;
 }
+
+// Database Entities (Supabase Schema Alignment)
+export interface DBCompany {
+  id: string;
+  name: string;
+  cnpj?: string;
+  domain?: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBCourseCategory {
+  id: string;
+  code: string; // 3-digit code format
+  name: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBCourse {
+  id: string;
+  title: string;
+  course_code?: string;
+  category_id?: string;
+  level?: string;
+  description?: string;
+  duration_minutes?: number;
+  status: 'active' | 'blocked' | 'cancelled';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBDiscipline {
+  id: string;
+  course_id: string;
+  title: string;
+  sequence_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBLesson {
+  id: string;
+  title: string;
+  content?: string;
+  video_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBDisciplineLesson {
+  id: string;
+  discipline_id: string;
+  lesson_id: string;
+  sequence_order: number;
+  created_at: string;
+}
+
+export interface DBQuestion {
+  id: string;
+  lesson_id: string;
+  question_type: 'multiple_choice' | 'true_false' | 'association' | 'fill_blanks' | 'discursive' | 'case_study';
+  statement: string;
+  metadata: Record<string, any>;
+  correct_answer?: any;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBInstructor {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  email: string;
+  avatar_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBClass {
+  id: string;
+  discipline_id: string;
+  instructor_id: string;
+  title: string;
+  start_date: string;
+  end_date: string;
+  max_students: number;
+  status: 'planned' | 'active' | 'completed' | 'cancelled';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBClassEnrollment {
+  id: string;
+  class_id: string;
+  student_id: string;
+  enrollment_date: string;
+  enrollment_number?: string;
+}
+
 

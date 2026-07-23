@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Certificate } from '../types';
+import { Certificate, OAuthUser } from '../types';
 import { USER_PROFILE, INITIAL_CERTIFICATES } from '../data/coursesData';
 import { Award, BookOpen, Clock, ShieldCheck, Download, ExternalLink, Sparkles, CheckCircle2 } from 'lucide-react';
 
@@ -7,15 +7,25 @@ interface ProfileViewProps {
   certificates: Certificate[];
   onOpenCertificateModal: (cert: Certificate) => void;
   onOpenProModal: () => void;
+  oauthUser: OAuthUser | null;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
   certificates,
   onOpenCertificateModal,
   onOpenProModal,
+  oauthUser,
 }) => {
+  const displayName = oauthUser?.name || USER_PROFILE.name;
+  const displayEmail = oauthUser?.email || USER_PROFILE.email;
+  const displayAvatar = oauthUser?.avatar || USER_PROFILE.avatar;
+  const displayRole = oauthUser?.role || USER_PROFILE.role;
+  const companyName = oauthUser?.company_name || 'Nenhuma (Inscrição Individual)';
+  const enrollmentType = oauthUser?.enrollment_type === 'corporate' ? 'Empresarial (B2B)' : 'Individual (B2C)';
+  const enrollmentNumber = oauthUser?.enrollment_number || 'Não matriculado em turmas vigentes';
+
   const userCertificates = certificates.filter(
-    (c) => !c.studentName || c.studentName === USER_PROFILE.name || c.studentEmail === USER_PROFILE.email
+    (c) => !c.studentName || c.studentName === displayName || c.studentEmail === displayEmail
   );
   const displayCertificates = userCertificates.length > 0 ? userCertificates : certificates;
 
@@ -27,8 +37,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="relative">
             <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-[#2fd9f4] p-1 shadow-[0_0_25px_rgba(47,217,244,0.3)]">
               <img
-                src={USER_PROFILE.avatar}
-                alt={USER_PROFILE.name}
+                src={displayAvatar}
+                alt={displayName}
                 className="w-full h-full object-cover rounded-full"
               />
             </div>
@@ -39,20 +49,27 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
           <div className="flex-1 text-center md:text-left space-y-2">
             <div className="flex flex-col md:flex-row md:items-center gap-3">
-              <h2 className="text-3xl font-extrabold text-[#dae2fd]">{USER_PROFILE.name}</h2>
+              <h2 className="text-3xl font-extrabold text-[#dae2fd]">{displayName}</h2>
               <span className="px-3 py-1 bg-[#2fd9f4]/20 border border-[#2fd9f4]/30 text-[#2fd9f4] text-xs font-bold rounded-full w-fit mx-auto md:mx-0">
                 Sagacitas Pro Member
               </span>
             </div>
 
-            <p className="text-sm text-[#c7c4d7] font-medium">{USER_PROFILE.role}</p>
-            <p className="text-xs text-[#c7c4d7]/60">{USER_PROFILE.email}</p>
+            <p className="text-sm text-[#c7c4d7] font-medium">{displayRole}</p>
+            <p className="text-xs text-[#c7c4d7]/60">{displayEmail}</p>
+
+            {/* Novo container com dados de banco de dados */}
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[#c7c4d7]/80 bg-white/5 p-4 rounded-2xl border border-white/5 text-left max-w-lg mx-auto md:mx-0">
+              <div><strong>🏢 Empresa:</strong> {companyName}</div>
+              <div><strong>🎟️ Forma de Inscrição:</strong> {enrollmentType}</div>
+              <div className="sm:col-span-2"><strong>🔢 Número de Matrícula:</strong> <code className="text-[#2fd9f4] font-mono">{enrollmentNumber}</code></div>
+            </div>
           </div>
 
           <button
             id="profile-upgrade-btn"
             onClick={onOpenProModal}
-            className="px-6 py-3 bg-[#8083ff] hover:bg-[#6c70ff] text-[#0d0096] rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(128,131,255,0.3)] active:scale-95"
+            className="px-6 py-3 bg-[#8083ff] hover:bg-[#6c70ff] text-[#0d0096] rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(128,131,255,0.3)] active:scale-95 shrink-0"
           >
             <Sparkles className="w-4 h-4" />
             <span>Gerenciar Assinatura</span>

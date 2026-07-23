@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ViewMode, Course, Certificate, InstructorQuestion, Slide, OAuthUser } from './types';
-import { INITIAL_COURSES, INITIAL_CERTIFICATES } from './data/coursesData';
+import { INITIAL_CERTIFICATES } from './data/coursesData';
+import { INITIAL_COURSES } from './data/coursesData';
 import { INITIAL_INSTRUCTOR_QUESTIONS } from './data/instructorQuestionsData';
+import { useCoursesFromDB } from './hooks/useCoursesFromDB';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { DashboardView } from './components/DashboardView';
@@ -19,7 +21,7 @@ import { CertificateModal } from './components/CertificateModal';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
-  const [courses, setCourses] = useState<Course[]>(INITIAL_COURSES);
+  const { courses, setCourses, isLoading: isLoadingCourses, dataSource } = useCoursesFromDB();
   const [selectedCourse, setSelectedCourse] = useState<Course>(INITIAL_COURSES[0]);
   const [certificates, setCertificates] = useState<Certificate[]>(INITIAL_CERTIFICATES);
   const [searchQuery, setSearchQuery] = useState('');
@@ -236,6 +238,7 @@ export default function App() {
             certificates={certificates}
             onOpenCertificateModal={(cert) => setSelectedCertificate(cert)}
             onOpenProModal={() => setIsProModalOpen(true)}
+            oauthUser={oauthUser}
           />
         )}
 

@@ -85,12 +85,25 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                   {course.badge}
                 </span>
               )}
+
+              {course.status && course.status !== 'active' && (
+                <span className="absolute top-4 right-4 bg-red-500/30 border border-red-500/50 text-red-200 text-[10px] uppercase font-extrabold tracking-widest px-3 py-1 rounded-full backdrop-blur-md">
+                  {course.status === 'blocked' ? 'Bloqueado' : 'Cancelado'}
+                </span>
+              )}
             </div>
 
             <div className="p-6 flex flex-col flex-1">
-              <span className="text-[10px] text-[#2fd9f4] uppercase font-bold tracking-widest mb-1">
-                {course.category}
-              </span>
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="text-[10px] text-[#2fd9f4] uppercase font-bold tracking-widest">
+                  {course.category}
+                </span>
+                {course.course_code && (
+                  <span className="px-2 py-0.5 bg-white/5 border border-white/10 text-[#c7c4d7] text-[9px] font-mono rounded font-bold">
+                    {course.course_code}
+                  </span>
+                )}
+              </div>
 
               <h3 className="text-lg font-bold text-[#dae2fd] mb-2 line-clamp-2">
                 {course.title}
@@ -124,20 +137,32 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                     </div>
                     <div className="w-full h-1.5 bg-[#171f33] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#2fd9f4] rounded-full"
-                        style={{ width: `${course.progress}%` }}
+                         className="h-full bg-[#2fd9f4] rounded-full"
+                         style={{ width: `${course.progress}%` }}
                       ></div>
                     </div>
                   </div>
                 )}
 
-                <button
-                  id={`access-course-btn-${course.id}`}
-                  onClick={() => onSelectCourse(course)}
-                  className="w-full py-3 bg-[#8083ff] hover:bg-[#6c70ff] text-[#0d0096] rounded-xl font-bold transition-all text-xs uppercase tracking-wider active:scale-95 shadow-[0_0_15px_rgba(128,131,255,0.2)]"
-                >
-                  {course.progress > 0 ? 'Continuar Aprendendo' : 'Acessar Curso'}
-                </button>
+                {(() => {
+                  const isBlockedOrCancelled = course.status === 'blocked' || course.status === 'cancelled';
+                  return (
+                    <button
+                      id={`access-course-btn-${course.id}`}
+                      disabled={isBlockedOrCancelled}
+                      onClick={() => onSelectCourse(course)}
+                      className={`w-full py-3 rounded-xl font-bold transition-all text-xs uppercase tracking-wider active:scale-95 ${
+                        isBlockedOrCancelled
+                          ? 'bg-white/5 border border-white/10 text-white/40 cursor-not-allowed shadow-none'
+                          : 'bg-[#8083ff] hover:bg-[#6c70ff] text-[#0d0096] shadow-[0_0_15px_rgba(128,131,255,0.2)]'
+                      }`}
+                    >
+                      {isBlockedOrCancelled 
+                        ? 'Curso Indisponível' 
+                        : course.progress > 0 ? 'Continuar Aprendendo' : 'Acessar Curso'}
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           </div>

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Sagacitas Event Flow Topology",
+    "subtitle": "Event streams, topics, processors, state stores, and DLQ",
+    "output": "event-topology.html",
+    "viewBox": [1080, 780],
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "quality_profile": "standard",
+    "views": [
+      { "id": "tutor-transit", "label": "Tutor Event Transit", "focus": ["spa", "topic_interactions", "processor_audit", "state_history", "consumer_analytics"], "note": "Follow an interaction from producer to analytics." },
+      { "id": "failure-and-replay", "label": "Failure and Replay", "focus": ["processor_audit", "processor_enrich", "dlq", "replay", "ops"], "note": "Isolate dead letters and controlled replay ownership." }
+    ]
+  },
+  "stages": [
+    { "label": "Producers" },
+    { "label": "Transit" },
+    { "label": "Processors" },
+    { "label": "State + Recovery" },
+    { "label": "Consumers" }
+  ],
+  "nodes": [
+    { "id": "spa", "type": "frontend", "label": "Student SPA", "sublabel": "interaction producer", "stage": 0, "row": 0, "tag": "team frontend" },
+    { "id": "tutor_api", "type": "backend", "label": "Tutor API", "sublabel": "response producer", "stage": 0, "row": 2, "tag": "team ai" },
+    
+    { "id": "topic_interactions", "type": "messagebus", "label": "Interactions", "sublabel": "v1 (12 partitions)", "stage": 1, "row": 0, "tag": "key: session_id" },
+    { "id": "topic_responses", "type": "messagebus", "label": "Responses", "sublabel": "v1 (8 partitions)", "stage": 1, "row": 2, "tag": "key: session_id" },
+    
+    { "id": "processor_audit", "type": "backend", "label": "Audit Processor", "sublabel": "group security", "stage": 2, "row": 0, "tag": "ordered" },
+    { "id": "processor_enrich", "type": "backend", "label": "Context Enricher", "sublabel": "group context", "stage": 2, "row": 2, "tag": "at-least-once" },
+    
+    { "id": "state_history", "type": "database", "label": "Chat History", "sublabel": "materialized view", "stage": 3, "row": 1, "tag": "idempotent" },
+    { "id": "dlq", "type": "messagebus", "label": "events.dlq", "sublabel": "poison events", "stage": 3, "row": 4, "tag": "7-day retention" },
+    
+    { "id": "consumer_analytics", "type": "database", "label": "Analytics DB", "sublabel": "student metrics", "stage": 4, "row": 0, "tag": "consumer" },
+    { "id": "replay", "type": "security", "label": "Replay Tool", "sublabel": "approved batch", "stage": 4, "row": 4, "tag": "operator gate" },
+    { "id": "ops", "type": "external", "label": "Data Ops", "sublabel": "DLQ owner", "stage": 4, "row": 3, "yOffset": -18, "tag": "SRE" }
+  ],
+  "flows": [
+    { "from": "spa", "to": "topic_interactions", "label": "InteractionStarted", "classification": "schema v1", "variant": "emphasis", "route": "straight" },
+    { "from": "tutor_api", "to": "topic_responses", "label": "ResponseGenerated", "classification": "schema v1", "variant": "emphasis", "route": "straight" },
+    
+    { "from": "topic_interactions", "to": "processor_audit", "label": "raw interactions", "classification": "consumer group", "variant": "emphasis", "route": "straight" },
+    { "from": "topic_responses", "to": "processor_enrich", "label": "ai responses", "classification": "at-least-once", "variant": "emphasis", "route": "straight" },
+    
+    { "from": "processor_audit", "to": "state_history", "label": "audited event", "classification": "idempotent", "variant": "emphasis", "route": "vertical-channel" },
+    { "from": "processor_enrich", "to": "state_history", "label": "enriched response", "classification": "idempotent", "variant": "default", "route": "vertical-channel" },
+    
+    { "from": "state_history", "to": "consumer_analytics", "label": "history facts", "classification": "non-PII", "variant": "emphasis", "route": "vertical-channel" },
+    
+    { "from": "processor_audit", "to": "dlq", "label": "invalid event", "classification": "dead letter", "variant": "security", "fromSide": "top", "toSide": "top", "via": [[530, 80], [20, 80], [20, 550], [745, 550]], "labelAt": [300, 550] },
+    { "from": "processor_enrich", "to": "dlq", "label": "poison event", "classification": "dead letter", "variant": "security", "route": "bottom-channel", "labelDy": 30 },
+    
+    { "from": "dlq", "to": "ops", "label": "failure sample", "classification": "restricted", "variant": "security", "route": "vertical-channel" },
+    { "from": "dlq", "to": "replay", "label": "approved replay", "classification": "audited batch", "variant": "dashed", "route": "straight", "labelDy": 30 }
+  ],
+  "cards": [
+    { "dot": "amber", "title": "Transit Contract", "items": ["Events and topics are explicitly named.", "Partition keys (session_id) preserve per-session ordering.", "Consumer groups expose processing ownership."] },
+    { "dot": "emerald", "title": "State + Delivery", "items": ["Processors write to an idempotent materialized view.", "Analytics consume distinct assets from the view.", "At-least-once delivery implies robust idempotency checks."] },
+    { "dot": "rose", "title": "Failure Ownership", "items": ["Poison events land in a retained dead-letter topic (DLQ).", "Data Ops inspects samples before replay.", "Replay is gated, batched, and auditable via Replay Tool."] }
+  ]
+}

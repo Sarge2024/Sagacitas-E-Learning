@@ -33,9 +33,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <h1 className="text-lg font-extrabold text-[#dae2fd] tracking-tight truncate">
               Sagacitas E-Learning
             </h1>
-            <p className="text-[10px] text-[#2fd9f4] font-bold tracking-widest uppercase mt-0.5">
-              Alchymist Manager
-            </p>
           </div>
         ) : (
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2fd9f4] to-[#8083ff] flex items-center justify-center font-black text-black text-base shadow-lg shadow-[#2fd9f4]/20" title="Sagacitas E-Learning">

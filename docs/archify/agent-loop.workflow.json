@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Agent Tool-Call Loop",
+    "subtitle": "Interactive workflow explaining how the AI agent plans, executes, and records actions.",
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "quality_profile": "standard",
+    "output": "agent-loop-workflow.html",
+    "viewBox": [720, 900],
+    "views": [
+      {
+        "id": "happy-path",
+        "label": "Successful Execution Path",
+        "focus": ["user", "chat", "planner", "router", "approval", "tool", "final"],
+        "note": "Follow the primary successful request from user intent to final reply."
+      },
+      {
+        "id": "policy-handling",
+        "label": "Approval and Exceptions",
+        "focus": ["router", "approval", "blocked", "retry", "planner"],
+        "note": "See where risky operations pause for consent, fail, or trigger retries."
+      },
+      {
+        "id": "observability",
+        "label": "Evidence and Logs",
+        "focus": ["tool", "evidence", "trace", "store"],
+        "note": "Trace how tool results and evidence are durably logged for observability."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "ui", "label": "User Surface" },
+    { "id": "agent", "label": "Agent Runtime" },
+    { "id": "policy", "label": "Policy Boundary" },
+    { "id": "exceptions", "label": "Exception Handling", "variant": "exception" },
+    { "id": "tools", "label": "Tool Execution" },
+    { "id": "trace", "label": "Observability" }
+  ],
+  "phases": [
+    { "id": "intake", "label": "Intake", "fromCol": 0, "toCol": 1 },
+    { "id": "reasoning", "label": "Reasoning & Routing", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "execution", "label": "Execution & Feedback", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "agent_loop", "label": "Planning Loop", "lane": "agent", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "tool_work", "label": "Tool Work", "lane": "tools", "fromCol": 4, "toCol": 5, "variant": "dashed" },
+    { "id": "exception_path", "label": "Safety Blocks", "lane": "exceptions", "fromCol": 3, "toCol": 5, "variant": "security" }
+  ],
+  "mainPath": ["user", "chat", "planner", "router", "approval", "tool", "evidence", "final"],
+  "nodes": [
+    { "id": "user", "lane": "ui", "col": 0, "type": "external", "label": "User", "sublabel": "requests work" },
+    { "id": "chat", "lane": "ui", "col": 1, "type": "frontend", "label": "Chat Interface", "sublabel": "prompts & thread" },
+    { "id": "final", "lane": "ui", "col": 5, "type": "backend", "label": "Final Output", "sublabel": "rendered answer" },
+    
+    { "id": "planner", "lane": "agent", "col": 2, "type": "backend", "label": "Agent Planner", "sublabel": "context & intent", "tag": "LLM loop" },
+    { "id": "router", "lane": "agent", "col": 3, "type": "backend", "label": "Tool Router", "sublabel": "capability map" },
+    
+    { "id": "approval", "lane": "policy", "col": 3, "type": "security", "label": "Approval Gate", "sublabel": "user consent required", "tag": "risky ops" },
+    
+    { "id": "blocked", "lane": "exceptions", "col": 4, "type": "security", "label": "Blocked", "sublabel": "permission error" },
+    { "id": "retry", "lane": "exceptions", "col": 5, "type": "messagebus", "label": "Retry", "sublabel": "self-correction" },
+    
+    { "id": "tool", "lane": "tools", "col": 4, "type": "messagebus", "label": "Execute Tool", "sublabel": "shell / MCP / API", "tag": "structured" },
+    { "id": "evidence", "lane": "tools", "col": 5, "type": "cloud", "label": "Evidence", "sublabel": "STDOUT / errors" },
+    
+    { "id": "store", "lane": "trace", "col": 1, "type": "database", "label": "Context DB", "sublabel": "project memory" },
+    { "id": "trace", "lane": "trace", "col": 4, "type": "database", "label": "Audit Trace", "sublabel": "artifact logs" }
+  ],
+  "edges": [
+    { "id": "user-to-chat", "from": "user", "to": "chat", "variant": "default" },
+    { "id": "chat-to-plan", "from": "chat", "to": "planner", "label": "dispatch", "variant": "emphasis", "fromSide": "bottom", "toSide": "top", "route": "drop", "labelSegment": 1 },
+    
+    { "id": "plan-to-route", "from": "planner", "to": "router", "variant": "default" },
+    { "id": "route-to-policy", "from": "router", "to": "approval", "label": "evaluate risk", "variant": "security", "fromSide": "bottom", "toSide": "top", "route": "drop", "labelSegment": 0, "labelDx": 34, "labelDy": 18 },
+    
+    { "id": "policy-approved", "from": "approval", "to": "tool", "label": "approved", "variant": "emphasis", "fromSide": "left", "toSide": "left", "route": "return-left" },
+    { "id": "policy-denied", "from": "approval", "to": "blocked", "label": "denied", "variant": "security", "role": "error", "fromSide": "bottom", "toSide": "top", "route": "drop", "labelSegment": 1, "labelDy": 12 },
+    
+    { "id": "block-to-retry", "from": "blocked", "to": "retry", "variant": "dashed", "role": "branch" },
+    
+    { "id": "tool-to-evidence", "from": "tool", "to": "evidence", "variant": "default" },
+    
+    { "id": "evidence-to-trace", "from": "evidence", "to": "trace", "label": "log artifacts", "variant": "dashed", "fromSide": "bottom", "toSide": "bottom", "route": "bottom-channel", "labelSegment": 1 },
+    { "id": "store-to-trace", "from": "store", "to": "trace", "label": "memory dump", "variant": "dashed", "labelAt": [365, 735] },
+    
+    { "id": "evidence-to-final", "from": "evidence", "to": "final", "variant": "emphasis", "role": "return", "fromSide": "right", "toSide": "right", "route": "outside-right", "width": 1.2 },
+    { "id": "plan-to-final", "from": "planner", "to": "final", "label": "final response", "variant": "emphasis", "route": "auto" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Agent Execution Loop",
+      "items": [
+        "The agent planner drives continuous reasoning based on context and tool results.",
+        "Executions flow predictably and return structured evidence for the next iteration.",
+        "A final output is formulated once reasoning goals are satisfied."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Exception & Policy Safeguards",
+      "items": [
+        "Dangerous actions are gated by a strict policy boundary requiring user approval.",
+        "Denied executions are pushed into the exception lane where self-correction kicks in."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Full Observability",
+      "items": [
+        "The execution path operates distinctly from the durable trace memory.",
+        "Artifacts, STDOUT, and errors are cleanly logged outside the primary application hot-path."
+      ]
+    }
+  ]
+}
