@@ -97,28 +97,28 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({
       {isOpen && (
         <div
           id="ai-tutor-chat-window"
-          className="w-80 sm:w-96 mb-4 bg-[#171f33]/90 border border-white/15 backdrop-blur-2xl rounded-2xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex flex-col max-h-[500px] transition-all animate-in fade-in slide-in-from-bottom-5 duration-300"
+          className="w-80 sm:w-96 mb-4 bg-white border border-slate-200 rounded-md overflow-hidden shadow-xl flex flex-col max-h-[500px] transition-all animate-in fade-in slide-in-from-bottom-5 duration-300 text-slate-800"
         >
           {/* Header */}
-          <div className="p-4 bg-[#2fd9f4]/20 border-b border-white/10 flex items-center justify-between">
+          <div className="p-4 bg-blue-50 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#2fd9f4] animate-ping"></div>
-              <span className="text-xs font-bold text-[#2fd9f4] uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#1890ff] animate-ping"></div>
+              <span className="text-xs font-black text-[#1890ff] uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#1890ff]" />
                 <span>Tutor IA - Suporte</span>
               </span>
             </div>
             <button
               id="close-ai-chat-btn"
               onClick={() => setIsOpen(false)}
-              className="text-[#c7c4d7] hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
+              className="text-slate-400 hover:text-slate-700 p-1 rounded hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Messages Scroll Area */}
-          <div className="flex-1 p-4 space-y-4 overflow-y-auto text-xs leading-relaxed max-h-[360px]">
+          <div className="flex-1 p-4 space-y-4 overflow-y-auto text-xs leading-relaxed max-h-[360px] bg-slate-50/50">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -128,18 +128,18 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({
               >
                 {msg.sender === 'tutor' && (
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Bot className="w-3.5 h-3.5 text-[#2fd9f4]" />
-                    <span className="text-[10px] text-[#2fd9f4] uppercase tracking-wider font-bold">
+                    <Bot className="w-3.5 h-3.5 text-[#1890ff]" />
+                    <span className="text-[10px] text-[#1890ff] uppercase tracking-wider font-extrabold">
                       Sagacitas AI
                     </span>
                   </div>
                 )}
 
                 <div
-                  className={`p-3 rounded-2xl max-w-[88%] leading-relaxed ${
+                  className={`p-3 rounded-md max-w-[88%] leading-relaxed text-xs font-medium ${
                     msg.sender === 'user'
-                      ? 'bg-[#c0c1ff]/15 text-[#dae2fd] border border-[#c0c1ff]/30 rounded-br-none'
-                      : 'bg-white/5 text-[#dae2fd] border border-[#2fd9f4]/20 shadow-[0_0_10px_rgba(47,217,244,0.1)] rounded-tl-none'
+                      ? 'bg-[#1890ff] text-white shadow-2xs'
+                      : 'bg-white text-slate-800 border border-slate-200 shadow-2xs'
                   }`}
                 >
                   {msg.text}
@@ -148,34 +148,34 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({
             ))}
 
             {loading && (
-              <div className="flex items-center gap-2 text-[#2fd9f4] text-xs">
+              <div className="flex items-center gap-2 text-[#1890ff] text-xs font-bold">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Lumina AI está pensando...</span>
+                <span>Sagacitas AI está pensando...</span>
               </div>
             )}
 
             {/* Quick prompt suggestions */}
             {messages.length <= 2 && (
               <div className="pt-2 space-y-1.5">
-                <p className="text-[10px] text-[#c7c4d7]/60 uppercase font-bold tracking-wider">
+                <p className="text-[10px] text-slate-500 uppercase font-black tracking-wider">
                   Sugestões de perguntas:
                 </p>
                 <div className="flex flex-col gap-1.5">
                   <button
                     onClick={() => handleSendMessage('Qual a diferença entre DRE e Fluxo de Caixa?')}
-                    className="text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-[#2fd9f4] transition-all"
+                    className="text-left p-2 rounded bg-white hover:bg-blue-50 border border-slate-200 text-[11px] font-semibold text-[#1890ff] transition-all cursor-pointer"
                   >
                     💡 Qual a diferença entre DRE e Fluxo de Caixa?
                   </button>
                   <button
                     onClick={() => handleSendMessage('Como diagnosticar o Cenário 2 (Margem bruta em queda)?')}
-                    className="text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-[#2fd9f4] transition-all"
+                    className="text-left p-2 rounded bg-white hover:bg-blue-50 border border-slate-200 text-[11px] font-semibold text-[#1890ff] transition-all cursor-pointer"
                   >
                     🎯 Como diagnosticar o Cenário 2 (Margem bruta em queda)?
                   </button>
                   <button
                     onClick={() => handleSendMessage('Como calcular o CMV ideal do restaurante no Alchymist Manager?')}
-                    className="text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-[#2fd9f4] transition-all"
+                    className="text-left p-2 rounded bg-white hover:bg-blue-50 border border-slate-200 text-[11px] font-semibold text-[#1890ff] transition-all cursor-pointer"
                   >
                     📊 Como calcular o CMV ideal no Alchymist Manager?
                   </button>
@@ -187,7 +187,7 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({
           </div>
 
           {/* Input Form */}
-          <div className="p-3 bg-[#060e20] border-t border-white/10">
+          <div className="p-3 bg-white border-t border-slate-200">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -200,12 +200,12 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Digite sua dúvida..."
-                className="w-full bg-white/5 border border-white/10 rounded-full pl-4 pr-10 py-2 text-xs text-[#dae2fd] placeholder-[#c7c4d7]/50 focus:ring-1 focus:ring-[#2fd9f4] outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 pr-10 text-xs text-slate-800 placeholder:text-slate-400 focus:border-[#1890ff] outline-none font-medium"
               />
               <button
                 type="submit"
                 disabled={loading || !inputMessage.trim()}
-                className="absolute right-2 p-1 text-[#2fd9f4] hover:scale-110 disabled:opacity-40 transition-transform"
+                className="absolute right-2 p-1.5 text-[#1890ff] hover:scale-110 disabled:opacity-40 transition-transform cursor-pointer"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -218,10 +218,10 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({
       <button
         id="toggle-ai-tutor-btn"
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex items-center gap-3 bg-[#2fd9f4] text-[#001f25] px-5 py-3 rounded-full font-bold shadow-[0_0_25px_rgba(47,217,244,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        className="group flex items-center gap-2.5 bg-[#1890ff] hover:bg-[#096dd9] text-white px-4 py-2.5 rounded-md font-bold text-xs shadow-md active:scale-98 transition-all cursor-pointer"
       >
-        <Bot className="w-5 h-5 animate-pulse" />
-        <span className="text-xs tracking-wide">Tutor IA - Dúvidas?</span>
+        <Bot className="w-4.5 h-4.5" />
+        <span className="tracking-wide">Tutor IA - Dúvidas?</span>
       </button>
     </div>
   );

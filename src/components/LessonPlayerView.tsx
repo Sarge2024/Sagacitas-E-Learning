@@ -21,8 +21,6 @@ import {
   FileSpreadsheet,
   Paperclip,
   Download,
-  ExternalLink,
-  History,
   Send,
   User,
   PanelLeftClose,
@@ -35,6 +33,10 @@ import {
   Layers,
   Target,
   Clock,
+  Star,
+  MessageSquare,
+  GraduationCap,
+  Sparkles,
 } from 'lucide-react';
 
 interface LessonPlayerViewProps {
@@ -56,19 +58,19 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
 }) => {
   // Find current active module and lesson
   const modules = course.modules || [];
-  const currentModule = modules[0] || { title: 'MÓDULO 1: INTRODUÇÃO', lessons: [] };
+  const currentModule = modules[0] || { title: 'MÓDULO 3: DRE NA PRÁTICA', lessons: [] };
 
   const [activeLesson, setActiveLesson] = useState<Lesson>(
     currentModule.lessons?.find((l) => l.active) ||
       currentModule.lessons?.[3] || {
         id: 'aula-04',
         number: '04',
-        title: 'Aula 04: Fundamentos de IA',
+        title: 'Aula 04: A História do Resultado do Mês',
         duration: '25:00',
         completed: false,
         active: true,
         description:
-          'Nesta aula, exploramos os conceitos fundamentais que sustentam as Redes Neurais e como o processamento de linguagem natural transformou a indústria tech. Ideal para quem busca entender a base teórica antes da prática.',
+          'Nesta aula, a Dra. Elena Sterling explica a estrutura completa da DRE de forma prática, conectando o faturamento bruto aos custos de produção e demonstrando a apuração da margem de contribuição.',
       }
   );
 
@@ -88,13 +90,17 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
       [modId]: !prev[modId],
     }));
   };
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [playbackRate, setPlaybackRate] = useState('1.25x');
-  const [progressPercent, setProgressPercent] = useState(51);
+  const [playbackRate, setPlaybackRate] = useState('1.0x');
+  const [progressPercent, setProgressPercent] = useState(48);
   const [isCompleted, setIsCompleted] = useState(activeLesson.completed);
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(42);
+  const [likeCount, setLikeCount] = useState(128);
+  const [userRating, setUserRating] = useState<number>(5);
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  const [ratingFeedback, setRatingFeedback] = useState('');
   const [comments, setComments] = useState<Comment[]>(INITIAL_COMMENTS);
   const [newCommentText, setNewCommentText] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -125,6 +131,12 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
     showToast('Link da aula copiado para a área de transferência!');
   };
 
+  const handleSubmitRating = (e: React.FormEvent) => {
+    e.preventDefault();
+    setRatingSubmitted(true);
+    showToast('Obrigado! Sua avaliação foi registrada com sucesso.');
+  };
+
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCommentText.trim()) return;
@@ -152,11 +164,11 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
   };
 
   return (
-    <div id="lesson-player-page" className="min-h-screen bg-slate-100/80 text-slate-900 font-sans">
-      {/* Top Navigation Bar */}
+    <div id="virtual-classroom-page" className="min-h-screen bg-[#f9f9ff] text-slate-900 font-sans">
+      {/* Top Header Bar */}
       <header
         id="lesson-top-bar"
-        className={`fixed top-0 right-0 z-40 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 lg:px-12 transition-all duration-300 shadow-xs ${
+        className={`fixed top-0 right-0 z-40 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 lg:px-10 transition-all duration-300 shadow-2xs ${
           isSidebarCollapsed ? 'left-20' : 'left-64'
         }`}
       >
@@ -165,7 +177,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
             <button
               id="lesson-toggle-sidebar-btn"
               onClick={onToggleCollapse}
-              className="p-2 text-slate-600 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition-all cursor-pointer"
+              className="p-1.5 text-slate-600 hover:text-[#1890ff] hover:bg-slate-100 rounded-md transition-all cursor-pointer"
               title={isSidebarCollapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
             >
               {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
@@ -175,31 +187,33 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
           <button
             id="back-to-dashboard-btn"
             onClick={onBackToDashboard}
-            className="flex items-center gap-2 text-slate-600 hover:text-indigo-700 transition-colors group cursor-pointer"
+            className="flex items-center gap-2 text-slate-600 hover:text-[#1890ff] transition-colors group cursor-pointer"
           >
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="text-xs font-bold uppercase tracking-wider hidden md:block">
-              Voltar ao Dashboard
+              Voltar ao Portal
             </span>
           </button>
-          <div className="h-6 w-px bg-slate-200 hidden md:block"></div>
-          <h1 className="text-lg font-black text-slate-900 tracking-tight">Sagacitas E-Learning</h1>
+          <div className="h-5 w-px bg-slate-200 hidden md:block"></div>
+          <h1 className="text-base font-black text-slate-900 tracking-tight">
+            Sala Virtual • Sagacitas E-Learning
+          </h1>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 bg-indigo-50 rounded-full border border-indigo-200">
-            <Award className="w-4 h-4 text-indigo-600" />
-            <span className="text-xs font-extrabold text-indigo-900">
-              {currentModule.title || 'Módulo: IA Generativa'}
+          <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-[#1890ff]/10 rounded-md border border-[#1890ff]/20">
+            <GraduationCap className="w-4 h-4 text-[#1890ff]" />
+            <span className="text-xs font-bold text-[#1890ff]">
+              Treinamento Alchymist Manager
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="text-slate-600 hover:text-indigo-600 transition-colors p-1.5 rounded-full hover:bg-slate-100 cursor-pointer">
-              <Bell className="w-5 h-5" />
+          <div className="flex items-center gap-2">
+            <button className="text-slate-600 hover:text-[#1890ff] transition-colors p-1.5 rounded-md hover:bg-slate-100 cursor-pointer">
+              <Bell className="w-4.5 h-4.5" />
             </button>
-            <button className="text-slate-600 hover:text-indigo-600 transition-colors p-1.5 rounded-full hover:bg-slate-100 cursor-pointer">
-              <Settings className="w-5 h-5" />
+            <button className="text-slate-600 hover:text-[#1890ff] transition-colors p-1.5 rounded-md hover:bg-slate-100 cursor-pointer">
+              <Settings className="w-4.5 h-4.5" />
             </button>
           </div>
         </div>
@@ -207,17 +221,17 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
 
       {/* Main Grid Layout */}
       <main className="pt-16 min-h-screen flex flex-col lg:flex-row overflow-hidden">
-        {/* Central Lesson Content */}
-        <section className="flex-1 overflow-y-auto p-4 lg:p-8 space-y-6">
+        {/* Central Lesson Content (Main Content) */}
+        <section className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
           {/* Media Mode Selector Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-2 bg-white border border-slate-200/90 rounded-2xl shadow-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-2 bg-white border border-slate-200 rounded-md shadow-2xs">
             <div className="flex items-center gap-1.5">
               <button
                 id="mode-slides-btn"
                 onClick={() => setMediaMode('slides')}
-                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer border ${
+                className={`px-3.5 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border ${
                   mediaMode === 'slides'
-                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                    ? 'bg-[#1890ff] text-white border-[#1890ff] shadow-xs'
                     : 'text-slate-700 bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
@@ -228,9 +242,9 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
               <button
                 id="mode-video-btn"
                 onClick={() => setMediaMode('video')}
-                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer border ${
+                className={`px-3.5 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border ${
                   mediaMode === 'video'
-                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                    ? 'bg-[#1890ff] text-white border-[#1890ff] shadow-xs'
                     : 'text-slate-700 bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
@@ -241,9 +255,9 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
               <button
                 id="mode-split-btn"
                 onClick={() => setMediaMode('split')}
-                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer border ${
+                className={`px-3.5 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border ${
                   mediaMode === 'split'
-                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                    ? 'bg-[#1890ff] text-white border-[#1890ff] shadow-xs'
                     : 'text-slate-700 bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}
               >
@@ -254,9 +268,9 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
             </div>
 
             <div className="flex items-center gap-2 text-xs text-slate-600 px-2">
-              <span className="text-[10px] bg-sky-50 text-sky-800 px-2.5 py-1 rounded-full font-extrabold border border-sky-200 flex items-center gap-1">
-                <Presentation className="w-3 h-3 text-sky-600" />
-                Apresentação DRE Alchymist
+              <span className="text-[10px] bg-blue-50 text-[#1890ff] px-2.5 py-1 rounded-md font-bold border border-blue-200 flex items-center gap-1">
+                <Presentation className="w-3 h-3 text-[#1890ff]" />
+                DRE Alchymist Manager
               </span>
             </div>
           </div>
@@ -277,7 +291,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
             <div
               ref={videoContainerRef}
               id="video-player-container"
-              className="relative group aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-300 shadow-lg"
+              className="relative group aspect-video w-full rounded-md overflow-hidden bg-slate-950 border border-slate-300 shadow-sm"
             >
               <img
                 src={
@@ -291,51 +305,52 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
               />
 
               {/* Play Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+              <div className="absolute inset-0 flex items-center justify-center bg-black/35">
                 <button
                   id="play-pause-center-btn"
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className="w-20 h-20 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg transform transition-transform hover:scale-110 active:scale-95 cursor-pointer"
+                  className="w-16 h-16 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded-full flex items-center justify-center shadow-md transform transition-transform hover:scale-105 active:scale-95 cursor-pointer"
                 >
                   {isPlaying ? (
-                    <Pause className="w-10 h-10 fill-current" />
+                    <Pause className="w-8 h-8 fill-current" />
                   ) : (
-                    <Play className="w-10 h-10 fill-current ml-1" />
+                    <Play className="w-8 h-8 fill-current ml-1" />
                   )}
                 </button>
               </div>
 
-              {/* Bottom Controls Bar */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-950/90 via-slate-900/60 to-transparent opacity-95 group-hover:opacity-100 transition-opacity">
-                <div className="flex items-center justify-between text-white text-xs font-semibold mb-3">
-                  <div className="flex items-center gap-4">
+              {/* Bottom Controls Bar with Speed Control */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-950/90 via-slate-900/60 to-transparent opacity-95 group-hover:opacity-100 transition-opacity">
+                <div className="flex flex-wrap items-center justify-between text-white text-xs font-semibold mb-2">
+                  <div className="flex items-center gap-3">
                     <button onClick={() => setIsMuted(!isMuted)} className="cursor-pointer">
                       {isMuted ? (
-                        <VolumeX className="w-5 h-5 text-red-400" />
+                        <VolumeX className="w-4 h-4 text-rose-400" />
                       ) : (
-                        <Volume2 className="w-5 h-5 text-white hover:text-sky-300" />
+                        <Volume2 className="w-4 h-4 text-white hover:text-[#1890ff]" />
                       )}
                     </button>
-                    <span>Tempo Decorrido: 12:45 / {activeLesson.duration}</span>
+                    <span>Tempo: 12:00 / {activeLesson.duration}</span>
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() =>
-                        setPlaybackRate(
-                          playbackRate === '1.0x'
-                            ? '1.25x'
-                            : playbackRate === '1.25x'
-                            ? '1.5x'
-                            : '1.0x'
-                        )
-                      }
-                      className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 transition-colors font-mono cursor-pointer"
-                    >
-                      {playbackRate}
-                    </button>
-                    <button onClick={toggleFullscreen} className="cursor-pointer">
-                      <Maximize className="w-5 h-5 hover:text-sky-300" />
+                  {/* Speed Control Choices */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-slate-300 font-mono">Velocidade:</span>
+                    {['0.5x', '0.75x', '1.0x', '1.25x', '1.5x'].map((speed) => (
+                      <button
+                        key={speed}
+                        onClick={() => setPlaybackRate(speed)}
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-colors cursor-pointer ${
+                          playbackRate === speed
+                            ? 'bg-[#1890ff] text-white font-bold'
+                            : 'bg-white/20 hover:bg-white/30 text-slate-200'
+                        }`}
+                      >
+                        {speed}
+                      </button>
+                    ))}
+                    <button onClick={toggleFullscreen} className="cursor-pointer ml-2">
+                      <Maximize className="w-4 h-4 hover:text-[#1890ff]" />
                     </button>
                   </div>
                 </div>
@@ -351,7 +366,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
                   }}
                 >
                   <div
-                    className="h-full bg-indigo-500 rounded-full shadow-sm transition-all duration-300"
+                    className="h-full bg-[#1890ff] rounded-full shadow-xs transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                   ></div>
                 </div>
@@ -365,7 +380,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
               <div
                 ref={videoContainerRef}
                 id="video-player-container-split"
-                className="relative group aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-300 shadow-lg"
+                className="relative group aspect-video w-full rounded-md overflow-hidden bg-slate-950 border border-slate-300 shadow-sm"
               >
                 <img
                   src={
@@ -378,17 +393,16 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
                   }`}
                 />
 
-                {/* Play Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/35">
                   <button
                     id="play-pause-center-btn-split"
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg transform transition-transform hover:scale-110 active:scale-95 cursor-pointer"
+                    className="w-14 h-14 bg-[#1890ff] text-white rounded-full flex items-center justify-center shadow-md transform transition-transform hover:scale-105 active:scale-95 cursor-pointer"
                   >
                     {isPlaying ? (
-                      <Pause className="w-8 h-8 fill-current" />
+                      <Pause className="w-7 h-7 fill-current" />
                     ) : (
-                      <Play className="w-8 h-8 fill-current ml-1" />
+                      <Play className="w-7 h-7 fill-current ml-1" />
                     )}
                   </button>
                 </div>
@@ -406,25 +420,28 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
             </div>
           )}
 
-          {/* Lesson Info Header */}
-          <div className="flex flex-col md:flex-row items-start justify-between gap-6 border-b border-slate-200 pb-6">
+          {/* Lesson Header & Progress Action */}
+          <div className="flex flex-col md:flex-row items-start justify-between gap-6 border-b border-slate-200 pb-5">
             <div className="space-y-2 max-w-2xl">
-              <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#1890ff] bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
+                {currentModule.title || 'Módulo 3 (Active)'}
+              </span>
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
                 {activeLesson.title}
               </h2>
-              <p className="text-sm md:text-base text-slate-600 font-medium leading-relaxed">
+              <p className="text-xs md:text-sm text-slate-600 font-medium leading-relaxed">
                 {activeLesson.description}
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 shrink-0 w-full md:w-auto">
+            <div className="flex flex-col gap-2.5 shrink-0 w-full md:w-auto">
               <button
                 id="toggle-complete-btn"
                 onClick={handleToggleComplete}
-                className={`px-8 py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
+                className={`px-6 py-2.5 rounded-md font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs ${
                   isCompleted
-                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                    : 'bg-[#1890ff] hover:bg-[#096dd9] text-white shadow-xs'
                 }`}
               >
                 <CheckCircle2 className="w-4 h-4" />
@@ -435,40 +452,141 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
                 <button
                   id="like-lesson-btn"
                   onClick={handleToggleLike}
-                  className={`flex-1 px-4 py-2.5 border rounded-xl transition-all flex items-center justify-center gap-2 text-xs font-bold cursor-pointer ${
+                  className={`flex-1 px-3 py-2 border rounded-md transition-all flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer ${
                     liked
                       ? 'bg-rose-50 text-rose-700 border-rose-200'
                       : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                   }`}
                 >
-                  <ThumbsUp className="w-4 h-4" />
+                  <ThumbsUp className="w-3.5 h-3.5" />
                   <span>{liked ? 'Gostou' : 'Gostei'} ({likeCount})</span>
                 </button>
 
                 <button
                   id="share-lesson-btn"
                   onClick={handleShare}
-                  className="flex-1 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 text-xs font-bold cursor-pointer"
+                  className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-md text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer"
                 >
-                  <Share2 className="w-4 h-4" />
+                  <Share2 className="w-3.5 h-3.5" />
                   <span>Compartilhar</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Anexos e Materiais Agrupados a Esta Aula */}
-          <div className="bg-white border border-slate-200 p-6 rounded-2xl space-y-4 shadow-xs">
+          {/* Instructor Profile Card (Dr. Elena Sterling) */}
+          <div className="bg-white border border-slate-200 p-5 rounded-md shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=256&auto=format&fit=crop"
+                  alt="Dr. Elena Sterling"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-[#1890ff]"
+                />
+                <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full" title="Instrutora Online"></span>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-black text-slate-900">Dr. Elena Sterling</h3>
+                  <span className="px-2 py-0.5 text-[10px] font-bold bg-[#1890ff]/10 text-[#1890ff] rounded border border-[#1890ff]/20">
+                    Ph.D. Financial Management
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 font-medium">
+                  Especialista sênior em DRE, DFC e Contabilidade de Gestão para negócios de alimentação.
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Mais de 15 anos orientando executivos e gestores de gastronomia.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => onOpenAITutor('Dr. Elena Sterling, pode me tirar uma dúvida técnica sobre esta aula?')}
+              className="px-4 py-2 bg-slate-100 hover:bg-[#1890ff] text-slate-800 hover:text-white border border-slate-200 hover:border-[#1890ff] rounded-md font-bold text-xs transition-all flex items-center gap-2 cursor-pointer shadow-2xs shrink-0"
+            >
+              <MessageSquare className="w-4 h-4 text-[#1890ff] group-hover:text-white" />
+              <span>Dúvida para a Instrutora</span>
+            </button>
+          </div>
+
+          {/* Lesson Rating System Component */}
+          <div className="bg-white border border-slate-200 p-5 rounded-md shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                  <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                  <span>Sistema de Avaliação da Aula</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Avalie o conteúdo didático e ajude a aprimorar a experiência da Sagacitas E-Learning.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-md shrink-0">
+                <span className="text-base font-black text-amber-900">4.9</span>
+                <div className="flex text-amber-500">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} className="w-3.5 h-3.5 fill-current" />
+                  ))}
+                </div>
+                <span className="text-[10px] text-amber-800 font-medium">(128 avaliações)</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmitRating} className="space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-slate-700">Sua Nota:</span>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setUserRating(star)}
+                      className="p-1 hover:scale-110 transition-transform cursor-pointer"
+                    >
+                      <Star
+                        className={`w-5 h-5 ${
+                          star <= userRating
+                            ? 'text-amber-500 fill-amber-500'
+                            : 'text-slate-300'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <span className="text-xs font-bold text-amber-600">{userRating} / 5 estrelas</span>
+              </div>
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={ratingFeedback}
+                  onChange={(e) => setRatingFeedback(e.target.value)}
+                  placeholder="Escreva um comentário opcional sobre a clareza da aula..."
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#1890ff] outline-none"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded-md text-xs font-bold cursor-pointer transition-all shadow-xs"
+                >
+                  {ratingSubmitted ? '✓ Avaliado' : 'Enviar Avaliação'}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Anexos e Materiais */}
+          <div className="bg-white border border-slate-200 p-5 rounded-md space-y-3 shadow-2xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Paperclip className="w-4.5 h-4.5 text-indigo-600" />
-                <h3 className="text-xs uppercase tracking-widest font-black text-indigo-900">
-                  Anexos e Materiais Agrupados a Esta Aula
+                <Paperclip className="w-4 h-4 text-[#1890ff]" />
+                <h3 className="text-xs uppercase tracking-wider font-extrabold text-slate-900">
+                  Materiais Complementares
                 </h3>
               </div>
-              <span className="text-[10px] bg-indigo-50 text-indigo-800 px-2.5 py-1 rounded-full font-bold border border-indigo-200 flex items-center gap-1">
-                <Paperclip className="w-3 h-3 text-indigo-600" />
-                {(activeLesson.attachments?.length || 2)} {activeLesson.attachments?.length === 1 ? 'arquivo' : 'arquivos'}
+              <span className="text-[10px] bg-blue-50 text-[#1890ff] px-2 py-0.5 rounded font-bold border border-blue-200">
+                {(activeLesson.attachments?.length || 2)} arquivos
               </span>
             </div>
 
@@ -482,29 +600,29 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
               ).map((att) => (
                 <div
                   key={att.id}
-                  className="flex items-center gap-3 p-3.5 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition-all group"
+                  className="flex items-center gap-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-md border border-slate-200 transition-all group"
                 >
-                  <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-indigo-600 shadow-2xs">
+                  <div className="p-2 rounded bg-white border border-slate-200 text-[#1890ff]">
                     {att.type === 'excel' ? (
-                      <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+                      <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
                     ) : (
-                      <FileText className="w-5 h-5 text-rose-600" />
+                      <FileText className="w-4 h-4 text-rose-600" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-900 truncate group-hover:text-indigo-700 transition-colors">
+                    <p className="text-xs font-bold text-slate-900 truncate group-hover:text-[#1890ff] transition-colors">
                       {att.name}
                     </p>
                     <p className="text-[10px] text-slate-500 font-medium">
-                      {att.size || 'Documento complementar'} • Agrupado nesta aula
+                      {att.size || 'Documento complementar'}
                     </p>
                   </div>
                   <button
                     onClick={() => showToast(`Download de ${att.name} iniciado!`)}
-                    className="p-2 bg-white hover:bg-indigo-600 text-slate-700 hover:text-white rounded-lg border border-slate-200 transition-all shrink-0 cursor-pointer shadow-2xs"
-                    title="Baixar anexo da aula"
+                    className="p-1.5 bg-white hover:bg-[#1890ff] text-slate-700 hover:text-white rounded border border-slate-200 transition-all shrink-0 cursor-pointer shadow-2xs"
+                    title="Baixar anexo"
                   >
-                    <Download className="w-4 h-4" />
+                    <Download className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
@@ -513,53 +631,53 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
 
           {/* Toast Notification */}
           {toastMessage && (
-            <div className="fixed top-20 right-8 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl font-bold text-xs shadow-2xl animate-bounce">
+            <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-md font-bold text-xs shadow-xl animate-bounce">
               {toastMessage}
             </div>
           )}
 
           {/* Comments Section */}
-          <div className="space-y-4 pt-4">
-            <h3 className="text-xs uppercase tracking-widest font-black text-slate-800">
-              Comentários da Turma
+          <div className="space-y-3 pt-2">
+            <h3 className="text-xs uppercase tracking-wider font-extrabold text-slate-900">
+              Discussão da Turma
             </h3>
 
-            <form onSubmit={handleAddComment} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 shrink-0 font-black border border-indigo-200">
-                <User className="w-5 h-5" />
+            <form onSubmit={handleAddComment} className="bg-white p-4 rounded-md border border-slate-200 shadow-2xs flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-[#1890ff] shrink-0 font-bold border border-blue-200">
+                <User className="w-4 h-4" />
               </div>
 
-              <div className="flex-1 space-y-3">
+              <div className="flex-1 space-y-2">
                 <input
                   type="text"
                   value={newCommentText}
                   onChange={(e) => setNewCommentText(e.target.value)}
-                  placeholder="Dúvida ou feedback sobre esta aula?"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium"
+                  placeholder="Envie sua dúvida ou contribuição sobre a aula..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#1890ff] outline-none"
                 />
                 <div className="flex justify-end">
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    className="px-3.5 py-1.5 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded-md font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
-                    <span>Postar Comentário</span>
-                    <Send className="w-3.5 h-3.5" />
+                    <span>Publicar</span>
+                    <Send className="w-3 h-3" />
                   </button>
                 </div>
               </div>
             </form>
 
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2">
               {comments.map((comment) => (
                 <div
                   key={comment.id}
-                  className="bg-white p-4 rounded-xl border border-slate-200 flex gap-4 shadow-2xs"
+                  className="bg-white p-3 rounded-md border border-slate-200 flex gap-3 shadow-2xs"
                 >
-                  <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 shrink-0 text-xs font-black">
+                  <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0 text-xs font-bold">
                     {comment.author.charAt(0)}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-0.5">
                       <span className="font-bold text-xs text-slate-900">{comment.author}</span>
                       <span className="text-[10px] text-slate-400 font-medium">{comment.timestamp}</span>
                     </div>
@@ -571,221 +689,80 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
           </div>
         </section>
 
-        {/* Right Sidebar: Course Structure */}
+        {/* Right Panel: Conteúdo do Curso (Right Sidebar) */}
         <aside
-          id="course-structure-sidebar"
-          className="w-full lg:w-[410px] bg-white border-l border-slate-200 flex flex-col h-full lg:h-[calc(100vh-64px)] shadow-xs"
+          id="right-panel-course-content"
+          className="w-full lg:w-[380px] bg-white border-l border-slate-200 flex flex-col h-full lg:h-[calc(100vh-64px)] shadow-2xs"
         >
-          <div className="p-5 border-b border-slate-200 bg-slate-50/50">
+          <div className="p-4 border-b border-slate-200 bg-slate-50">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-indigo-600" />
-                <span>Módulos do Treinamento</span>
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-[#1890ff]" />
+                <span>Conteúdo do Curso</span>
               </h3>
-              <span className="text-[10px] bg-indigo-50 text-indigo-800 px-2 py-0.5 rounded-full font-bold border border-indigo-200">
-                {modules.length} Módulos
+              <span className="text-[10px] bg-blue-50 text-[#1890ff] px-2 py-0.5 rounded font-bold border border-blue-200">
+                4 Módulos
               </span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-              <History className="w-3.5 h-3.5 text-indigo-600" />
-              <span>
-                {modules.reduce((acc, m) => acc + m.lessons.filter((l) => l.completed).length, 0)}/
-                {modules.reduce((acc, m) => acc + m.lessons.length, 0)} aulas concluídas
-              </span>
-            </div>
+            <p className="text-xs text-slate-500 font-medium">
+              Virtual Classroom • Progresso em tempo real
+            </p>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-            {modules.map((mod) => {
-              const isExpanded = expandedModuleIds[mod.id] ?? true;
-              const completedCount = mod.lessons.filter((l) => l.completed).length;
-              const hasActiveLessonInMod = mod.lessons.some((l) => l.id === activeLesson.id);
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            {[
+              { id: 'mod-1', name: 'Módulo 1', title: 'Fundamentos & DRE do Restaurante', status: 'Concluído', badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200', icon: CheckCircle2 },
+              { id: 'mod-2', name: 'Módulo 2', title: 'Custos Operacionais & Margem de Contribuição', status: 'Concluído', badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200', icon: CheckCircle2 },
+              { id: 'mod-3', name: 'Módulo 3', title: 'Análise de Desempenho & EBITDA na Prática', status: '(Active)', badgeColor: 'bg-blue-50 text-[#1890ff] border-blue-200', active: true, icon: Play },
+              { id: 'mod-4', name: 'Módulo 4', title: 'Ações de Mitigação & Ritual da DRE', status: '(Locked)', badgeColor: 'bg-slate-100 text-slate-600 border-slate-200', locked: true, icon: Lock },
+            ].map((mod) => (
+              <div
+                key={mod.id}
+                className={`p-3 rounded-md border transition-all ${
+                  mod.active
+                    ? 'bg-blue-50/50 border-[#1890ff] shadow-xs'
+                    : mod.locked
+                    ? 'bg-slate-50/60 border-slate-200 opacity-75'
+                    : 'bg-white border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <mod.icon className={`w-3.5 h-3.5 ${mod.active ? 'text-[#1890ff]' : mod.locked ? 'text-slate-400' : 'text-emerald-600'}`} />
+                    {mod.name}
+                  </span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-extrabold border ${mod.badgeColor}`}>
+                    {mod.status}
+                  </span>
+                </div>
+                <p className="text-xs font-semibold text-slate-800 mt-1">
+                  {mod.title}
+                </p>
+                <div className="flex items-center justify-between text-[10px] text-slate-500 mt-2 font-medium">
+                  <span>5 aulas</span>
+                  <span>{mod.locked ? '0%' : mod.active ? '60%' : '100%'} concluído</span>
+                </div>
+              </div>
+            ))}
 
-              return (
-                <div
-                  key={mod.id}
-                  className={`rounded-2xl border transition-all overflow-hidden ${
-                    hasActiveLessonInMod
-                      ? 'bg-indigo-50/40 border-indigo-300 shadow-xs'
-                      : 'bg-white border-slate-200 hover:border-slate-300'
+            {/* Expanded Detailed Module Lessons Accordion */}
+            <div className="mt-4 pt-3 border-t border-slate-200 space-y-2">
+              <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                Aulas do Módulo 3 (Ativo)
+              </h4>
+              {currentModule.lessons?.map((lesson) => (
+                <button
+                  key={lesson.id}
+                  onClick={() => setActiveLesson(lesson)}
+                  className={`w-full text-left p-2 rounded-md border text-xs transition-all cursor-pointer flex items-center justify-between ${
+                    lesson.id === activeLesson.id
+                      ? 'bg-[#1890ff] text-white border-[#1890ff] font-bold shadow-xs'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
                   }`}
                 >
-                  {/* Module Header Toggle */}
-                  <button
-                    onClick={() => toggleModuleExpand(mod.id)}
-                    className="w-full p-3.5 text-left flex flex-col gap-1.5 transition-colors cursor-pointer hover:bg-slate-50"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-extrabold text-slate-900 uppercase tracking-wide flex-1 leading-snug">
-                        {mod.title}
-                      </span>
-                      <div className="flex items-center gap-2 shrink-0">
-                        {mod.duration && (
-                          <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold border border-slate-200 flex items-center gap-1">
-                            <Clock className="w-2.5 h-2.5 text-indigo-600" />
-                            {mod.duration}
-                          </span>
-                        )}
-                        {isExpanded ? (
-                          <ChevronUp className="w-4 h-4 text-indigo-600" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4 text-slate-400" />
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Module Focus / Objective */}
-                    {mod.focus && (
-                      <div className="flex items-start gap-1.5 text-[11px] text-slate-700 bg-white p-2 rounded-lg border border-slate-200 leading-relaxed font-medium">
-                        <Target className="w-3 h-3 text-indigo-600 shrink-0 mt-0.5" />
-                        <span>
-                          <strong className="text-indigo-900 font-bold">Foco: </strong>
-                          {mod.focus}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium pt-0.5">
-                      <span>{mod.lessons.length} aulas</span>
-                      <span>{completedCount}/{mod.lessons.length} concluídas</span>
-                    </div>
-                  </button>
-
-                  {/* Module Lessons Accordion Content */}
-                  {isExpanded && (
-                    <div className="px-2 pb-3 pt-1 border-t border-slate-200 space-y-1 bg-slate-50/60">
-                      {mod.lessons.map((lesson) => {
-                        const isActive = lesson.id === activeLesson.id;
-                        const hasAttachments = lesson.attachments && lesson.attachments.length > 0;
-
-                        return (
-                          <div key={lesson.id} className="space-y-1">
-                            <button
-                              id={`lesson-item-${lesson.id}`}
-                              onClick={() => {
-                                if (!lesson.locked) {
-                                  setActiveLesson(lesson);
-                                  setIsCompleted(lesson.completed);
-                                } else {
-                                  showToast('Conclua a aula anterior para desbloquear!');
-                                }
-                              }}
-                              className={`w-full text-left rounded-xl transition-all p-2.5 flex items-center gap-3 ${
-                                isActive
-                                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
-                                  : lesson.locked
-                                  ? 'opacity-50 cursor-not-allowed hover:bg-slate-100'
-                                  : 'hover:bg-slate-200/60 cursor-pointer text-slate-800'
-                              }`}
-                            >
-                              {lesson.completed ? (
-                                <CheckCircle2 className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-300' : 'text-emerald-600'}`} />
-                              ) : isActive ? (
-                                <Play className="w-4 h-4 text-white fill-current shrink-0" />
-                              ) : lesson.locked ? (
-                                <Lock className="w-4 h-4 text-slate-400 shrink-0" />
-                              ) : (
-                                <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0" />
-                              )}
-
-                              <div className="flex-1 min-w-0">
-                                <p
-                                  className={`text-xs truncate ${
-                                    isActive ? 'text-white font-extrabold' : 'text-slate-900 font-semibold'
-                                  }`}
-                                >
-                                  {lesson.title}
-                                </p>
-                                <div className="flex items-center justify-between mt-0.5">
-                                  <p className={`text-[10px] ${isActive ? 'text-indigo-100 font-medium' : 'text-slate-500'}`}>
-                                    {isActive ? 'Assistindo agora • ' : ''}
-                                    {lesson.duration}
-                                  </p>
-                                  {hasAttachments && (
-                                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1 ${
-                                      isActive
-                                        ? 'bg-white/20 text-white'
-                                        : 'bg-indigo-50 text-indigo-800 border border-indigo-200'
-                                    }`}>
-                                      <Paperclip className="w-2.5 h-2.5" />
-                                      {lesson.attachments!.length}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-
-                            {/* Sub-list of attachments grouped directly under ACTIVE lesson */}
-                            {isActive && hasAttachments && (
-                              <div className="ml-7 pl-2 border-l-2 border-indigo-400 space-y-1 py-1">
-                                {lesson.attachments!.map((att) => (
-                                  <a
-                                    key={att.id}
-                                    href="#"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      showToast(`Download de ${att.name} iniciado!`);
-                                    }}
-                                    className="flex items-center gap-2 p-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors text-[10px] text-slate-800 group shadow-2xs"
-                                  >
-                                    {att.type === 'excel' ? (
-                                      <FileSpreadsheet className="w-3 h-3 text-emerald-600 shrink-0" />
-                                    ) : (
-                                      <FileText className="w-3 h-3 text-rose-600 shrink-0" />
-                                    )}
-                                    <span className="flex-1 truncate font-bold text-slate-800 group-hover:text-indigo-700">
-                                      {att.name}
-                                    </span>
-                                    <Download className="w-3 h-3 text-slate-400 group-hover:text-indigo-600 shrink-0" />
-                                  </a>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-
-            {/* Anexos Section da Aula Atual */}
-            <div className="mt-6 pt-4 border-t border-slate-200 space-y-2">
-              <div className="px-1 flex items-center justify-between">
-                <h4 className="text-[10px] uppercase tracking-widest text-indigo-800 font-extrabold flex items-center gap-1.5">
-                  <Paperclip className="w-3 h-3 text-indigo-600" />
-                  <span>Anexos da Aula Ativa</span>
-                </h4>
-                <span className="text-[10px] text-slate-500 font-medium">
-                  {activeLesson.attachments?.length || 2} arquivos
-                </span>
-              </div>
-
-              {(activeLesson.attachments && activeLesson.attachments.length > 0
-                ? activeLesson.attachments
-                : [
-                    { id: 'att-def-1', name: 'Apostila_Oficial_DRE_Alchymist.pdf', type: 'pdf' as const, size: '3.4 MB' },
-                    { id: 'att-def-2', name: 'Planilha_Simulador_DRE_Restaurante.xlsx', type: 'excel' as const, size: '1.4 MB' }
-                  ]
-              ).map((att) => (
-                <a
-                  key={`sb-${att.id}`}
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    showToast(`Download de ${att.name} iniciado!`);
-                  }}
-                  className="flex items-center gap-3 p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors group text-xs text-slate-800 shadow-2xs"
-                >
-                  {att.type === 'excel' ? (
-                    <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  ) : (
-                    <FileText className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-                  )}
-                  <span className="flex-1 truncate text-[11px] font-bold">{att.name}</span>
-                  <Download className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-600 transition-colors shrink-0" />
-                </a>
+                  <span className="truncate pr-2">{lesson.title}</span>
+                  <span className="text-[10px] shrink-0 opacity-80">{lesson.duration}</span>
+                </button>
               ))}
             </div>
           </div>

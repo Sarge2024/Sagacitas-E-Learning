@@ -27,7 +27,7 @@ export const DRESimulatorView: React.FC = () => {
     if (lucroLiquido < 0) {
       return {
         title: '⚠️ Prejuízo Operacional Detectado',
-        color: 'text-red-400 bg-red-500/10 border-red-500/30',
+        color: 'text-red-700 bg-red-50 border-red-200',
         scenarios: [
           'Seu restaurante está consumindo caixa.',
           cmvPct > 40 ? '• CMV muito elevado (>40%). Verifique porcionamento e desperdício na cozinha.' : '',
@@ -40,7 +40,7 @@ export const DRESimulatorView: React.FC = () => {
     if (colchaoSegurancaPct < 10) {
       return {
         title: '🟡 Alerta: Faturamento Próximo do Ponto de Equilíbrio',
-        color: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+        color: 'text-amber-800 bg-amber-50 border-amber-200',
         scenarios: [
           `Ponto de equilíbrio estimado em R$ ${pontoEquilibrio.toLocaleString('pt-BR')}.`,
           'Sua margem de segurança é pequena (<10%). Qualquer queda de movimento pode empurrar o restaurante para o vermelho.',
@@ -51,8 +51,8 @@ export const DRESimulatorView: React.FC = () => {
 
     if (cmvPct > 38) {
       return {
-        title: '🟠 Atenção ao CMV da Cozinha (Cenário 2)',
-        color: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+        title: '🟠 Atenção ao CMV da Cozinha',
+        color: 'text-orange-800 bg-orange-50 border-orange-200',
         scenarios: [
           `CMV representa ${cmvPct.toFixed(1)}% da receita líquida (acima do recomendado de 30-35%).`,
           'Alarmes da cozinha: possível compra mais cara, perda de rendimento, porção fora do padrão ou preço desatualizado.',
@@ -63,7 +63,7 @@ export const DRESimulatorView: React.FC = () => {
 
     return {
       title: '🟢 Operação Saudável com Margem Positiva',
-      color: 'text-[#2fd9f4] bg-[#2fd9f4]/10 border-[#2fd9f4]/30',
+      color: 'text-emerald-800 bg-emerald-50 border-emerald-200',
       scenarios: [
         `Lucro líquido de R$ ${lucroLiquido.toLocaleString('pt-BR')} (${margemLiquidaPct.toFixed(1)}% de margem líquida).`,
         `Colchão de segurança confortável de ${colchaoSegurancaPct}% acima do ponto de equilíbrio.`,
@@ -75,19 +75,19 @@ export const DRESimulatorView: React.FC = () => {
   const diag = getDiagnostic();
 
   return (
-    <div id="dre-simulator-page" className="pt-20 px-8 pb-12 max-w-[1440px] mx-auto space-y-8">
+    <div id="dre-simulator-page" className="pt-16 md:pt-18 px-3 md:px-5 pb-8 max-w-[1440px] mx-auto space-y-4 bg-[#f9f9ff] min-h-screen">
       {/* Title */}
-      <div className="border-b border-white/10 pb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="border-b border-slate-200 pb-4 bg-white p-4 rounded-md shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         <div>
-          <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#2fd9f4] block mb-1">
-            Ferramenta Interativa • Alchymist Manager
+          <span className="text-[10px] uppercase font-black tracking-wider text-[#1890ff] bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 inline-block mb-1">
+            Simulador Financeiro
           </span>
-          <h2 className="text-3xl font-extrabold text-[#dae2fd] tracking-tight flex items-center gap-3">
-            <Calculator className="w-8 h-8 text-[#2fd9f4]" />
+          <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <Calculator className="w-6 h-6 text-[#1890ff]" />
             <span>Simulador de DRE do Restaurante</span>
           </h2>
-          <p className="text-sm text-[#c7c4d7] mt-1">
-            Simule o desempenho econômico do seu estabelecimento e obtenha um diagnóstico gerencial instantâneo baseado nas diretrizes da Sagacitas E-Learning.
+          <p className="text-xs text-slate-600 mt-0.5 font-medium">
+            Simule o desempenho econômico do seu estabelecimento e obtenha um diagnóstico gerencial instantâneo.
           </p>
         </div>
 
@@ -98,25 +98,25 @@ export const DRESimulatorView: React.FC = () => {
             setCmv(18000);
             setDespesasOperacionais(20000);
           }}
-          className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs text-[#c7c4d7] hover:text-white transition-all flex items-center gap-2"
+          className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-all flex items-center gap-2 cursor-pointer"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          <span>Restaurar Valores Padrão</span>
+          <span>Restaurar Padrão</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Controls Column */}
-        <div className="lg:col-span-5 bg-white/[0.06] backdrop-blur-2xl border border-white/10 rounded-[24px] p-6 space-y-6">
-          <h3 className="text-base font-bold text-[#c0c1ff] uppercase tracking-wider border-b border-white/10 pb-3">
-            1. Insira os Números do Seu Restaurante
+        <div className="lg:col-span-5 bg-white border border-slate-200 rounded-md p-5 space-y-5 shadow-2xs">
+          <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">
+            1. Insira os Parâmetros do Restaurante
           </h3>
 
           {/* Receita Bruta */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <label className="font-bold text-[#dae2fd]">Receita Bruta (Vendas Totais)</label>
-              <span className="text-[#2fd9f4] font-bold">R$ {receitaBruta.toLocaleString('pt-BR')}</span>
+              <label className="font-extrabold text-slate-800">Receita Bruta (Vendas Totais)</label>
+              <span className="text-[#1890ff] font-black">R$ {receitaBruta.toLocaleString('pt-BR')}</span>
             </div>
             <input
               type="range"
@@ -125,15 +125,15 @@ export const DRESimulatorView: React.FC = () => {
               step={1000}
               value={receitaBruta}
               onChange={(e) => setReceitaBruta(Number(e.target.value))}
-              className="w-full accent-[#2fd9f4] cursor-pointer"
+              className="w-full accent-[#1890ff] cursor-pointer"
             />
           </div>
 
           {/* Deduções */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <label className="font-bold text-[#dae2fd]">Deduções (Cartões, iFood, Impostos)</label>
-              <span className="text-[#ddb7ff] font-bold">R$ {deducoes.toLocaleString('pt-BR')}</span>
+              <label className="font-extrabold text-slate-800">Deduções (Impostos & Taxas Cartão)</label>
+              <span className="text-purple-600 font-black">R$ {deducoes.toLocaleString('pt-BR')}</span>
             </div>
             <input
               type="range"
@@ -142,15 +142,15 @@ export const DRESimulatorView: React.FC = () => {
               step={500}
               value={deducoes}
               onChange={(e) => setDeducoes(Number(e.target.value))}
-              className="w-full accent-[#ddb7ff] cursor-pointer"
+              className="w-full accent-purple-600 cursor-pointer"
             />
           </div>
 
           {/* CMV */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <label className="font-bold text-[#dae2fd]">CMV (Custo de Insumos & Embalagens)</label>
-              <span className="text-amber-400 font-bold">R$ {cmv.toLocaleString('pt-BR')} ({cmvPct.toFixed(1)}%)</span>
+              <label className="font-extrabold text-slate-800">CMV (Insumos & Embalagens)</label>
+              <span className="text-amber-600 font-black">R$ {cmv.toLocaleString('pt-BR')} ({cmvPct.toFixed(1)}%)</span>
             </div>
             <input
               type="range"
@@ -159,15 +159,15 @@ export const DRESimulatorView: React.FC = () => {
               step={500}
               value={cmv}
               onChange={(e) => setCmv(Number(e.target.value))}
-              className="w-full accent-amber-400 cursor-pointer"
+              className="w-full accent-amber-600 cursor-pointer"
             />
           </div>
 
           {/* Despesas Operacionais */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <label className="font-bold text-[#dae2fd]">Despesas Operacionais (Folha, Aluguel, Energia)</label>
-              <span className="text-purple-300 font-bold">R$ {despesasOperacionais.toLocaleString('pt-BR')} ({despesasPct.toFixed(1)}%)</span>
+              <label className="font-extrabold text-slate-800">Despesas Operacionais (Folha & Fixos)</label>
+              <span className="text-indigo-600 font-black">R$ {despesasOperacionais.toLocaleString('pt-BR')} ({despesasPct.toFixed(1)}%)</span>
             </div>
             <input
               type="range"
@@ -176,7 +176,7 @@ export const DRESimulatorView: React.FC = () => {
               step={500}
               value={despesasOperacionais}
               onChange={(e) => setDespesasOperacionais(Number(e.target.value))}
-              className="w-full accent-purple-400 cursor-pointer"
+              className="w-full accent-indigo-600 cursor-pointer"
             />
           </div>
         </div>
@@ -184,61 +184,61 @@ export const DRESimulatorView: React.FC = () => {
         {/* Diagnostic & Cascade Results Column */}
         <div className="lg:col-span-7 space-y-6">
           {/* Diagnostic Box */}
-          <div className={`p-6 rounded-[24px] border ${diag.color} transition-all space-y-3`}>
-            <div className="flex items-center gap-2 font-bold text-base">
+          <div className={`p-5 rounded-md border ${diag.color} shadow-2xs space-y-2`}>
+            <div className="flex items-center gap-2 font-black text-sm">
               <span>{diag.title}</span>
             </div>
-            <div className="space-y-1 text-xs leading-relaxed opacity-90">
+            <div className="space-y-1 text-xs leading-relaxed font-medium">
               {diag.scenarios.map((sc, i) => (
                 <p key={i}>{sc}</p>
               ))}
             </div>
-            <div className="pt-3 border-t border-white/10 text-xs font-semibold flex items-start gap-2">
-              <Lightbulb className="w-4 h-4 text-[#2fd9f4] shrink-0 mt-0.5" />
+            <div className="pt-2 border-t border-slate-200/60 text-xs font-bold flex items-start gap-2">
+              <Lightbulb className="w-4 h-4 text-[#1890ff] shrink-0 mt-0.5" />
               <span><strong>Ação Recomendada:</strong> {diag.action}</span>
             </div>
           </div>
 
           {/* DRE Structure Waterfall Table */}
-          <div className="bg-white/[0.06] backdrop-blur-2xl border border-white/10 rounded-[24px] p-6 space-y-4">
-            <h3 className="text-base font-bold text-[#dae2fd] flex items-center justify-between border-b border-white/10 pb-3">
-              <span>Anatomia da DRE (Alchymist Manager)</span>
-              <span className="text-xs text-[#2fd9f4] font-semibold">Valores e Percentuais</span>
+          <div className="bg-white border border-slate-200 rounded-md p-5 space-y-3 shadow-2xs">
+            <h3 className="text-sm font-black text-slate-900 flex items-center justify-between border-b border-slate-100 pb-2">
+              <span>Anatomia da DRE</span>
+              <span className="text-xs text-[#1890ff] font-extrabold">Valores e Percentuais</span>
             </h3>
 
-            <div className="space-y-2 text-xs font-medium">
-              <div className="flex justify-between p-3 rounded-xl bg-white/5">
-                <span>(+) Receita Bruta</span>
-                <span className="font-bold text-white">R$ {receitaBruta.toLocaleString('pt-BR')} (100%)</span>
+            <div className="space-y-1.5 text-xs font-medium">
+              <div className="flex justify-between p-2.5 rounded bg-slate-50 border border-slate-100">
+                <span className="text-slate-700 font-bold">(+) Receita Bruta</span>
+                <span className="font-black text-slate-900">R$ {receitaBruta.toLocaleString('pt-BR')} (100%)</span>
               </div>
 
-              <div className="flex justify-between p-3 rounded-xl bg-white/5 text-[#ddb7ff]">
-                <span>(-) Deduções (Taxas & Impostos)</span>
-                <span className="font-bold">- R$ {deducoes.toLocaleString('pt-BR')} ({((deducoes/receitaBruta)*100).toFixed(1)}%)</span>
+              <div className="flex justify-between p-2.5 rounded bg-slate-50 border border-slate-100 text-purple-700">
+                <span className="font-bold">(-) Deduções (Taxas & Impostos)</span>
+                <span className="font-black">- R$ {deducoes.toLocaleString('pt-BR')} ({((deducoes/receitaBruta)*100).toFixed(1)}%)</span>
               </div>
 
-              <div className="flex justify-between p-3 rounded-xl bg-[#2fd9f4]/10 border border-[#2fd9f4]/20 font-bold text-[#2fd9f4]">
+              <div className="flex justify-between p-2.5 rounded bg-blue-50 border border-blue-200 font-black text-[#1890ff]">
                 <span>(=) RECEITA LÍQUIDA</span>
                 <span>R$ {receitaLiquida.toLocaleString('pt-BR')} ({((receitaLiquida/receitaBruta)*100).toFixed(1)}%)</span>
               </div>
 
-              <div className="flex justify-between p-3 rounded-xl bg-white/5 text-amber-300">
-                <span>(-) CMV (Custo Insumos e Bebidas)</span>
-                <span className="font-bold">- R$ {cmv.toLocaleString('pt-BR')} ({cmvPct.toFixed(1)}%)</span>
+              <div className="flex justify-between p-2.5 rounded bg-slate-50 border border-slate-100 text-amber-700">
+                <span className="font-bold">(-) CMV (Custo Insumos e Bebidas)</span>
+                <span className="font-black">- R$ {cmv.toLocaleString('pt-BR')} ({cmvPct.toFixed(1)}%)</span>
               </div>
 
-              <div className="flex justify-between p-3 rounded-xl bg-[#c0c1ff]/10 border border-[#c0c1ff]/20 font-bold text-[#c0c1ff]">
+              <div className="flex justify-between p-2.5 rounded bg-slate-100 border border-slate-200 font-black text-slate-900">
                 <span>(=) LUCRO BRUTO (Margem Bruta)</span>
                 <span>R$ {lucroBruto.toLocaleString('pt-BR')} ({margemBrutaPct.toFixed(1)}%)</span>
               </div>
 
-              <div className="flex justify-between p-3 rounded-xl bg-white/5 text-purple-300">
-                <span>(-) Despesas Operacionais (Estrutura)</span>
-                <span className="font-bold">- R$ {despesasOperacionais.toLocaleString('pt-BR')} ({despesasPct.toFixed(1)}%)</span>
+              <div className="flex justify-between p-2.5 rounded bg-slate-50 border border-slate-100 text-indigo-700">
+                <span className="font-bold">(-) Despesas Operacionais (Estrutura)</span>
+                <span className="font-black">- R$ {despesasOperacionais.toLocaleString('pt-BR')} ({despesasPct.toFixed(1)}%)</span>
               </div>
 
-              <div className={`flex justify-between p-4 rounded-xl border font-black text-sm ${
-                lucroLiquido >= 0 ? 'bg-[#2fd9f4]/20 border-[#2fd9f4]/40 text-[#2fd9f4]' : 'bg-red-500/20 border-red-500/40 text-red-300'
+              <div className={`flex justify-between p-3 rounded border font-black text-sm ${
+                lucroLiquido >= 0 ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-red-50 border-red-300 text-red-800'
               }`}>
                 <span>(=) LUCRO LÍQUIDO (Sobra Final)</span>
                 <span>R$ {lucroLiquido.toLocaleString('pt-BR')} ({margemLiquidaPct.toFixed(1)}%)</span>
@@ -246,12 +246,12 @@ export const DRESimulatorView: React.FC = () => {
             </div>
 
             {/* Ponto de equilibrio card */}
-            <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
+            <div className="mt-3 p-3 rounded bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
               <div>
-                <p className="font-bold text-[#dae2fd]">Ponto de Equilíbrio Estimado</p>
-                <p className="text-[#c7c4d7]/70">Faturamento mínimo para empatar despesas</p>
+                <p className="font-extrabold text-slate-900">Ponto de Equilíbrio Estimado</p>
+                <p className="text-slate-500 font-medium">Faturamento mínimo para empatar despesas</p>
               </div>
-              <div className="text-right font-bold text-[#2fd9f4] text-sm">
+              <div className="text-right font-black text-[#1890ff] text-sm">
                 R$ {pontoEquilibrio.toLocaleString('pt-BR')}
               </div>
             </div>

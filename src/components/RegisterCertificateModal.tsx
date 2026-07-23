@@ -141,22 +141,22 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
-      <div className="bg-[#171f33] border border-white/20 rounded-3xl max-w-3xl w-full my-8 overflow-hidden shadow-2xl text-[#dae2fd]">
+    <div className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+      <div className="bg-white border border-slate-200 rounded-md max-w-3xl w-full my-8 overflow-hidden shadow-xl text-slate-800">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 p-6 border-b border-white/10 flex items-center justify-between">
+        <div className="bg-white p-6 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-[#2fd9f4]/15 border border-[#2fd9f4]/30 text-[#2fd9f4]">
+            <div className="p-2.5 rounded bg-blue-50 border border-blue-200 text-[#1890ff]">
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-white flex items-center gap-2">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <span>Cadastrar Novo Certificado de Aluno</span>
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#2fd9f4]/20 text-[#2fd9f4] font-mono border border-[#2fd9f4]/30 uppercase font-extrabold">
+                <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-[#1890ff] font-mono border border-blue-200 uppercase font-extrabold">
                   Carteira do Instrutor
                 </span>
               </h3>
-              <p className="text-xs text-[#c7c4d7]">
+              <p className="text-xs text-slate-500 font-medium">
                 Emita um certificado oficial com upload de arquivo ou modelo pré-formatado para o perfil do aluno
               </p>
             </div>
@@ -164,7 +164,7 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-[#c7c4d7] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-2 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -175,8 +175,8 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Student Dropdown Selection */}
             <div className="space-y-1.5 md:col-span-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#c7c4d7] flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-[#2fd9f4]" />
+              <label className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-[#1890ff]" />
                 <span>Selecionar Aluno (Destinatário)</span>
               </label>
               <select
@@ -195,10 +195,10 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
                     setStudentEmail('');
                   }
                 }}
-                className="w-full bg-slate-900 border border-white/20 rounded-xl p-3 text-xs text-white outline-none focus:ring-2 focus:ring-[#2fd9f4] cursor-pointer"
+                className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
               >
                 {STUDENT_OPTIONS.map((student) => (
-                  <option key={student.name} value={student.name} className="bg-slate-900 text-white p-2">
+                  <option key={student.name} value={student.name} className="bg-white text-slate-800 p-2">
                     {student.name === 'OUTRO' ? '➕ Outro Aluno (Digitar manualmente...)' : `${student.name} (${student.email})`}
                   </option>
                 ))}
@@ -213,14 +213,14 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
                     onChange={(e) => setStudentName(e.target.value)}
                     placeholder="Nome completo do aluno"
                     required
-                    className="w-full bg-slate-900/90 border border-[#2fd9f4]/40 rounded-xl p-3 text-xs text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-[#2fd9f4]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#1890ff] font-medium"
                   />
                   <input
                     type="email"
                     value={studentEmail}
                     onChange={(e) => setStudentEmail(e.target.value)}
                     placeholder="E-mail do aluno"
-                    className="w-full bg-slate-900/90 border border-[#2fd9f4]/40 rounded-xl p-3 text-xs text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-[#2fd9f4]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#1890ff] font-medium"
                   />
                 </div>
               )}
@@ -228,8 +228,8 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
 
             {/* Course Dropdown Selection */}
             <div className="space-y-1.5 md:col-span-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#c7c4d7] flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5 text-[#2fd9f4]" />
+              <label className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <BookOpen className="w-3.5 h-3.5 text-[#1890ff]" />
                 <span>Selecionar Curso / Formação Concluída</span>
               </label>
               <select
@@ -243,10 +243,10 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
                     setCourseTitle('');
                   }
                 }}
-                className="w-full bg-slate-900 border border-white/20 rounded-xl p-3 text-xs text-white outline-none focus:ring-2 focus:ring-[#2fd9f4] cursor-pointer"
+                className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
               >
                 {COURSE_OPTIONS.map((course) => (
-                  <option key={course} value={course} className="bg-slate-900 text-white p-2">
+                  <option key={course} value={course} className="bg-white text-slate-800 p-2">
                     {course === 'OUTRO' ? '➕ Outro Curso (Digitar manualmente...)' : course}
                   </option>
                 ))}
@@ -261,7 +261,7 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
                     onChange={(e) => setCourseTitle(e.target.value)}
                     placeholder="Nome personalizado do curso ou formação"
                     required
-                    className="w-full bg-slate-900/90 border border-[#2fd9f4]/40 rounded-xl p-3 text-xs text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-[#2fd9f4]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#1890ff] font-medium"
                   />
                 </div>
               )}
@@ -269,8 +269,8 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
 
             {/* Workload hours */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#c7c4d7] flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-[#2fd9f4]" />
+              <label className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-[#1890ff]" />
                 <span>Carga Horária (Horas)</span>
               </label>
               <input
@@ -279,14 +279,14 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
                 onChange={(e) => setHours(Number(e.target.value))}
                 min={1}
                 required
-                className="w-full bg-slate-900/80 border border-white/15 rounded-xl p-3 text-xs text-white outline-none focus:ring-2 focus:ring-[#2fd9f4]"
+                className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] font-medium"
               />
             </div>
 
             {/* Registration Number */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#c7c4d7] flex items-center gap-1.5">
-                <Key className="w-3.5 h-3.5 text-[#2fd9f4]" />
+              <label className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <Key className="w-3.5 h-3.5 text-[#1890ff]" />
                 <span>Número de Registração / Protocolo</span>
               </label>
               <input
@@ -294,28 +294,28 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
                 value={registrationNumber}
                 onChange={(e) => setRegistrationNumber(e.target.value)}
                 placeholder="Ex: Registração 0120022 ou RegistroIC00123:01"
-                className="w-full bg-slate-900/80 border border-white/15 rounded-xl p-3 text-xs text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-[#2fd9f4]"
+                className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#1890ff] font-medium"
               />
             </div>
 
             {/* Credential ID */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#c7c4d7] flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#2fd9f4]" />
+              <label className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#1890ff]" />
                 <span>Código Verificador de Credencial</span>
               </label>
               <input
                 type="text"
                 value={credentialId}
                 onChange={(e) => setCredentialId(e.target.value)}
-                className="w-full bg-slate-900/80 border border-white/15 rounded-xl p-3 text-xs text-white outline-none focus:ring-2 focus:ring-[#2fd9f4] font-mono"
+                className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] font-mono font-bold"
               />
             </div>
 
             {/* Issue Date */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#c7c4d7] flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#2fd9f4]" />
+              <label className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-[#1890ff]" />
                 <span>Data de Emissão</span>
               </label>
               <input
@@ -323,32 +323,32 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
                 value={issueDate}
                 onChange={(e) => setIssueDate(e.target.value)}
                 placeholder="Ex: 22 de Julho de 2026"
-                className="w-full bg-slate-900/80 border border-white/15 rounded-xl p-3 text-xs text-white outline-none focus:ring-2 focus:ring-[#2fd9f4]"
+                className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] font-medium"
               />
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-[#c7c4d7]">
+            <label className="text-xs font-black uppercase tracking-wider text-slate-700">
               Texto de Certificação & Escopo
             </label>
             <textarea
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-slate-900/80 border border-white/15 rounded-xl p-3 text-xs text-white outline-none focus:ring-2 focus:ring-[#2fd9f4] resize-none"
+              className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] resize-none font-medium"
             />
           </div>
 
           {/* Primary File Upload Dropzone */}
-          <div className="space-y-3 pt-4 border-t border-white/10">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-[#2fd9f4] flex items-center justify-between">
+          <div className="space-y-3 pt-4 border-t border-slate-200">
+            <label className="block text-xs font-black uppercase tracking-wider text-[#1890ff] flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <Upload className="w-4 h-4 text-[#2fd9f4]" />
+                <Upload className="w-4 h-4 text-[#1890ff]" />
                 <span>Upload do Arquivo de Imagem do Certificado</span>
               </span>
-              <span className="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              <span className="text-[10px] text-emerald-800 font-mono bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
                 Recomendado (PNG, JPG, WEBP)
               </span>
             </label>
@@ -359,12 +359,12 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-3xl p-6 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-3 relative overflow-hidden ${
+              className={`border-2 border-dashed rounded-md p-6 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-3 relative overflow-hidden ${
                 isDragging
-                  ? 'border-[#2fd9f4] bg-[#2fd9f4]/15 scale-[1.01]'
+                  ? 'border-[#1890ff] bg-blue-50'
                   : uploadedImageUrl
-                  ? 'border-emerald-500/50 bg-slate-900/90'
-                  : 'border-white/20 bg-white/5 hover:bg-white/10 hover:border-[#2fd9f4]/50'
+                  ? 'border-emerald-500 bg-emerald-50/20'
+                  : 'border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-[#1890ff]'
               }`}
             >
               <input
@@ -377,34 +377,34 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
 
               {uploadedImageUrl ? (
                 <div className="w-full space-y-4">
-                  <div className="relative max-w-md mx-auto rounded-2xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl group">
+                  <div className="relative max-w-md mx-auto rounded overflow-hidden border-2 border-emerald-500 shadow-md group">
                     <img
                       src={uploadedImageUrl}
                       alt="Imagem do Certificado Uploaded"
-                      className="w-full h-48 object-contain bg-slate-950 p-2"
+                      className="w-full h-48 object-contain bg-white p-2"
                     />
-                    <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <span className="text-xs font-bold text-white bg-slate-900 px-3 py-1.5 rounded-xl border border-white/20">
+                    <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <span className="text-xs font-bold text-white bg-slate-900 px-3 py-1.5 rounded">
                         Trocar Imagem
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center gap-2 text-emerald-400 text-xs font-bold">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <div className="flex items-center justify-center gap-2 text-emerald-800 text-xs font-bold">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     <span>Imagem exata do certificado pronta para ser vinculada ao perfil! ({uploadedFileName})</span>
                   </div>
                 </div>
               ) : (
                 <>
-                  <div className="w-14 h-14 rounded-2xl bg-[#2fd9f4]/10 border border-[#2fd9f4]/30 flex items-center justify-center text-[#2fd9f4] shadow-inner">
-                    <Upload className="w-7 h-7" />
+                  <div className="w-12 h-12 rounded bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1890ff]">
+                    <Upload className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">
+                    <h4 className="text-sm font-extrabold text-slate-900">
                       Arraste e solte o arquivo da imagem do certificado aqui
                     </h4>
-                    <p className="text-xs text-[#c7c4d7] mt-0.5">
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">
                       ou clique em qualquer área para selecionar uma imagem do seu dispositivo (PNG, JPG, WEBP)
                     </p>
                   </div>
@@ -414,7 +414,7 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
 
             {/* Alternative Formats Selection */}
             <div className="pt-2">
-              <span className="text-[11px] font-bold text-slate-400 block mb-2">
+              <span className="text-[11px] font-bold text-slate-600 block mb-2">
                 Ou selecione um modelo visual pré-formatado (caso não tenha o arquivo de imagem):
               </span>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -426,19 +426,19 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
                     setUploadedImageUrl(null);
                     setUploadedFileName(null);
                   }}
-                  className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                  className={`p-3 rounded border text-left transition-all cursor-pointer ${
                     templateType === 'oficial_alchymist' && !uploadedImageUrl
-                      ? 'bg-[#2fd9f4]/15 border-[#2fd9f4] ring-2 ring-[#2fd9f4]/30'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
+                      ? 'bg-blue-50 border-[#1890ff] ring-1 ring-[#1890ff]/20'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-white">Moldura Ouro Alchymist</span>
+                    <span className="text-xs font-extrabold text-slate-900">Moldura Ouro Alchymist</span>
                     {templateType === 'oficial_alchymist' && !uploadedImageUrl && (
-                      <CheckCircle2 className="w-4 h-4 text-[#2fd9f4]" />
+                      <CheckCircle2 className="w-4 h-4 text-[#1890ff]" />
                     )}
                   </div>
-                  <p className="text-[10px] text-[#c7c4d7]">Estilo clássico dourado com selo Alquimia do Prato</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Estilo clássico dourado com selo Alquimia do Prato</p>
                 </button>
 
                 {/* Template Option 2: Pergaminho Rústico */}
@@ -449,29 +449,29 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
                     setUploadedImageUrl(null);
                     setUploadedFileName(null);
                   }}
-                  className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                  className={`p-3 rounded border text-left transition-all cursor-pointer ${
                     templateType === 'pergaminho_sagacitas' && !uploadedImageUrl
-                      ? 'bg-[#8083ff]/15 border-[#8083ff] ring-2 ring-[#8083ff]/30'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
+                      ? 'bg-blue-50 border-[#1890ff] ring-1 ring-[#1890ff]/20'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-white">Pergaminho Rústico</span>
+                    <span className="text-xs font-extrabold text-slate-900">Pergaminho Rústico</span>
                     {templateType === 'pergaminho_sagacitas' && !uploadedImageUrl && (
-                      <CheckCircle2 className="w-4 h-4 text-[#8083ff]" />
+                      <CheckCircle2 className="w-4 h-4 text-[#1890ff]" />
                     )}
                   </div>
-                  <p className="text-[10px] text-[#c7c4d7]">Visual pergaminho envelhecido com brasão oficial</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Visual pergaminho envelhecido com brasão oficial</p>
                 </button>
               </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-white/10">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-200">
             <button
               type="submit"
-              className="flex-1 py-3.5 bg-gradient-to-r from-[#2fd9f4] to-[#8083ff] text-[#001f25] rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg active:scale-98 cursor-pointer"
+              className="flex-1 py-3 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
             >
               <Award className="w-4 h-4" />
               <span>Cadastrar & Enviar para Perfil do Aluno</span>
@@ -480,7 +480,7 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl font-bold text-xs text-[#c7c4d7] hover:text-white transition-all cursor-pointer"
+              className="px-6 py-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded font-bold text-xs text-slate-700 transition-all cursor-pointer"
             >
               Cancelar
             </button>

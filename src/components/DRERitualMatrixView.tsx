@@ -20,14 +20,14 @@ export const DRERitualMatrixView: React.FC = () => {
   };
 
   const stepsList = [
-    { num: 1, title: 'Consolidação das Vendas do Mês', desc: 'Conferir o faturamento bruto total e verificar se todas as vendas balcão, mesa e delivery foram integradas no Alchymist Manager.' },
-    { num: 2, title: 'Conferência de Deduções Diretas', desc: 'Verificar se as taxas de cartão de crédito/débito, comissões de marketplaces (iFood, Rappi) e impostos diretos batem com os extratos.' },
+    { num: 1, title: 'Consolidação das Vendas do Mês', desc: 'Conferir o faturamento bruto total e verificar se todas as vendas balcão, mesa e delivery foram integradas.' },
+    { num: 2, title: 'Conferência de Deduções Diretas', desc: 'Verificar se as taxas de cartão de crédito/débito, comissões de marketplaces e impostos diretos batem com os extratos.' },
     { num: 3, title: 'Apuração da Receita Líquida', desc: 'Calcular a Receita Líquida (Receita Bruta - Deduções) e confirmar o percentual real retido pela operação.' },
     { num: 4, title: 'Fechamento do CMV do Mês', desc: 'Somar compras de proteínas, hortifrúti, laticínios, secos, embalagens e bebidas atreladas às vendas do período.' },
     { num: 5, title: 'Cálculo do Lucro Bruto e Margem Bruta', desc: 'Verificar se a Margem Bruta atingiu a meta (recomendado: superior a 60-68% da Receita Líquida).' },
     { num: 6, title: 'Auditoria de Despesas Operacionais', desc: 'Revisar folha de pagamento, encargos, aluguel, energia elétrica, água, sistemas e marketing.' },
-    { num: 7, title: 'Análise do EBITDA e Resultado Operacional', desc: 'Avaliar a sobra operacional gerada antes das retiradas dos sócios ou investimentos de capital.' },
-    { num: 8, title: 'Análise de Desvios (Valores Absolutos vs. %)', desc: 'Comparar o resultado do mês atual com o mês anterior e com a meta estipulada no Alchymist Manager.' },
+    { num: 7, title: 'Análise do Resultado Operacional', desc: 'Avaliar a sobra operacional gerada antes das retiradas dos sócios ou investimentos de capital.' },
+    { num: 8, title: 'Análise de Desvios (Valores Absolutos vs. %)', desc: 'Comparar o resultado do mês atual com o mês anterior e com a meta estipulada.' },
     { num: 9, title: 'Classificação na Matriz de Decisão Gerencial', desc: 'Identificar qual dos 4 Cenários de Variação descreve o momento atual do restaurante.' },
     { num: 10, title: 'Registro do Plano de Ação de 30 Dias', desc: 'Definir 3 ações prioritárias (Imediata, 7 dias, Fechamento) e atribuir os responsáveis.' },
   ];
@@ -38,7 +38,7 @@ export const DRERitualMatrixView: React.FC = () => {
       id: 1,
       name: 'Cenário 1: Faturamento sobe e lucro cai',
       type: 'ALERTA DE MARGEM',
-      badgeColor: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
+      badgeColor: 'bg-amber-50 text-amber-800 border-amber-200',
       rootCauses: [
         'Aumento do CMV (matéria-prima mais cara ou desperdício na cozinha)',
         'Mudança desfavorável no mix de vendas (produtos com menor margem vendendo mais)',
@@ -47,7 +47,7 @@ export const DRERitualMatrixView: React.FC = () => {
         'Elevação de despesas operacionais variáveis (embalagens, entregadores extra)',
       ],
       managerActions: [
-        'Manutenção: Monitorar itens de maior volume no Alchymist Manager',
+        'Manutenção: Monitorar itens de maior volume no sistema',
         'Correção: Revisar fichas técnicas e limitar promoções sem margem mínima',
         'Acompanhamento: Auditar semanalmente o CMV dos 10 insumos mais pesados',
       ],
@@ -56,7 +56,7 @@ export const DRERitualMatrixView: React.FC = () => {
       id: 2,
       name: 'Cenário 2: Margem bruta cai (Cozinha & Compras)',
       type: 'ALERTA DE CMV',
-      badgeColor: 'bg-red-500/10 text-red-300 border-red-500/30',
+      badgeColor: 'bg-red-50 text-red-800 border-red-200',
       rootCauses: [
         'Aumento não repassado nos preços dos insumos críticos (carnes, queijos, óleos)',
         'Desperdício ou perda de rendimento na preparação dos pratos',
@@ -72,9 +72,9 @@ export const DRERitualMatrixView: React.FC = () => {
     },
     {
       id: 3,
-      name: 'Cenário 3: EBITDA pressionado (Estrutura Pesada)',
+      name: 'Cenário 3: Margem pressionada (Estrutura Pesada)',
       type: 'ALERTA DE ESTRUTURA',
-      badgeColor: 'bg-purple-500/10 text-purple-300 border-purple-500/30',
+      badgeColor: 'bg-purple-50 text-purple-800 border-purple-200',
       rootCauses: [
         'Folha de pagamento superdimensionada para o volume atual de vendas',
         'Aluguel, condomínio ou custos fixos ocupando percentual excessivo',
@@ -91,7 +91,7 @@ export const DRERitualMatrixView: React.FC = () => {
       id: 4,
       name: 'Cenário 4: Faturamento próximo do Ponto de Equilíbrio',
       type: 'RISCO OPERACIONAL',
-      badgeColor: 'bg-orange-500/10 text-orange-300 border-orange-500/30',
+      badgeColor: 'bg-orange-50 text-orange-800 border-orange-200',
       rootCauses: [
         'Movimento insuficiente no salão/delivery para cobrir o custo fixo',
         'Operação sem margem de segurança (qualquer chuva ou feriado gera prejuízo)',
@@ -106,37 +106,37 @@ export const DRERitualMatrixView: React.FC = () => {
   ];
 
   return (
-    <div id="matrix-page" className="pt-20 px-8 pb-12 max-w-[1440px] mx-auto space-y-8">
+    <div id="matrix-page" className="pt-16 md:pt-18 px-3 md:px-5 pb-8 max-w-[1440px] mx-auto space-y-4 bg-[#f9f9ff] min-h-screen">
       {/* Header */}
-      <div className="border-b border-white/10 pb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="border-b border-slate-200 pb-4 bg-white p-4 rounded-md shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         <div>
-          <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#2fd9f4] block mb-1">
-            Sagacitas E-Learning • Alchymist Manager
+          <span className="text-[10px] uppercase font-black tracking-wider text-[#1890ff] bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200 inline-block mb-1">
+            Gestão Prática
           </span>
-          <h2 className="text-3xl font-extrabold text-[#dae2fd] tracking-tight flex items-center gap-3">
-            <Layers className="w-8 h-8 text-[#2fd9f4]" />
-            <span>Matriz de Decisões & Ritual Mensal do Dono</span>
+          <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <Layers className="w-6 h-6 text-[#1890ff]" />
+            <span>Matriz de Decisões & Ritual Mensal</span>
           </h2>
-          <p className="text-sm text-[#c7c4d7] mt-1">
-            Transforme os dados da DRE do Alchymist Manager em ações práticas de gestão com o método de 10 passos e diagnósticos por cenários.
+          <p className="text-xs text-slate-600 mt-0.5 font-medium">
+            Transforme os dados financeiros em ações práticas de gestão com o método de 10 passos e diagnósticos por cenários.
           </p>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10">
+        <div className="flex bg-slate-100 p-1 rounded border border-slate-200">
           <button
             onClick={() => setActiveTab('matrix')}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'matrix' ? 'bg-[#2fd9f4] text-black shadow-lg shadow-[#2fd9f4]/20' : 'text-[#c7c4d7] hover:text-white'
+            className={`px-4 py-2 rounded text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'matrix' ? 'bg-[#1890ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <ShieldAlert className="w-4 h-4" />
-            <span>Matriz de Ações Gerenciais</span>
+            <span>Matriz de Ações</span>
           </button>
           <button
             onClick={() => setActiveTab('ritual')}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'ritual' ? 'bg-[#2fd9f4] text-black shadow-lg shadow-[#2fd9f4]/20' : 'text-[#c7c4d7] hover:text-white'
+            className={`px-4 py-2 rounded text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'ritual' ? 'bg-[#1890ff] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <CheckSquare className="w-4 h-4" />
@@ -148,44 +148,44 @@ export const DRERitualMatrixView: React.FC = () => {
       {activeTab === 'matrix' ? (
         /* Matrix Scenarios Section */
         <div className="space-y-6">
-          <div className="bg-white/[0.04] border border-white/10 rounded-[24px] p-6 text-xs text-[#c7c4d7] leading-relaxed flex items-start gap-4">
-            <Sparkles className="w-6 h-6 text-[#2fd9f4] shrink-0 mt-1" />
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-xs text-slate-700 leading-relaxed flex items-start gap-3">
+            <Sparkles className="w-5 h-5 text-[#1890ff] shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-[#dae2fd] text-sm mb-1">Como usar a Matriz de Ações Gerenciais da Sagacitas E-Learning</p>
-              <p>
-                Identifique a situação atual do seu restaurante no Alchymist Manager. Cada cenário apresenta as causas raízes mais frequentes e as ações imediatas (Manutenção, Correção e Acompanhamento) recomendadas.
+              <p className="font-extrabold text-slate-900 text-sm mb-0.5">Como usar a Matriz de Ações Gerenciais</p>
+              <p className="font-medium">
+                Identifique a situação atual do seu estabelecimento. Cada cenário apresenta as causas raízes mais frequentes e as ações recomendadas de manutenção, correção e acompanhamento.
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {matrixScenarios.map((sc) => (
-              <div key={sc.id} className="bg-white/[0.06] backdrop-blur-2xl border border-white/10 rounded-[24px] p-6 space-y-4 hover:border-white/20 transition-all">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <h3 className="font-bold text-base text-[#dae2fd]">{sc.name}</h3>
-                  <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${sc.badgeColor}`}>
+              <div key={sc.id} className="bg-white border border-slate-200 rounded-md p-5 space-y-4 hover:border-[#1890ff] transition-all shadow-2xs">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="font-black text-sm text-slate-900">{sc.name}</h3>
+                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded border ${sc.badgeColor}`}>
                     {sc.type}
                   </span>
                 </div>
 
-                <div className="space-y-2">
-                  <p className="text-xs font-bold text-[#c0c1ff] uppercase tracking-wider">Causas Raízes Prováveis:</p>
-                  <ul className="space-y-1 text-xs text-[#c7c4d7]">
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Causas Raízes Prováveis:</p>
+                  <ul className="space-y-1 text-xs text-slate-600 font-medium">
                     {sc.rootCauses.map((rc, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <span className="text-[#2fd9f4] font-bold">•</span>
+                      <li key={idx} className="flex items-start gap-1.5">
+                        <span className="text-[#1890ff] font-bold">•</span>
                         <span>{rc}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="pt-3 border-t border-white/10 space-y-2">
-                  <p className="text-xs font-bold text-[#2fd9f4] uppercase tracking-wider">Ações Gerenciais Recomendadas:</p>
-                  <div className="space-y-1.5 text-xs">
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <p className="text-[10px] font-black text-[#1890ff] uppercase tracking-wider">Ações Gerenciais Recomendadas:</p>
+                  <div className="space-y-1 text-xs">
                     {sc.managerActions.map((ma, idx) => (
-                      <div key={idx} className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-[#dae2fd] font-medium flex items-center gap-2">
-                        <ChevronRight className="w-3.5 h-3.5 text-[#2fd9f4] shrink-0" />
+                      <div key={idx} className="p-2 rounded bg-slate-50 border border-slate-100 text-slate-800 font-bold flex items-center gap-2">
+                        <ChevronRight className="w-3.5 h-3.5 text-[#1890ff] shrink-0" />
                         <span>{ma}</span>
                       </div>
                     ))}
@@ -197,48 +197,48 @@ export const DRERitualMatrixView: React.FC = () => {
         </div>
       ) : (
         /* Ritual Checklist Section */
-        <div className="bg-white/[0.06] backdrop-blur-2xl border border-white/10 rounded-[24px] p-8 space-y-6">
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="bg-white border border-slate-200 rounded-md p-6 space-y-6 shadow-2xs">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-              <h3 className="text-lg font-bold text-[#dae2fd]">Checklist do Ritual Mensal de Leitura no Alchymist Manager</h3>
-              <p className="text-xs text-[#c7c4d7]">Progresso do Fechamento Atual: {completedSteps.length} de 10 passos concluídos</p>
+              <h3 className="text-base font-black text-slate-900">Checklist do Ritual Mensal de Leitura</h3>
+              <p className="text-xs text-slate-500 font-medium">Progresso do Fechamento Atual: {completedSteps.length} de 10 passos concluídos</p>
             </div>
 
-            <div className="w-48 bg-white/10 h-3 rounded-full overflow-hidden p-0.5">
+            <div className="w-48 bg-slate-100 h-2.5 rounded overflow-hidden p-0.5 border border-slate-200">
               <div
-                className="bg-[#2fd9f4] h-full rounded-full transition-all duration-500"
+                className="bg-[#1890ff] h-full rounded transition-all duration-300"
                 style={{ width: `${(completedSteps.length / 10) * 100}%` }}
               />
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {stepsList.map((step) => {
               const isDone = completedSteps.includes(step.num);
               return (
                 <div
                   key={step.num}
-                  className={`p-4 rounded-2xl border transition-all space-y-2 ${
-                    isDone ? 'bg-[#2fd9f4]/10 border-[#2fd9f4]/30' : 'bg-white/5 border-white/10 hover:border-white/20'
+                  className={`p-3.5 rounded border transition-all space-y-2 ${
+                    isDone ? 'bg-blue-50/60 border-blue-200' : 'bg-slate-50 border-slate-200 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex items-start gap-3 cursor-pointer" onClick={() => toggleStep(step.num)}>
-                    <button className="mt-0.5 text-[#2fd9f4]">
-                      {isDone ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5 text-[#c7c4d7]" />}
+                    <button className="mt-0.5 text-[#1890ff] cursor-pointer">
+                      {isDone ? <CheckSquare className="w-5 h-5 text-[#1890ff]" /> : <Square className="w-5 h-5 text-slate-400" />}
                     </button>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-[#2fd9f4]">PASSO {step.num}</span>
-                        <h4 className={`text-sm font-bold ${isDone ? 'line-through text-[#c7c4d7]' : 'text-[#dae2fd]'}`}>
+                        <span className="text-[10px] font-black text-[#1890ff] bg-blue-100 px-1.5 py-0.5 rounded">PASSO {step.num}</span>
+                        <h4 className={`text-xs font-black ${isDone ? 'line-through text-slate-400' : 'text-slate-900'}`}>
                           {step.title}
                         </h4>
                       </div>
-                      <p className="text-xs text-[#c7c4d7] mt-1">{step.desc}</p>
+                      <p className="text-xs text-slate-600 mt-0.5 font-medium">{step.desc}</p>
                     </div>
                   </div>
 
                   {/* Decision note logger */}
-                  <div className="ml-8 pt-2">
+                  <div className="ml-8 pt-1">
                     <input
                       type="text"
                       placeholder="Adicionar nota ou decisão tomada neste passo..."
@@ -246,7 +246,7 @@ export const DRERitualMatrixView: React.FC = () => {
                       onChange={(e) =>
                         setDecisionNotes({ ...decisionNotes, [step.num]: e.target.value })
                       }
-                      className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-[#dae2fd] placeholder-[#c7c4d7]/40 focus:outline-none focus:border-[#2fd9f4]"
+                      className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#1890ff] shadow-2xs font-medium"
                     />
                   </div>
                 </div>

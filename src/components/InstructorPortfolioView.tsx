@@ -137,34 +137,34 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
   };
 
   return (
-    <div id="instructor-portfolio-page" className="min-h-screen bg-slate-100 text-slate-900 p-4 md:p-8 space-y-8">
+    <div id="instructor-portfolio-page" className="min-h-screen bg-[#f9f9ff] text-slate-900 px-3 md:px-5 pb-8 space-y-4 pt-16 md:pt-18 max-w-[1440px] mx-auto">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-8 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl font-bold text-xs shadow-2xl animate-bounce border border-indigo-400">
+        <div className="fixed top-16 right-6 z-50 bg-slate-900 text-white px-3.5 py-2 rounded font-bold text-xs shadow-lg animate-bounce border border-blue-400">
           {toastMessage}
         </div>
       )}
 
       {/* Top Banner Header */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 md:p-10 text-white border border-slate-800 shadow-xl space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 text-xs font-bold font-mono uppercase tracking-widest">
-              <Inbox className="w-4 h-4 text-indigo-400" />
-              <span>Portal Sagacitas • Gestão Pedagógica & Certificação</span>
+      <div className="bg-white rounded-md p-4 md:p-5 border border-slate-200 shadow-2xs space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-blue-50 text-[#1890ff] border border-blue-200 text-[10px] font-black uppercase tracking-wider">
+              <Inbox className="w-3.5 h-3.5 text-[#1890ff]" />
+              <span>Sagacitas E-Learning • Gestão Pedagógica & Certificação</span>
             </div>
-            <h1 className="text-2xl md:text-4xl font-black tracking-tight text-white">
+            <h1 className="text-xl md:text-2xl font-black tracking-tight text-slate-900">
               Carteira do Instrutor
             </h1>
-            <p className="text-xs md:text-sm text-slate-300 font-medium max-w-2xl leading-relaxed">
-              Responda às dúvidas dos alunos em tempo real e cadastre os certificados de conclusão com upload e autenticação oficial para o perfil dos estudantes.
+            <p className="text-xs text-slate-600 font-medium max-w-2xl leading-relaxed">
+              Responda às dúvidas dos alunos em tempo real e cadastre os certificados de conclusão oficiais.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setIsRegisterCertModalOpen(true)}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2fd9f4] to-[#8083ff] text-[#001f25] font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-lg active:scale-95"
+              className="px-4 py-2 rounded bg-[#1890ff] hover:bg-[#096dd9] text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-98"
             >
               <Award className="w-4 h-4" />
               <span>+ Cadastrar Certificado</span>
@@ -172,16 +172,16 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
 
             <button
               onClick={handleSimulateNewQuestion}
-              className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/15 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+              className="px-3.5 py-2 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300 transition-all flex items-center gap-2 cursor-pointer"
             >
-              <Plus className="w-4 h-4 text-indigo-400" />
+              <Plus className="w-3.5 h-3.5 text-[#1890ff]" />
               <span>+ Simular Dúvida</span>
             </button>
 
             {onSelectLessonView && (
               <button
                 onClick={onSelectLessonView}
-                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                className="px-4 py-2 rounded bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs"
               >
                 <Presentation className="w-4 h-4" />
                 <span>Sala de Aula</span>
@@ -191,65 +191,65 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
         </div>
 
         {/* Metric Cards Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-              Total Dúvidas Recebidas
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-4 border-t border-slate-100">
+          <div className="p-3.5 rounded bg-slate-50 border border-slate-200 space-y-0.5">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+              Total Dúvidas
             </span>
-            <div className="text-2xl md:text-3xl font-black text-white">{questions.length}</div>
-            <span className="text-[10px] text-indigo-300 font-semibold">Geral registradas</span>
+            <div className="text-xl font-black text-slate-900">{questions.length}</div>
+            <span className="text-[10px] text-slate-500 font-medium">Registradas no portal</span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
+          <div className="p-3.5 rounded bg-amber-50 border border-amber-200 space-y-0.5">
+            <span className="text-[10px] font-black uppercase tracking-wider text-amber-800">
               Dúvidas Pendentes
             </span>
-            <div className="text-2xl md:text-3xl font-black text-amber-400">{pendingCount}</div>
-            <span className="text-[10px] text-amber-200 font-bold">⚠️ Aguardando resposta</span>
+            <div className="text-xl font-black text-amber-800">{pendingCount}</div>
+            <span className="text-[10px] text-amber-700 font-bold">⚠️ Aguardando resposta</span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-300">
+          <div className="p-3.5 rounded bg-emerald-50 border border-emerald-200 space-y-0.5">
+            <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800">
               Certificados Emitidos
             </span>
-            <div className="text-2xl md:text-3xl font-black text-emerald-400">{certificates.length}</div>
-            <span className="text-[10px] text-emerald-300 font-bold">✓ Disponíveis no perfil do aluno</span>
+            <div className="text-xl font-black text-emerald-800">{certificates.length}</div>
+            <span className="text-[10px] text-emerald-700 font-bold">✓ No perfil do aluno</span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-sky-500/10 border border-sky-500/30 space-y-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-sky-300">
-              Autenticação Sagacitas
+          <div className="p-3.5 rounded bg-blue-50 border border-blue-200 space-y-0.5">
+            <span className="text-[10px] font-black uppercase tracking-wider text-blue-900">
+              Autenticação Oficial
             </span>
-            <div className="text-2xl md:text-3xl font-black text-sky-300">100%</div>
-            <span className="text-[10px] text-sky-200 font-semibold">Credenciais Verificadas</span>
+            <div className="text-xl font-black text-[#1890ff]">100%</div>
+            <span className="text-[10px] text-blue-800 font-medium">Credenciais Verificadas</span>
           </div>
         </div>
       </div>
 
       {/* Primary Section Switcher Tabs */}
-      <div className="flex items-center gap-3 border-b border-slate-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
         <button
           onClick={() => setActiveTab('duvidas')}
-          className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded font-black text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'duvidas'
-              ? 'bg-slate-900 text-white shadow-md'
-              : 'bg-white text-slate-600 hover:bg-slate-200 border border-slate-200'
+              ? 'bg-[#1890ff] text-white shadow-xs'
+              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
           }`}
         >
-          <MessageSquare className="w-4 h-4 text-[#2fd9f4]" />
+          <MessageSquare className="w-4 h-4" />
           <span>Atendimento de Dúvidas ({questions.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('certificados')}
-          className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded font-black text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'certificados'
-              ? 'bg-slate-900 text-white shadow-md'
-              : 'bg-white text-slate-600 hover:bg-slate-200 border border-slate-200'
+              ? 'bg-[#1890ff] text-white shadow-xs'
+              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
           }`}
         >
-          <Award className="w-4 h-4 text-[#8083ff]" />
-          <span>Gestão & Cadastro de Certificados ({certificates.length})</span>
+          <Award className="w-4 h-4" />
+          <span>Gestão de Certificados ({certificates.length})</span>
         </button>
       </div>
 
@@ -257,14 +257,14 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
       {activeTab === 'duvidas' && (
         <div className="space-y-6">
           {/* Filter Toolbar & Search */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-md border border-slate-200 shadow-2xs">
             {/* Filter buttons */}
             <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
               <button
                 onClick={() => setFilterStatus('todas')}
-                className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border ${
+                className={`px-3.5 py-1.5 rounded text-xs font-black transition-all cursor-pointer border ${
                   filterStatus === 'todas'
-                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                    ? 'bg-[#1890ff] text-white border-[#1890ff] shadow-xs'
                     : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
@@ -273,7 +273,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
 
               <button
                 onClick={() => setFilterStatus('pendente')}
-                className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border flex items-center gap-1.5 ${
+                className={`px-3.5 py-1.5 rounded text-xs font-black transition-all cursor-pointer border flex items-center gap-1.5 ${
                   filterStatus === 'pendente'
                     ? 'bg-amber-500 text-slate-950 border-amber-500 font-extrabold shadow-xs'
                     : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -285,7 +285,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
 
               <button
                 onClick={() => setFilterStatus('respondida')}
-                className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border flex items-center gap-1.5 ${
+                className={`px-3.5 py-1.5 rounded text-xs font-black transition-all cursor-pointer border flex items-center gap-1.5 ${
                   filterStatus === 'respondida'
                     ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
                     : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -306,7 +306,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar por aluno, slide ou conteúdo..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-xs font-medium text-slate-900 placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded py-1.5 pl-9 pr-4 text-xs font-medium text-slate-900 placeholder-slate-400 outline-none focus:border-[#1890ff]"
               />
             </div>
           </div>
@@ -314,7 +314,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
           {/* Questions Feed Cards */}
           <div className="space-y-6">
             {filteredQuestions.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-4 shadow-xs">
+              <div className="bg-white rounded-md p-12 text-center border border-slate-200 space-y-4 shadow-2xs">
                 <Inbox className="w-12 h-12 text-slate-300 mx-auto" />
                 <div className="space-y-1">
                   <h3 className="text-lg font-black text-slate-800">Nenhuma dúvida encontrada</h3>
@@ -330,8 +330,8 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                 return (
                   <div
                     key={q.id}
-                    className={`bg-white rounded-3xl border transition-all overflow-hidden shadow-sm ${
-                      isPending ? 'border-amber-300/80 ring-2 ring-amber-400/20' : 'border-slate-200'
+                    className={`bg-white rounded-md border transition-all overflow-hidden shadow-2xs ${
+                      isPending ? 'border-amber-300 ring-1 ring-amber-400/30' : 'border-slate-200'
                     }`}
                   >
                     {/* Card Header Info */}
@@ -344,7 +344,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                         />
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-sm text-slate-900">{q.studentName}</span>
+                            <span className="font-black text-sm text-slate-900">{q.studentName}</span>
                             <span className="text-[10px] text-slate-400 font-mono font-medium">• {q.timestamp}</span>
                           </div>
                           <p className="text-xs text-slate-500 font-medium">{q.courseTitle}</p>
@@ -353,15 +353,15 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
 
                       {/* Status Badge & Slide context */}
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="px-3 py-1 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs font-bold flex items-center gap-1.5">
-                          <Presentation className="w-3.5 h-3.5 text-indigo-600" />
+                        <div className="px-2.5 py-1 rounded bg-blue-50 border border-blue-200 text-[#1890ff] text-xs font-bold flex items-center gap-1.5">
+                          <Presentation className="w-3.5 h-3.5 text-[#1890ff]" />
                           <span>
                             Aula {q.lessonNumber} • Slide {q.slideNumber}
                           </span>
                         </div>
 
                         <span
-                          className={`px-3 py-1 rounded-xl font-extrabold text-xs flex items-center gap-1.5 uppercase tracking-wider ${
+                          className={`px-2.5 py-1 rounded font-extrabold text-xs flex items-center gap-1.5 uppercase tracking-wider ${
                             isPending
                               ? 'bg-amber-100 text-amber-900 border border-amber-300'
                               : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
@@ -384,21 +384,21 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
 
                     {/* Card Body */}
                     <div className="p-5 md:p-6 space-y-4">
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
+                      <div className="p-3 rounded bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <BookOpen className="w-4 h-4 text-indigo-600" />
+                          <BookOpen className="w-4 h-4 text-[#1890ff]" />
                           <span className="font-bold text-slate-800">Slide Contexto:</span>
-                          <span className="text-indigo-900 font-extrabold">{q.slideTitle}</span>
+                          <span className="text-[#1890ff] font-black">{q.slideTitle}</span>
                         </div>
                         {q.slideCategory && (
-                          <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">
+                          <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-50 text-[#1890ff] border border-blue-200">
                             {q.slideCategory}
                           </span>
                         )}
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 space-y-1">
-                        <span className="text-[10px] uppercase font-bold text-indigo-700 tracking-wider">
+                      <div className="p-4 rounded bg-blue-50/50 border border-blue-100 space-y-1">
+                        <span className="text-[10px] uppercase font-black text-[#1890ff] tracking-wider">
                           Pergunta do Aluno:
                         </span>
                         <p className="text-sm md:text-base font-semibold text-slate-900 leading-relaxed">
@@ -408,7 +408,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
 
                       {isPending ? (
                         <div className="pt-2 space-y-3">
-                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                          <label className="block text-xs font-black uppercase tracking-wider text-slate-700">
                             Escrever Resposta do Instrutor ao Aluno:
                           </label>
                           <textarea
@@ -416,12 +416,12 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                             value={replyInputs[q.id] || ''}
                             onChange={(e) => handleInputChange(q.id, e.target.value)}
                             placeholder="Digite sua explicação detalhada para este aluno..."
-                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-xs md:text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
+                            className="w-full bg-slate-50 border border-slate-200 rounded p-3 text-xs md:text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:border-[#1890ff] transition-all resize-none"
                           />
                           <div className="flex justify-end">
                             <button
                               onClick={() => handleSendReply(q.id)}
-                              className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md transition-all active:scale-95"
+                              className="px-6 py-2.5 rounded bg-[#1890ff] hover:bg-[#096dd9] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-xs transition-all active:scale-98"
                             >
                               <span>Enviar Resposta ao Aluno</span>
                               <Send className="w-3.5 h-3.5" />
@@ -429,7 +429,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                           </div>
                         </div>
                       ) : (
-                        <div className="p-5 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-2">
+                        <div className="p-5 rounded bg-emerald-50/80 border border-emerald-200 space-y-2">
                           <div className="flex items-center justify-between text-xs text-emerald-900 font-bold">
                             <div className="flex items-center gap-2">
                               <CheckCircle2 className="w-4 h-4 text-emerald-600" />

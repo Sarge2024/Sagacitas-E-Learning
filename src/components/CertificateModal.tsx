@@ -138,30 +138,30 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
   return (
     <div
       id="certificate-modal-backdrop"
-      className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200 overflow-y-auto"
+      className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200 overflow-y-auto"
     >
       <div
         id="certificate-modal-content"
-        className="w-full max-w-3xl bg-[#171f33] border border-white/20 rounded-[32px] p-6 md:p-8 shadow-2xl relative text-[#dae2fd] space-y-6 my-8"
+        className="w-full max-w-3xl bg-white border border-slate-200 rounded-md p-6 md:p-8 shadow-xl relative text-slate-800 space-y-6 my-8"
       >
         <button
           id="close-cert-modal-btn"
           onClick={onClose}
-          className="absolute top-6 right-6 text-[#c7c4d7] hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+          className="absolute top-6 right-6 text-slate-400 hover:text-slate-700 p-2 rounded hover:bg-slate-100 transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header badge */}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-[#2fd9f4]/20 rounded-2xl flex items-center justify-center text-[#2fd9f4] border border-[#2fd9f4]/30">
+          <div className="w-12 h-12 bg-blue-50 rounded flex items-center justify-center text-[#1890ff] border border-blue-200">
             <Award className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-[10px] text-[#2fd9f4] font-extrabold uppercase tracking-widest block">
+            <span className="text-[10px] text-[#1890ff] font-extrabold uppercase tracking-widest block">
               Documento de Certificação Oficial
             </span>
-            <h2 className="text-xl font-black text-[#dae2fd]">{certificate.courseTitle}</h2>
+            <h2 className="text-xl font-black text-slate-900">{certificate.courseTitle}</h2>
           </div>
         </div>
 
@@ -267,11 +267,11 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
         )}
 
         {/* Modal Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-slate-200">
           {certificate.imageUrl && (
             <button
               onClick={handleDownloadImage}
-              className="flex-1 py-3.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(52,211,153,0.3)] active:scale-95 cursor-pointer"
+              className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>Baixar Imagem do Certificado (PNG)</span>
@@ -281,7 +281,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
           <button
             id="download-pdf-cert-modal-btn"
             onClick={handleDownloadPdf}
-            className="flex-1 py-3.5 bg-[#2fd9f4] hover:bg-[#25c4de] text-[#001f25] rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(47,217,244,0.3)] active:scale-95 cursor-pointer"
+            className="flex-1 py-3 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
           >
             <Download className="w-4 h-4" />
             <span>Imprimir / Baixar PDF Autêntico</span>
@@ -289,7 +289,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
 
           <button
             onClick={onClose}
-            className="px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl font-semibold text-xs text-[#c7c4d7] hover:text-white transition-all cursor-pointer"
+            className="px-6 py-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded font-bold text-xs text-slate-700 transition-all cursor-pointer"
           >
             Fechar
           </button>

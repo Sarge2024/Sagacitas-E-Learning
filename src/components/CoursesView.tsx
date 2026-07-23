@@ -32,16 +32,16 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
   });
 
   return (
-    <div id="courses-view-container" className="pt-20 px-8 pb-12 max-w-[1440px] mx-auto space-y-8">
+    <div id="courses-view-container" className="pt-16 md:pt-18 px-3 md:px-5 pb-8 max-w-[1440px] mx-auto space-y-4 bg-[#f9f9ff] min-h-screen">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200 pb-4 bg-white p-4 rounded-md shadow-2xs">
         <div>
-          <h2 className="text-3xl font-bold text-[#dae2fd] tracking-tight flex items-center gap-3">
-            <GraduationCap className="w-8 h-8 text-[#2fd9f4]" />
-            <span>Catálogo de Cursos</span>
+          <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <GraduationCap className="w-6 h-6 text-[#1890ff]" />
+            <span>Catálogo de Cursos & Formações</span>
           </h2>
-          <p className="text-sm text-[#c7c4d7] mt-1">
-            Explore nossas formações avançadas desenvolvidas por especialistas da indústria.
+          <p className="text-xs text-slate-600 mt-0.5">
+            Formações acadêmicas e de liderança desenvolvidas com rigor técnico.
           </p>
         </div>
 
@@ -52,10 +52,10 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
               key={cat}
               id={`category-tab-${cat.toLowerCase().replace(/\s+/g, '-')}`}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-[#2fd9f4] text-[#001f25] font-bold shadow-[0_0_15px_rgba(47,217,244,0.3)]'
-                  : 'bg-white/5 text-[#c7c4d7] hover:bg-white/10'
+                  ? 'bg-[#1890ff] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               {cat}
@@ -65,66 +65,65 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
       </div>
 
       {/* Courses Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredCourses.map((course) => (
           <div
             key={course.id}
             id={`catalog-card-${course.id}`}
-            className="bg-white/[0.06] backdrop-blur-2xl border border-white/10 hover:border-white/25 rounded-[24px] overflow-hidden flex flex-col group transition-all hover:shadow-[0_0_25px_rgba(192,193,255,0.1)]"
+            className="bg-white border border-slate-200 rounded-md overflow-hidden flex flex-col group transition-all hover:border-[#1890ff] shadow-2xs"
           >
-            <div className="relative h-48 overflow-hidden">
+            <div className="relative h-44 overflow-hidden bg-slate-100">
               <img
                 src={course.image}
                 alt={course.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0b1326] via-transparent to-transparent"></div>
 
               {course.badge && (
-                <span className="absolute top-4 left-4 bg-[#2fd9f4]/20 border border-[#2fd9f4]/40 text-[#2fd9f4] text-[10px] uppercase font-extrabold tracking-widest px-3 py-1 rounded-full backdrop-blur-md">
+                <span className="absolute top-3 left-3 bg-[#1890ff] text-white text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded shadow-xs">
                   {course.badge}
                 </span>
               )}
             </div>
 
-            <div className="p-6 flex flex-col flex-1">
-              <span className="text-[10px] text-[#2fd9f4] uppercase font-bold tracking-widest mb-1">
+            <div className="p-4 flex flex-col flex-1">
+              <span className="text-[10px] text-[#1890ff] uppercase font-black tracking-wider mb-1">
                 {course.category}
               </span>
 
-              <h3 className="text-lg font-bold text-[#dae2fd] mb-2 line-clamp-2">
+              <h3 className="text-sm font-extrabold text-slate-900 mb-1 line-clamp-2">
                 {course.title}
               </h3>
 
-              <p className="text-xs text-[#c7c4d7] line-clamp-2 mb-6 leading-relaxed">
+              <p className="text-xs text-slate-600 line-clamp-2 mb-4 leading-relaxed font-medium">
                 {course.description}
               </p>
 
-              <div className="mt-auto space-y-4">
-                <div className="flex items-center justify-between text-xs text-[#c7c4d7]/80 pt-2 border-t border-white/5">
-                  <div className="flex items-center gap-1.5">
-                    <BookOpen className="w-3.5 h-3.5 text-[#c0c1ff]" />
+              <div className="mt-auto space-y-3">
+                <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100 font-medium">
+                  <div className="flex items-center gap-1">
+                    <BookOpen className="w-3.5 h-3.5 text-slate-400" />
                     <span>{course.totalLessons || 12} Aulas</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-[#ddb7ff]" />
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-slate-400" />
                     <span>{course.totalHours || '24h'}</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-[#2fd9f4]" />
+                  <div className="flex items-center gap-1">
+                    <Layers className="w-3.5 h-3.5 text-[#1890ff]" />
                     <span>{course.level || 'Avançado'}</span>
                   </div>
                 </div>
 
                 {course.progress > 0 && (
                   <div>
-                    <div className="flex justify-between items-center mb-1 text-[11px] font-semibold">
-                      <span className="text-[#c7c4d7]">Progresso</span>
-                      <span className="text-[#2fd9f4] font-bold">{course.progress}%</span>
+                    <div className="flex justify-between items-center mb-1 text-[10px] font-bold">
+                      <span className="text-slate-500">Progresso</span>
+                      <span className="text-[#1890ff]">{course.progress}%</span>
                     </div>
-                    <div className="w-full h-1.5 bg-[#171f33] rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-slate-100 rounded overflow-hidden">
                       <div
-                        className="h-full bg-[#2fd9f4] rounded-full"
+                        className="h-full bg-[#1890ff] rounded"
                         style={{ width: `${course.progress}%` }}
                       ></div>
                     </div>
@@ -134,7 +133,7 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                 <button
                   id={`access-course-btn-${course.id}`}
                   onClick={() => onSelectCourse(course)}
-                  className="w-full py-3 bg-[#8083ff] hover:bg-[#6c70ff] text-[#0d0096] rounded-xl font-bold transition-all text-xs uppercase tracking-wider active:scale-95 shadow-[0_0_15px_rgba(128,131,255,0.2)]"
+                  className="w-full py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold transition-all text-xs uppercase tracking-wider active:scale-98 shadow-2xs cursor-pointer"
                 >
                   {course.progress > 0 ? 'Continuar Aprendendo' : 'Acessar Curso'}
                 </button>
