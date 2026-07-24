@@ -37,10 +37,9 @@ export default function App() {
       const saved = localStorage.getItem('sagacitas_oauth_user');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.email === 'sagacitas.assessoria@gmail.com') {
+        if (parsed && parsed.email) {
           return parsed;
         }
-        localStorage.removeItem('sagacitas_oauth_user');
       }
     } catch (e) {
       // Ignore

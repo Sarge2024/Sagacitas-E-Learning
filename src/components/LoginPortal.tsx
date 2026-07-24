@@ -14,31 +14,85 @@ interface LoginPortalProps {
   onLoginSuccess: (user: any) => void;
 }
 
+import { auth, googleProvider, githubProvider } from '../lib/firebase';
+import { signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
+import { supabase } from '../lib/supabaseClient';
+
 export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+  const [email, setEmail] = useState('sagacitas.assessoria@gmail.com');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleConnectOAuth = async (provider: string) => {
     try {
       setLoadingProvider(provider);
-      // Fetch OAuth URL from server endpoint
-      const response = await fetch(`/api/auth/url?provider=${encodeURIComponent(provider)}`);
-      if (!response.ok) {
-        throw new Error('Falha ao obter URL de autorização OAuth');
-      }
-      const { url } = await response.json();
+      setErrorMsg('');
+      let result;
 
-      // Open OAuth provider authorization URL directly in popup
-      const authWindow = window.open(
-        url,
-        'oauth_popup',
-        'width=600,height=700,scrollbars=yes,resizable=yes'
-      );
-
-      if (!authWindow) {
-        alert('O popup de autenticação foi bloqueado pelo seu navegador. Por favor, permita popups para fazer login com OAuth.');
+      if (provider === 'google') {
+        result = await signInWithPopup(auth, googleProvider);
+      } else if (provider === 'github') {
+        result = await signInWithPopup(auth, githubProvider);
+      } else if (provider === 'firebase') {
+        if (!email || !password) {
+          throw new Error('E-mail e senha são obrigatórios.');
+        }
+        result = await signInWithEmailAndPassword(auth, email, password);
       }
-    } catch (err) {
+
+      if (result && result.user) {
+        const userEmail = result.user.email || email;
+        
+        // 1. Try to find the user in instructors table (Master Admin / Instrutor)
+        let role = 'Student';
+        let company_name = 'Sagacitas Corporativo';
+        let enrollment_type = 'B2B';
+        
+        const { data: instructor } = await supabase
+          .from('instructors')
+          .select('*')
+          .eq('email', userEmail)
+          .single();
+          
+        if (instructor) {
+          role = 'Master Admin';
+        } else {
+          // 2. Try to find in students table
+          const { data: student } = await supabase
+            .from('students')
+            .select(`
+              *,
+              companies ( name )
+            `)
+            .eq('email', userEmail)
+            .single();
+            
+          if (student) {
+            role = 'Student';
+            company_name = student.companies?.name || company_name;
+            enrollment_type = student.enrollment_type || enrollment_type;
+          }
+        }
+
+        // Send enriched user info to App.tsx
+        onLoginSuccess({
+          id: result.user.uid,
+          name: result.user.displayName || email.split('@')[0],
+          email: userEmail,
+          avatar: result.user.photoURL || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200",
+          provider: provider === 'google' ? 'Google OAuth 2.0' : provider === 'github' ? 'GitHub OAuth' : 'Firebase Auth',
+          role,
+          company_name,
+          enrollment_type,
+          enrollment_number: 'N/A',
+          authenticatedAt: new Date().toISOString(),
+          token: await result.user.getIdToken()
+        });
+      }
+    } catch (err: any) {
       console.error('OAuth connection error:', err);
+      setErrorMsg(err.message || 'Falha ao autenticar.');
     } finally {
       setLoadingProvider(null);
     }
@@ -128,20 +182,43 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
           </div>
 
           <div className="space-y-3">
+            {errorMsg && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs text-center font-semibold mb-4">
+                {errorMsg}
+              </div>
+            )}
+            
+            <div className="space-y-2 mb-4">
+              <input
+                type="email"
+                placeholder="Seu e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-[#ffcb2b] transition-colors"
+              />
+              <input
+                type="password"
+                placeholder="Sua senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-[#ffcb2b] transition-colors"
+                onKeyDown={(e) => e.key === 'Enter' && handleConnectOAuth('firebase')}
+              />
+            </div>
+
             {/* Firebase Auth Button */}
             <button
               onClick={() => handleConnectOAuth('firebase')}
               disabled={loadingProvider !== null}
               className="w-full py-3.5 px-4 rounded-xl bg-[#ffcb2b] hover:bg-[#f5b800] text-[#030914] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 transition-all active:scale-98 disabled:opacity-50 cursor-pointer shadow-lg shadow-[#ffcb2b]/10"
             >
-              {/* Firebase Simple SVG Icon */}
               <svg className="w-5 h-5" viewBox="0 0 32 32" fill="none">
                 <path d="M5.8 24.6l9.6-18c.3-.6 1.2-.6 1.5 0l2.3 4.3L5.8 24.6z" fill="#FFC24C" />
                 <path d="M26.2 24.6l-3.2-6.1-3.7-7c-.3-.6-1.2-.6-1.5 0L5.8 24.6h20.4z" fill="#FFA712" />
                 <path d="M16.3 3.4c-.2-.4-.8-.4-1 0L3.4 24.2c-.3.5.1 1.2.7 1.2h23.8c.6 0 1-.7.7-1.2L16.3 3.4z" fill="#F44336" />
               </svg>
               <span>
-                {loadingProvider === 'firebase' ? 'Conectando...' : 'Entrar com Firebase Auth'}
+                {loadingProvider === 'firebase' ? 'Conectando...' : 'Entrar com E-mail'}
               </span>
             </button>
 
