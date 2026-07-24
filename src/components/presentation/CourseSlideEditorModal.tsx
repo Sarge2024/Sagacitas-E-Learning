@@ -3,7 +3,7 @@ import { usePresentationStore } from '../../store/usePresentationStore';
 import { SlidePlayer } from './SlidePlayer';
 import { SlideEditor } from './SlideEditor';
 import { PropertyInspector } from './PropertyInspector';
-import { X, Play, Edit3, Plus, Trash2, Save, Undo2, Redo2, Layers, Check, Sparkles, BookOpen, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, Play, Edit3, Plus, Trash2, Save, Undo2, Redo2, Layers, Check, Sparkles, BookOpen, Image as ImageIcon, Loader2, Sun, Moon } from 'lucide-react';
 import { Course } from '../../types';
 import { analyzeSlideImage } from '../../utils/slideImport';
 
@@ -24,7 +24,9 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
     presentation,
     currentSlideIndex,
     mode,
+    theme,
     setMode,
+    setTheme,
     setCurrentSlideIndex,
     nextSlide,
     prevSlide,
@@ -105,10 +107,10 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden">
-      <div className="w-full max-w-[1500px] h-[92vh] bg-slate-900 border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+    <div className={`fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden ${theme === 'dark' ? 'bg-slate-950/90' : 'bg-slate-500/50'}`}>
+      <div className={`w-full max-w-[1500px] h-[92vh] border rounded-3xl shadow-2xl flex flex-col overflow-hidden ${theme === 'dark' ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
         {/* Modal Header */}
-        <div className="p-4 bg-[#12171c] border-b border-white/10 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div className={`p-4 border-b flex flex-wrap items-center justify-between gap-3 shrink-0 ${theme === 'dark' ? 'bg-[#12171c] border-white/10' : 'bg-[#f9f9ff] border-slate-200'}`}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0a6ed1] to-[#0854a0] flex items-center justify-center text-white font-black shrink-0 shadow-md">
               <BookOpen className="w-5 h-5" />
@@ -116,13 +118,13 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0a6ed1]">
-                  Editor & Player de Slides • SAP Fiori Standard
+                  Editor & Player de Slides
                 </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${theme === 'dark' ? 'bg-white/10 text-slate-300' : 'bg-slate-200 text-slate-600'}`}>
                   {course.title}
                 </span>
               </div>
-              <h2 className="text-base font-extrabold text-white">
+              <h2 className={`text-base font-extrabold ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                 {presentation.title}
               </h2>
             </div>
@@ -130,14 +132,23 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
 
           {/* Controls & Toggle */}
           <div className="flex items-center gap-2">
+            {/* Theme Toggle */}
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${theme === 'dark' ? 'bg-slate-800 text-amber-400 hover:bg-slate-700' : 'bg-slate-200 text-indigo-600 hover:bg-slate-300'}`}
+              title="Alternar Tema"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
             {/* Mode Toggle */}
-            <div className="p-1 bg-[#1c222b] border border-white/10 rounded-xl flex items-center gap-1">
+            <div className={`p-1 border rounded-xl flex items-center gap-1 ${theme === 'dark' ? 'bg-[#1c222b] border-white/10' : 'bg-slate-100 border-slate-200'}`}>
               <button
                 onClick={() => setMode('player')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   mode === 'player'
                     ? 'bg-[#0a6ed1] text-white shadow-md font-black'
-                    : 'text-slate-400 hover:text-white'
+                    : (theme === 'dark' ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900')
                 }`}
               >
                 <Play className="w-3.5 h-3.5" />
@@ -148,7 +159,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   mode === 'editor'
                     ? 'bg-[#0854a0] text-white shadow-md font-black'
-                    : 'text-slate-400 hover:text-white'
+                    : (theme === 'dark' ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900')
                 }`}
               >
                 <Edit3 className="w-3.5 h-3.5" />
@@ -175,11 +186,11 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
 
             {/* Undo / Redo (Only in Editor) */}
             {mode === 'editor' && (
-              <div className="flex items-center gap-1 border-l border-white/10 pl-2">
+              <div className={`flex items-center gap-1 border-l pl-2 ${theme === 'dark' ? 'border-white/10' : 'border-slate-200'}`}>
                 <button
                   disabled={historyIndex <= 0}
                   onClick={undo}
-                  className="p-2 bg-slate-900 border border-white/10 rounded-xl text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  className={`p-2 border rounded-xl disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer ${theme === 'dark' ? 'bg-slate-900 border-white/10 text-slate-300 hover:text-white' : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'}`}
                   title="Desfazer (Undo)"
                 >
                   <Undo2 className="w-4 h-4" />
@@ -187,7 +198,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                 <button
                   disabled={historyIndex >= history.length - 1}
                   onClick={redo}
-                  className="p-2 bg-slate-900 border border-white/10 rounded-xl text-slate-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  className={`p-2 border rounded-xl disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer ${theme === 'dark' ? 'bg-slate-900 border-white/10 text-slate-300 hover:text-white' : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'}`}
                   title="Refazer (Redo)"
                 >
                   <Redo2 className="w-4 h-4" />
@@ -216,7 +227,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
             {/* Close Modal */}
             <button
               onClick={onClose}
-              className="p-2 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-xl transition-all cursor-pointer ml-2"
+              className={`p-2 rounded-xl transition-all cursor-pointer ml-2 ${theme === 'dark' ? 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900'}`}
             >
               <X className="w-5 h-5" />
             </button>
@@ -226,7 +237,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
         {/* Modal Main Body */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left Sidebar: Slides Thumbnails */}
-          <div className="w-64 bg-slate-950/80 border-r border-white/10 p-3 space-y-3 flex flex-col shrink-0 overflow-y-auto">
+          <div className={`w-64 border-r p-3 space-y-3 flex flex-col shrink-0 overflow-y-auto ${theme === 'dark' ? 'bg-slate-950/80 border-white/10' : 'bg-[#f9f9ff] border-slate-200'}`}>
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                 <Layers className="w-3.5 h-3.5 text-[#2fd9f4]" />
@@ -253,7 +264,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                     className={`p-2.5 rounded-xl border transition-all cursor-pointer relative group ${
                       isActive
                         ? 'border-[#2fd9f4] bg-[#2fd9f4]/10 shadow-[0_0_15px_rgba(47,217,244,0.15)]'
-                        : 'border-white/10 bg-slate-900/60 hover:border-white/20'
+                        : (theme === 'dark' ? 'border-white/10 bg-slate-900/60 hover:border-white/20' : 'border-slate-200 bg-white hover:border-slate-300')
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
@@ -290,7 +301,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
           </div>
 
           {/* Center Stage: Player or Canvas Editor */}
-          <div className="flex-1 p-4 md:p-6 bg-slate-950 flex flex-col justify-center items-center overflow-y-auto">
+          <div className={`flex-1 p-4 md:p-6 flex flex-col justify-center items-center overflow-y-auto ${theme === 'dark' ? 'bg-slate-950' : 'bg-slate-100'}`}>
             <div className="w-full max-w-4xl">
               {mode === 'player' ? (
                 <SlidePlayer
@@ -315,7 +326,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
 
           {/* Right Sidebar: Property Inspector (Only in Editor Mode) */}
           {mode === 'editor' && (
-            <div className="w-80 border-l border-white/10 p-3 bg-slate-900 shrink-0 overflow-y-auto">
+            <div className={`w-80 border-l p-3 shrink-0 overflow-y-auto ${theme === 'dark' ? 'border-white/10 bg-slate-900' : 'border-slate-200 bg-white'}`}>
               <PropertyInspector slide={currentSlide} />
             </div>
           )}

@@ -1,4 +1,4 @@
-export type ElementType = 'text' | 'image' | 'video' | 'quiz' | 'custom-widget';
+export type ElementType = 'text' | 'image' | 'video' | 'audio' | 'quiz' | 'custom-widget';
 
 export interface ElementAnimation {
   effect: 'fadeIn' | 'slideLeft' | 'slideRight' | 'zoomIn' | 'custom';
@@ -26,6 +26,11 @@ export interface SlideElement {
       explanation?: string;
     };
     widgetComponent?: string;       // ex: "DRESimulatorWidget"
+    mediaSettings?: {
+      autoPlay?: boolean;
+      loop?: boolean;
+      controls?: boolean;
+    };
   };
   animation?: ElementAnimation;
 }

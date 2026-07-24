@@ -228,6 +228,18 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   // Student details modal
   const [selectedStudentForDetails, setSelectedStudentForDetails] = useState<StudentRecord | null>(null);
 
+  // Student Edit / Delete state
+  const [editingStudent, setEditingStudent] = useState<StudentRecord | null>(null);
+  const [editStdName, setEditStdName] = useState('');
+  const [editStdEmail, setEditStdEmail] = useState('');
+  const [editStdCompany, setEditStdCompany] = useState('');
+  const [editStdRole, setEditStdRole] = useState('');
+  const [editStdCourse, setEditStdCourse] = useState('');
+  const [editStdProgress, setEditStdProgress] = useState(0);
+  const [editStdStatus, setEditStdStatus] = useState<StudentRecord['status']>('Em Andamento');
+  const [editStdGrade, setEditStdGrade] = useState('');
+  const [studentToDelete, setStudentToDelete] = useState<StudentRecord | null>(null);
+
   // Trainings State
   const [trainingSearch, setTrainingSearch] = useState('');
   const [trainingCategoryFilter, setTrainingCategoryFilter] = useState('Todas');
@@ -268,6 +280,80 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   };
 
   // Student Actions
+  const handleOpenEditStudentModal = (student: StudentRecord) => {
+    setEditingStudent(student);
+    setEditStdName(student.name);
+    setEditStdEmail(student.email);
+    setEditStdCompany(student.company);
+    setEditStdRole(student.role);
+    setEditStdCourse(student.enrolledCourseTitle);
+    setEditStdProgress(student.progressPercent);
+    setEditStdStatus(student.status);
+    setEditStdGrade(student.dreGrade);
+  };
+
+  const handleEditStudentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingStudent || !editStdName.trim() || !editStdEmail.trim()) return;
+
+    setStudents((prev) =>
+      prev.map((s) =>
+        s.id === editingStudent.id
+          ? {
+              ...s,
+              name: editStdName,
+              email: editStdEmail,
+              company: editStdCompany || 'Restaurante Parceiro',
+              role: editStdRole,
+              enrolledCourseTitle: editStdCourse,
+              progressPercent: editStdProgress,
+              completedLessonsText: `${Math.floor((editStdProgress / 100) * 12)} de 12 aulas`,
+              status: editStdStatus,
+              dreGrade: editStdGrade,
+            }
+          : s
+      )
+    );
+
+    setLogs([
+      {
+        id: `log-${Date.now()}`,
+        timestamp: 'Agora mesmo',
+        actor: `${oauthUser?.name || 'Gabriel Mendes'} (Gestor)`,
+        action: `Editou os dados do aluno ${editStdName}`,
+        type: 'user',
+      },
+      ...logs,
+    ]);
+
+    setEditingStudent(null);
+    showToast(`Aluno ${editStdName} atualizado com sucesso!`);
+  };
+
+  const handleDeleteStudentClick = (student: StudentRecord) => {
+    setStudentToDelete(student);
+  };
+
+  const handleDeleteStudentConfirm = () => {
+    if (!studentToDelete) return;
+
+    setStudents((prev) => prev.filter((s) => s.id !== studentToDelete.id));
+
+    setLogs([
+      {
+        id: `log-${Date.now()}`,
+        timestamp: 'Agora mesmo',
+        actor: `${oauthUser?.name || 'Gabriel Mendes'} (Gestor)`,
+        action: `Excluiu o aluno ${studentToDelete.name}`,
+        type: 'user',
+      },
+      ...logs,
+    ]);
+
+    showToast(`Aluno ${studentToDelete.name} excluído!`);
+    setStudentToDelete(null);
+  };
+
   const handleToggleStudentStatus = (studentId: string) => {
     setStudents((prev) =>
       prev.map((s) => {
@@ -791,12 +877,19 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                         )}
                       </td>
 
-                      <td className="px-3.5 py-3 text-right space-x-1.5">
+                      <td className="px-3.5 py-3 text-right space-x-1.5 whitespace-nowrap">
                         <button
                           onClick={() => setSelectedStudentForDetails(student)}
                           className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[10px] font-bold transition-all cursor-pointer"
                         >
                           Detalhes
+                        </button>
+
+                        <button
+                          onClick={() => handleOpenEditStudentModal(student)}
+                          className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-[#1890ff] border border-blue-200 rounded text-[10px] font-bold transition-all cursor-pointer"
+                        >
+                          Editar
                         </button>
 
                         <button
@@ -808,6 +901,13 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                           }`}
                         >
                           {student.status === 'Inativo' ? 'Reativar' : 'Suspender'}
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteStudentClick(student)}
+                          className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded text-[10px] font-bold transition-all cursor-pointer"
+                        >
+                          Excluir
                         </button>
                       </td>
                     </tr>
@@ -1225,6 +1325,177 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1.5: Editar Aluno */}
+      {editingStudent && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-md p-6 max-w-md w-full space-y-5 shadow-lg">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-black text-slate-900 text-base flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-[#1890ff]" />
+                <span>Editar Dados do Aluno</span>
+              </h3>
+              <button
+                onClick={() => setEditingStudent(null)}
+                className="text-slate-400 hover:text-slate-700 text-sm cursor-pointer font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleEditStudentSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-black text-slate-700 mb-1">Nome Completo</label>
+                <input
+                  type="text"
+                  value={editStdName}
+                  onChange={(e) => setEditStdName(e.target.value)}
+                  required
+                  className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-700 mb-1">E-mail</label>
+                <input
+                  type="email"
+                  value={editStdEmail}
+                  onChange={(e) => setEditStdEmail(e.target.value)}
+                  required
+                  className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] font-medium"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-black text-slate-700 mb-1">Empresa</label>
+                  <input
+                    type="text"
+                    value={editStdCompany}
+                    onChange={(e) => setEditStdCompany(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-700 mb-1">Cargo / Função</label>
+                  <input
+                    type="text"
+                    value={editStdRole}
+                    onChange={(e) => setEditStdRole(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-black text-slate-700 mb-1">Progresso (%)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={editStdProgress}
+                    onChange={(e) => setEditStdProgress(Number(e.target.value))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-700 mb-1">Média DRE</label>
+                  <input
+                    type="text"
+                    value={editStdGrade}
+                    onChange={(e) => setEditStdGrade(e.target.value)}
+                    placeholder="Ex: 9.5 / 10"
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-black text-slate-700 mb-1">Status</label>
+                  <select
+                    value={editStdStatus}
+                    onChange={(e: any) => setEditStdStatus(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
+                  >
+                    <option value="Em Andamento">Em Andamento</option>
+                    <option value="Concluído">Concluído</option>
+                    <option value="Inativo">Inativo</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-700 mb-1">Treinamento</label>
+                  <select
+                    value={editStdCourse}
+                    onChange={(e) => setEditStdCourse(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
+                  >
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.title}>
+                        {c.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingStudent(null)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-bold cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded text-xs font-bold uppercase tracking-wider shadow-xs cursor-pointer"
+                >
+                  Salvar Alterações
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1.6: Confirmar Exclusão de Aluno */}
+      {studentToDelete && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-md p-6 max-w-sm w-full space-y-4 shadow-lg">
+            <div className="flex items-center gap-3 text-rose-600">
+              <AlertTriangle className="w-6 h-6 shrink-0" />
+              <h3 className="font-black text-slate-900 text-base">Excluir Aluno</h3>
+            </div>
+            
+            <p className="text-xs text-slate-600 font-medium">
+              Tem certeza que deseja excluir o aluno <strong className="text-slate-900">{studentToDelete.name}</strong>? 
+              Esta ação removerá permanentemente a matrícula dele do curso <strong className="text-slate-900">{studentToDelete.enrolledCourseTitle}</strong> e não poderá ser desfeita.
+            </p>
+
+            <div className="pt-2 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setStudentToDelete(null)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-bold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteStudentConfirm}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold uppercase tracking-wider shadow-xs cursor-pointer"
+              >
+                Excluir Permanentemente
+              </button>
+            </div>
           </div>
         </div>
       )}

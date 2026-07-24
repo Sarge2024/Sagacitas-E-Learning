@@ -14,8 +14,10 @@ import { DRESimulatorView } from './components/DRESimulatorView';
 import { DRERitualMatrixView } from './components/DRERitualMatrixView';
 import { InstructorPortfolioView } from './components/InstructorPortfolioView';
 import { ManagerToolsView } from './components/ManagerToolsView';
+import { EdTechExpertView } from './components/expert/EdTechExpertView';
 import { SlideQuestionModal } from './components/SlideQuestionModal';
 import { OAuthLoginModal } from './components/OAuthLoginModal';
+import { LoginPortal } from './components/LoginPortal';
 import { AITutorChat } from './components/AITutorChat';
 import { ProModal } from './components/ProModal';
 import { CertificateModal } from './components/CertificateModal';
@@ -33,20 +35,18 @@ export default function App() {
   const [oauthUser, setOauthUser] = useState<OAuthUser | null>(() => {
     try {
       const saved = localStorage.getItem('sagacitas_oauth_user');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.email === 'sagacitas.assessoria@gmail.com') {
+          return parsed;
+        }
+        localStorage.removeItem('sagacitas_oauth_user');
+      }
     } catch (e) {
       // Ignore
     }
     // Default initial user for authenticated environment demonstration
-    return {
-      id: 'usr_sagacitas_default',
-      name: 'Gabriel Mendes',
-      email: 'sagacitas.assessoria@gmail.com',
-      provider: 'Google OAuth 2.0',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
-      role: 'Aluno Autenticado Sagacitas',
-      authenticatedAt: new Date().toISOString(),
-    };
+    return null;
   });
   const [isOAuthModalOpen, setIsOAuthModalOpen] = useState(false);
 
@@ -55,7 +55,7 @@ export default function App() {
     const handleOAuthMessage = (event: MessageEvent) => {
       // Validate origin is from preview container or localhost
       const origin = event.origin;
-      if (!origin.endsWith('.run.app') && !origin.includes('localhost') && origin !== window.location.origin) {
+      if (!origin.endsWith('.run.app') && !origin.includes('localhost') && !origin.includes('127.0.0.1') && origin !== window.location.origin) {
         return;
       }
 
@@ -175,6 +175,21 @@ export default function App() {
 
   const pendingQuestionsCount = instructorQuestions.filter((q) => q.status === 'pendente').length;
 
+  if (!oauthUser) {
+    return (
+      <LoginPortal 
+        onLoginSuccess={(user) => {
+          setOauthUser(user);
+          try {
+            localStorage.setItem('sagacitas_oauth_user', JSON.stringify(user));
+          } catch (e) {
+            // Ignore
+          }
+        }} 
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0b1326] text-[#dae2fd] font-sans antialiased selection:bg-[#2fd9f4] selection:text-[#001f25]">
       {/* Sidebar navigation */}
@@ -251,6 +266,8 @@ export default function App() {
         {currentView === 'dre-simulator' && <DRESimulatorView />}
 
         {currentView === 'matrix' && <DRERitualMatrixView />}
+
+        {currentView === 'expert' && <EdTechExpertView />}
 
         {currentView === 'instructor-portfolio' && (
           <InstructorPortfolioView

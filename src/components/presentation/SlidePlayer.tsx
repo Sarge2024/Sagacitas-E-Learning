@@ -218,20 +218,41 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
 
       case 'video':
         return (
-          <div className="w-full h-full bg-slate-950 rounded-xl overflow-hidden border border-white/20 flex items-center justify-center">
+          <div className="w-full h-full bg-slate-950 rounded-xl overflow-hidden border border-white/20 flex items-center justify-center shadow-xl">
             {content.src ? (
-              <iframe
+              <video
                 src={content.src}
-                title="Video lesson"
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+                className="w-full h-full object-cover"
+                autoPlay={content.mediaSettings?.autoPlay}
+                loop={content.mediaSettings?.loop}
+                controls={content.mediaSettings?.controls !== false}
               />
             ) : (
               <div className="text-center p-4">
                 <Play className="w-10 h-10 text-[#0a6ed1] mx-auto mb-2 opacity-80" />
-                <span className="text-xs text-slate-300">Vídeo Explicativo do Treinamento</span>
+                <span className="text-xs text-slate-300">Vídeo não carregado</span>
               </div>
+            )}
+          </div>
+        );
+
+      case 'audio':
+        return (
+          <div className="w-full h-full bg-slate-800 rounded-xl overflow-hidden border border-white/20 flex flex-col items-center justify-center p-4 shadow-xl">
+            {content.src ? (
+              <>
+                <span className="text-[32px] mb-3">🎵</span>
+                <span className="text-xs font-bold text-slate-300 font-mono mb-4 text-center">Faixa de Áudio</span>
+                <audio
+                  src={content.src}
+                  className="w-full max-w-full"
+                  autoPlay={content.mediaSettings?.autoPlay}
+                  loop={content.mediaSettings?.loop}
+                  controls={content.mediaSettings?.controls !== false}
+                />
+              </>
+            ) : (
+              <span className="text-xs text-slate-400">Áudio não configurado</span>
             )}
           </div>
         );
@@ -326,7 +347,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
             <div className="flex items-center justify-between border-b border-white/10 pb-2">
               <span className="text-[10px] font-mono font-bold text-[#0a6ed1] uppercase tracking-wider flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-[#0a6ed1]" />
-                <span>Simulador DRE Operacional • SAP Fiori Standard</span>
+                <span>Simulador DRE Operacional • Sagacitas Builder</span>
               </span>
               <span className="text-[9px] bg-[#0a6ed1]/20 text-[#0a6ed1] font-bold px-2 py-0.5 rounded-full">
                 Widget Ativo

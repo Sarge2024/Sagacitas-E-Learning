@@ -19,6 +19,7 @@ import {
   FileCheck,
   Calendar,
   Settings,
+  BrainCircuit,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -160,6 +161,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <Calendar className="w-4.5 h-4.5 shrink-0" />
           {!isCollapsed && <span className="text-sm truncate">Calendar</span>}
+        </button>
+
+        {/* Núcleo Expert (Bloom & DNT Multi-Tenant) */}
+        <button
+          id="nav-expert-btn"
+          onClick={() => onSelectView('expert')}
+          title={isCollapsed ? 'Núcleo Expert' : undefined}
+          className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md transition-all duration-200 cursor-pointer ${
+            isCollapsed ? 'justify-center' : 'text-left'
+          } ${
+            currentView === 'expert'
+              ? 'text-[#0a6ed1] bg-blue-50 border border-[#0a6ed1]/30 font-bold shadow-xs'
+              : 'text-slate-700 hover:text-slate-900 hover:bg-white/80 font-medium'
+          }`}
+        >
+          <BrainCircuit className="w-4.5 h-4.5 shrink-0 text-[#0a6ed1]" />
+          {!isCollapsed && <span className="text-sm truncate font-bold text-[#0a6ed1]">Núcleo Expert</span>}
         </button>
 
         {/* Instructor Portfolio / Questions */}

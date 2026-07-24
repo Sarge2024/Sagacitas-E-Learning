@@ -222,6 +222,7 @@ interface PresentationState {
   currentSlideIndex: number;
   selectedElementId: string | null;
   mode: 'editor' | 'player';
+  theme: 'light' | 'dark';
   isPlaying: boolean;
   history: Presentation[];
   historyIndex: number;
@@ -229,6 +230,7 @@ interface PresentationState {
   // Actions
   setPresentation: (presentation: Presentation) => void;
   setMode: (mode: 'editor' | 'player') => void;
+  setTheme: (theme: 'light' | 'dark') => void;
   setCurrentSlideIndex: (index: number) => void;
   nextSlide: () => void;
   prevSlide: () => void;
@@ -256,6 +258,7 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
   currentSlideIndex: 0,
   selectedElementId: null,
   mode: 'player',
+  theme: 'light',
   isPlaying: false,
   history: [SAMPLE_PRESENTATION],
   historyIndex: 0,
@@ -270,6 +273,7 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
     }),
 
   setMode: (mode) => set({ mode, isPlaying: mode === 'player' }),
+  setTheme: (theme) => set({ theme }),
 
   setCurrentSlideIndex: (index) => {
     const { presentation } = get();

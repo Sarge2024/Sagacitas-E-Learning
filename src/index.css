@@ -1,12 +1,61 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --sagacitas-bg: #f9f9ff;
+    --sagacitas-surface: #ffffff;
+    --sagacitas-border: #e2e8f0;
+    --sagacitas-primary: #1890ff;
+    --sagacitas-primary-hover: #096dd9;
+    --sagacitas-blue-accent: #0a6ed1;
+    --sagacitas-text-main: #0f172a;
+    --sagacitas-text-muted: #64748b;
+    --sagacitas-radius-card: 16px; /* rounded-2xl */
+    --sagacitas-radius-box: 12px;  /* rounded-xl */
+    --sagacitas-radius-badge: 8px; /* rounded-lg */
+  }
+
   body {
-    background-color: #f9f9ff;
-    color: #1a202c;
+    background-color: var(--sagacitas-bg);
+    color: var(--sagacitas-text-main);
     font-family: 'Hanken Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
+}
+
+/* Guidelines & Utilities - Sagacitas Line Design System */
+.sagacitas-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px; /* rounded-2xl para cards principais */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+}
+
+.sagacitas-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px; /* rounded-xl para sub-contêineres */
+}
+
+.sagacitas-badge {
+  border-radius: 8px; /* rounded-lg para selos e tags */
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.sagacitas-input {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 8px 12px;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.sagacitas-input:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.15);
 }
 
 /* Custom Styled Scrollbar */

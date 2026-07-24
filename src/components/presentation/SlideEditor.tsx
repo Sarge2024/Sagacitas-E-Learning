@@ -14,7 +14,7 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
   aspectRatio = '16:9',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { selectedElementId, setSelectedElementId, updateElement, updateElementContent } = usePresentationStore();
+  const { selectedElementId, setSelectedElementId, updateElement, updateElementContent, theme } = usePresentationStore();
 
   const [isDragging, setIsDragging] = useState(false);
   const [showSnapX, setShowSnapX] = useState(false); // Snap line center X (50%)
@@ -124,7 +124,7 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
           setSelectedElementId(null);
         }
       }}
-      className={`w-full ${aspectClass} relative rounded-2xl overflow-hidden shadow-2xl border-2 border-dashed border-white/20 select-none bg-slate-950 cursor-crosshair`}
+      className={`w-full ${aspectClass} relative rounded-2xl overflow-hidden shadow-2xl border-2 border-dashed select-none cursor-crosshair ${theme === 'dark' ? 'border-white/20 bg-slate-950' : 'border-slate-300 bg-slate-50'}`}
       style={{
         backgroundColor: slide.background.type === 'color' ? slide.background.value : '#0f172a',
         backgroundImage:
@@ -142,7 +142,7 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
       )}
 
       {/* Grid Lines Overlay for Canvas Editor */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:5%_5%] pointer-events-none" />
+      <div className={`absolute inset-0 pointer-events-none bg-[size:5%_5%] ${theme === 'dark' ? 'bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]' : 'bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)]'}`} />
 
       {/* Render Slide Elements */}
       {slide.elements.map((element) => {
@@ -200,6 +200,29 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
               />
             )}
 
+            {element.type === 'video' && (
+              <div className="w-full h-full bg-slate-900 rounded-lg overflow-hidden flex items-center justify-center relative">
+                <video
+                  src={element.content.src}
+                  className="w-full h-full object-cover pointer-events-none"
+                  muted
+                />
+                <div className="absolute inset-0 bg-black/30 pointer-events-none flex items-center justify-center">
+                  <span className="text-white font-bold text-[10px] bg-black/50 px-2 py-1 rounded">Vídeo</span>
+                </div>
+              </div>
+            )}
+
+            {element.type === 'audio' && (
+              <div className="w-full h-full bg-slate-800 border border-white/20 rounded-lg p-2 text-white text-xs flex flex-col items-center justify-center relative">
+                <span className="text-[24px] mb-1">🎵</span>
+                <span className="text-[9px] font-mono font-bold text-slate-300 truncate w-full text-center">
+                  Áudio Selecionado
+                </span>
+                <div className="absolute inset-0 pointer-events-none" />
+              </div>
+            )}
+
             {element.type === 'quiz' && (
               <div className="w-full h-full bg-[#1c222b]/95 border border-[#0a6ed1]/50 rounded-xl p-4 text-white text-xs flex flex-col justify-center pointer-events-none">
                 <span className="text-[10px] text-[#0a6ed1] font-mono font-bold block mb-1">
@@ -212,7 +235,7 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
             {element.type === 'custom-widget' && (
               <div className="w-full h-full bg-[#1c222b] border border-[#0a6ed1]/50 rounded-xl p-3 text-white text-xs flex items-center justify-center pointer-events-none">
                 <Sparkles className="w-5 h-5 text-[#0a6ed1] mr-2" />
-                <span className="font-mono text-[#0a6ed1] font-bold">Widget Customizado SAP</span>
+                <span className="font-mono text-[#0a6ed1] font-bold">Widget Customizado Sagacitas Builder</span>
               </div>
             )}
 
