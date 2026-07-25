@@ -168,7 +168,7 @@ export const ReverseEngineeringView: React.FC = () => {
             <iframe
               srcDoc={compiledHtmlPreview}
               title="Preview Didático"
-              className="w-full h-[300px] border-none rounded-lg bg-white"
+              className="w-full h-[300px] border-none rounded-md bg-white"
             />
           </div>
         </div>

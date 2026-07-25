@@ -144,6 +144,19 @@ export interface SystemPermission {
   d: boolean; // Delete
 }
 
+export type PermissionHash = Record<string, {
+  c: boolean;
+  r: boolean;
+  u: boolean;
+  d: boolean;
+}>;
+
+export interface RoleProfile {
+  id: string;
+  name: string;
+  permissionsHash: PermissionHash;
+}
+
 export interface OAuthUser {
   id: string;
   name: string;
@@ -156,7 +169,8 @@ export interface OAuthUser {
   company_name?: string;
   enrollment_type?: string;
   enrollment_number?: string;
-  permissions?: SystemPermission[];
+  permissions?: SystemPermission[]; // Legacy
+  permissionsHash?: PermissionHash;
   status?: 'active' | 'blocked';
 }
 

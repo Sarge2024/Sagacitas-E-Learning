@@ -74,11 +74,11 @@ export const DiagnosticTest: React.FC = () => {
         >
           <div className="flex flex-col items-center mb-8">
             {passed ? (
-              <div className="h-16 w-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-4">
+              <div className="h-16 w-16 bg-emerald-50 text-emerald-500 rounded-md flex items-center justify-center mb-4">
                 <ShieldCheck size={32} />
               </div>
             ) : (
-              <div className="h-16 w-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4">
+              <div className="h-16 w-16 bg-red-50 text-red-500 rounded-md flex items-center justify-center mb-4">
                 <AlertTriangle size={32} />
               </div>
             )}

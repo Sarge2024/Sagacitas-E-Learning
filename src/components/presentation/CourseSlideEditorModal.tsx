@@ -216,11 +216,11 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
 
   return (
     <div className={`fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden ${theme === 'dark' ? 'bg-slate-950/90' : 'bg-slate-500/50'}`}>
-      <div className={`w-full max-w-[1500px] h-[92vh] border rounded-3xl shadow-2xl flex flex-col overflow-hidden ${theme === 'dark' ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+      <div className={`w-full max-w-[1500px] h-[92vh] border rounded-md shadow-2xs flex flex-col overflow-hidden ${theme === 'dark' ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
         {/* Modal Header */}
         <div className={`p-4 border-b flex flex-wrap items-center justify-between gap-3 shrink-0 ${theme === 'dark' ? 'bg-[#12171c] border-white/10' : 'bg-[#f9f9ff] border-slate-200'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0a6ed1] to-[#0854a0] flex items-center justify-center text-white font-black shrink-0 shadow-md">
+            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-[#0a6ed1] to-[#0854a0] flex items-center justify-center text-white font-black shrink-0 shadow-2xs">
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
@@ -228,7 +228,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0a6ed1]">
                   Editor & Player de Slides
                 </span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${theme === 'dark' ? 'bg-white/10 text-slate-300' : 'bg-slate-200 text-slate-600'}`}>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${theme === 'dark' ? 'bg-white/10 text-slate-300' : 'bg-slate-200 text-slate-600'}`}>
                   {course.title}
                 </span>
               </div>
@@ -243,19 +243,19 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
             {/* Theme Toggle */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className={`p-2 rounded-xl transition-all cursor-pointer ${theme === 'dark' ? 'bg-slate-800 text-amber-400 hover:bg-slate-700' : 'bg-slate-200 text-indigo-600 hover:bg-slate-300'}`}
+              className={`p-2 rounded-md transition-all cursor-pointer ${theme === 'dark' ? 'bg-slate-800 text-amber-400 hover:bg-slate-700' : 'bg-slate-200 text-indigo-600 hover:bg-slate-300'}`}
               title="Alternar Tema"
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
             {/* Mode Toggle */}
-            <div className={`p-1 border rounded-xl flex items-center gap-1 ${theme === 'dark' ? 'bg-[#1c222b] border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+            <div className={`p-1 border rounded-md flex items-center gap-1 ${theme === 'dark' ? 'bg-[#1c222b] border-white/10' : 'bg-slate-100 border-slate-200'}`}>
               <button
                 onClick={() => setMode('player')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   mode === 'player'
-                    ? 'bg-[#0a6ed1] text-white shadow-md font-black'
+                    ? 'bg-[#0a6ed1] text-white shadow-2xs font-black'
                     : (theme === 'dark' ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900')
                 }`}
               >
@@ -264,9 +264,9 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
               </button>
               <button
                 onClick={() => setMode('editor')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   mode === 'editor'
-                    ? 'bg-[#0854a0] text-white shadow-md font-black'
+                    ? 'bg-[#0854a0] text-white shadow-2xs font-black'
                     : (theme === 'dark' ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900')
                 }`}
               >
@@ -280,7 +280,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
               <button
                 onClick={handleRunAiOcr}
                 disabled={isAnalyzing}
-                className="px-3 py-1.5 bg-[#0a6ed1]/20 hover:bg-[#0a6ed1]/30 border border-[#0a6ed1]/40 text-[#0a6ed1] rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-3 py-1.5 bg-[#0a6ed1]/20 hover:bg-[#0a6ed1]/30 border border-[#0a6ed1]/40 text-[#0a6ed1] rounded-md font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 title="Extrair Camadas de Texto da Imagem com IA/OCR"
               >
                 {isAnalyzing ? (
@@ -298,7 +298,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                 <button
                   disabled={historyIndex <= 0}
                   onClick={undo}
-                  className={`p-2 border rounded-xl disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer ${theme === 'dark' ? 'bg-slate-900 border-white/10 text-slate-300 hover:text-white' : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'}`}
+                  className={`p-2 border rounded-md disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer ${theme === 'dark' ? 'bg-slate-900 border-white/10 text-slate-300 hover:text-white' : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'}`}
                   title="Desfazer (Undo)"
                 >
                   <Undo2 className="w-4 h-4" />
@@ -306,7 +306,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                 <button
                   disabled={historyIndex >= history.length - 1}
                   onClick={redo}
-                  className={`p-2 border rounded-xl disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer ${theme === 'dark' ? 'bg-slate-900 border-white/10 text-slate-300 hover:text-white' : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'}`}
+                  className={`p-2 border rounded-md disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer ${theme === 'dark' ? 'bg-slate-900 border-white/10 text-slate-300 hover:text-white' : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'}`}
                   title="Refazer (Redo)"
                 >
                   <Redo2 className="w-4 h-4" />
@@ -317,7 +317,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
             {/* Save Button */}
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md active:scale-95 shrink-0"
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-md font-extrabold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-2xs active:scale-95 shrink-0"
             >
               {savedSuccess ? (
                 <>
@@ -335,7 +335,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
             {/* Close Modal */}
             <button
               onClick={onClose}
-              className={`p-2 rounded-xl transition-all cursor-pointer ml-2 ${theme === 'dark' ? 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900'}`}
+              className={`p-2 rounded-md transition-all cursor-pointer ml-2 ${theme === 'dark' ? 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900'}`}
             >
               <X className="w-5 h-5" />
             </button>
@@ -353,7 +353,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
               </span>
               <button
                 onClick={handleAddNewSlide}
-                className="p-1.5 bg-[#2fd9f4]/15 hover:bg-[#2fd9f4]/30 text-[#2fd9f4] rounded-lg transition-all cursor-pointer flex items-center gap-1 text-[10px] font-bold"
+                className="p-1.5 bg-[#2fd9f4]/15 hover:bg-[#2fd9f4]/30 text-[#2fd9f4] rounded-md transition-all cursor-pointer flex items-center gap-1 text-[10px] font-bold"
                 title="Novo Slide"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -369,7 +369,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                   <div
                     key={slideItem.id}
                     onClick={() => setCurrentSlideIndex(index)}
-                    className={`p-2.5 rounded-xl border transition-all cursor-pointer relative group ${
+                    className={`p-2.5 rounded-md border transition-all cursor-pointer relative group ${
                       isActive
                         ? 'border-[#2fd9f4] bg-[#2fd9f4]/10 shadow-[0_0_15px_rgba(47,217,244,0.15)]'
                         : (theme === 'dark' ? 'border-white/10 bg-slate-900/60 hover:border-white/20' : 'border-slate-200 bg-white hover:border-slate-300')
@@ -394,7 +394,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                     </div>
 
                     <div
-                      className="w-full aspect-video rounded-lg border border-white/10 p-2 flex items-center justify-center text-center overflow-hidden text-[9px] text-slate-300 font-medium"
+                      className="w-full aspect-video rounded-md border border-white/10 p-2 flex items-center justify-center text-center overflow-hidden text-[9px] text-slate-300 font-medium"
                       style={{
                         backgroundColor:
                           slideItem.background.type === 'color' ? slideItem.background.value : '#0f172a',
@@ -439,7 +439,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
               <div className={`flex border-b pb-2 shrink-0 ${theme === 'dark' ? 'border-white/10' : 'border-slate-200'}`}>
                 <button
                   onClick={() => setEditorRightTab('properties')}
-                  className={`flex-1 py-1.5 text-center text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                  className={`flex-1 py-1.5 text-center text-xs font-extrabold rounded-md transition-all cursor-pointer ${
                     editorRightTab === 'properties'
                       ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-900')
                       : 'text-slate-400 hover:text-slate-300'
@@ -454,7 +454,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                       setSelectedUcIdForEditor(unidades[0].id);
                     }
                   }}
-                  className={`flex-1 py-1.5 text-center text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                  className={`flex-1 py-1.5 text-center text-xs font-extrabold rounded-md transition-all cursor-pointer ${
                     editorRightTab === 'uc-materials'
                       ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-900')
                       : 'text-slate-400 hover:text-slate-300'
@@ -477,7 +477,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                       <select
                         value={selectedUcIdForEditor}
                         onChange={(e) => setSelectedUcIdForEditor(e.target.value)}
-                        className={`w-full p-2 rounded-xl text-xs border ${
+                        className={`w-full p-2 rounded-md text-xs border ${
                           theme === 'dark' 
                             ? 'bg-slate-900 border-white/10 text-white' 
                             : 'bg-white border-slate-200 text-slate-950'
@@ -534,7 +534,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                               return (
                                 <div
                                   key={cIdx}
-                                  className={`p-2.5 rounded-xl border flex flex-col justify-between gap-2 text-xs transition-all ${
+                                  className={`p-2.5 rounded-md border flex flex-col justify-between gap-2 text-xs transition-all ${
                                     theme === 'dark'
                                       ? 'border-white/5 bg-white/5 text-[#dae2fd]'
                                       : 'border-slate-200 bg-slate-50 text-slate-800'
@@ -547,7 +547,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                                     </div>
                                     <button
                                       onClick={() => handleInsertUcElement(comp)}
-                                      className="px-2 py-1 bg-[#1890ff] hover:bg-[#116ebc] text-white font-extrabold text-[9px] uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                                      className="px-2 py-1 bg-[#1890ff] hover:bg-[#116ebc] text-white font-extrabold text-[9px] uppercase tracking-wider rounded-md transition-colors cursor-pointer"
                                     >
                                       Inserir
                                     </button>

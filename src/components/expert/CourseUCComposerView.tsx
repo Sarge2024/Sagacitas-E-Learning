@@ -380,7 +380,7 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
           >
             {slots.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-slate-400 space-y-3">
-                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-md bg-slate-100 flex items-center justify-center">
                   <Layers className="w-8 h-8 text-slate-300" />
                 </div>
                 <div className="text-center space-y-1">
@@ -399,7 +399,7 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
                   <div key={slot.id}>
                     {/* Drop indicator line */}
                     {dragOverIndex === index && (
-                      <div className="h-1 bg-[#1890ff] rounded-full mx-4 my-1 animate-pulse" />
+                      <div className="h-1 bg-[#1890ff] rounded-md mx-4 my-1 animate-pulse" />
                     )}
 
                     <div
@@ -512,7 +512,7 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
 
             {/* Drop indicator at the end */}
             {dragOverIndex !== null && dragOverIndex >= slots.length && (
-              <div className="h-1 bg-[#1890ff] rounded-full mx-4 my-1 animate-pulse" />
+              <div className="h-1 bg-[#1890ff] rounded-md mx-4 my-1 animate-pulse" />
             )}
           </div>
         </div>

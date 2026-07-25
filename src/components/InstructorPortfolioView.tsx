@@ -295,9 +295,9 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
 
         <button
           onClick={() => setActiveTab('turmas')}
-          className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+          className={`px-6 py-3 rounded-md font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'turmas'
-              ? 'bg-slate-900 text-white shadow-md'
+              ? 'bg-slate-900 text-white shadow-2xs'
               : 'bg-white text-slate-600 hover:bg-slate-200 border border-slate-200'
           }`}
         >
@@ -393,7 +393,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                         <img
                           src={q.studentAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'}
                           alt={q.studentName}
-                          className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-2xs"
+                          className="w-10 h-10 rounded-md object-cover border border-slate-200 shadow-2xs"
                         />
                         <div>
                           <div className="flex items-center gap-2">
@@ -509,7 +509,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
       {/* TAB 2: GESTÃO E CADASTRO DE CERTIFICADOS */}
       {activeTab === 'certificados' && (
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="bg-white p-6 rounded-md border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-1">
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <Award className="w-5 h-5 text-indigo-600" />
@@ -522,7 +522,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
 
             <button
               onClick={() => setIsRegisterCertModalOpen(true)}
-              className="px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md transition-all active:scale-95"
+              className="px-6 py-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-2xs transition-all active:scale-95"
             >
               <Plus className="w-4 h-4 text-[#2fd9f4]" />
               <span>+ Cadastrar Certificado com Upload</span>
@@ -534,7 +534,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
             {filteredCertificates.map((cert) => (
               <div
                 key={cert.id}
-                className="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col justify-between space-y-5 shadow-xs hover:shadow-md transition-all"
+                className="bg-white rounded-md border border-slate-200 p-6 flex flex-col justify-between space-y-5 shadow-xs hover:shadow-2xs transition-all"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1.5">
@@ -555,16 +555,16 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                     <img
                       src={cert.imageUrl}
                       alt={cert.courseTitle}
-                      className="w-16 h-16 object-cover rounded-2xl border-2 border-indigo-200 shrink-0 shadow-sm"
+                      className="w-16 h-16 object-cover rounded-md border-2 border-indigo-200 shrink-0 shadow-2xs"
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0 border border-indigo-100">
+                    <div className="w-12 h-12 bg-indigo-50 rounded-md flex items-center justify-center text-indigo-600 shrink-0 border border-indigo-100">
                       <Award className="w-6 h-6" />
                     </div>
                   )}
                 </div>
 
-                <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 font-mono space-y-1">
+                <div className="p-3 bg-slate-50 rounded-md text-xs text-slate-600 font-mono space-y-1">
                   <div className="flex justify-between">
                     <span>Credencial ID:</span>
                     <strong className="text-slate-900">{cert.credentialId}</strong>
@@ -579,7 +579,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                   {onOpenCertificateModal && (
                     <button
                       onClick={() => onOpenCertificateModal(cert)}
-                      className="flex-1 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      className="flex-1 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 rounded-md font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
                     >
                       <ExternalLink className="w-4 h-4" />
                       <span>Visualizar & Baixar PDF</span>
@@ -595,7 +595,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
       {/* TAB 3: MINHAS TURMAS VIRTUAIS */}
       {activeTab === 'turmas' && (
         <div className="space-y-6 animate-fade-in">
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="bg-white p-6 rounded-md border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-1">
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <Users className="w-5 h-5 text-indigo-600" />
@@ -605,7 +605,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                 Acompanhe o fluxo de alunos matriculados, as datas de início e fim da turma e a confirmação de continuidade do instrutor.
               </p>
             </div>
-            <div className="text-xs text-slate-400 font-medium bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl">
+            <div className="text-xs text-slate-400 font-medium bg-slate-50 border border-slate-200 px-4 py-2 rounded-md">
               Limite técnico padrão: <strong>100 alunos por turma</strong>
             </div>
           </div>
@@ -616,10 +616,10 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
               const isFull = item.enrolledCount >= item.maxStudents;
               
               return (
-                <div key={item.id} className="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col justify-between space-y-6 shadow-xs hover:shadow-md transition-all">
+                <div key={item.id} className="bg-white rounded-md border border-slate-200 p-6 flex flex-col justify-between space-y-6 shadow-xs hover:shadow-2xs transition-all">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase font-extrabold tracking-wider ${
+                      <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase font-extrabold tracking-wider ${
                         item.status === 'active' 
                           ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
                           : item.status === 'planned'
@@ -644,7 +644,7 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                       <p className="text-xs text-slate-500 mt-1 font-medium">Disciplina: {item.disciplineTitle}</p>
                     </div>
 
-                    <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-150 text-[11px] text-slate-600 font-medium">
+                    <div className="flex items-center gap-2 p-2 rounded-md bg-slate-50 border border-slate-150 text-[11px] text-slate-600 font-medium">
                       <Calendar className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                       <span>
                         Validade: {new Date(item.startDate).toLocaleDateString('pt-BR')} até {new Date(item.endDate).toLocaleDateString('pt-BR')}
@@ -660,20 +660,20 @@ export const InstructorPortfolioView: React.FC<InstructorPortfolioViewProps> = (
                       </strong>
                     </div>
 
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-slate-100 rounded-md overflow-hidden">
                       <div 
-                        className={`h-full rounded-full transition-all duration-500 ${isFull ? 'bg-red-500' : 'bg-indigo-600'}`}
+                        className={`h-full rounded-md transition-all duration-500 ${isFull ? 'bg-red-500' : 'bg-indigo-600'}`}
                         style={{ width: `${capPercent}%` }}
                       ></div>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <button className="flex-1 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all">
+                    <button className="flex-1 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-md font-bold text-xs uppercase tracking-wider transition-all">
                       Gerenciar Alunos
                     </button>
                     {!item.instructorConfirmed && (
-                      <button className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-250 rounded-xl font-bold text-xs">
+                      <button className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-250 rounded-md font-bold text-xs">
                         Confirmar Período
                       </button>
                     )}

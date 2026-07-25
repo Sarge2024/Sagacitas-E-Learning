@@ -4,6 +4,8 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
+import { createRateLimiter } from "./src/middleware/rateLimiter";
+import { errorHandler, asyncHandler } from "./src/middleware/errorHandler";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -17,12 +19,11 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Rate Limiter — protege todos os endpoints /api/* (20 req/min por IP)
+  app.use('/api', createRateLimiter({ maxRequests: 20, windowMs: 60_000 }));
+
   // Allow Firebase Auth popup windows (Google/GitHub OAuth) to close after authentication.
-  // Vite 6.x sets COOP: same-origin by default, which blocks popup window.close().
-  app.use((_req, res, next) => {
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-    next();
-  });
+  // We disabled COOP headers because it causes "Untrusted Origin" warnings on HTTP dev environments.
 
   // Initialize Gemini AI Client lazily or safely with User-Agent header
   const getAi = () => {
@@ -41,8 +42,7 @@ async function startServer() {
   };
 
   // AI Tutor API Route
-  app.post("/api/tutor", async (req, res) => {
-    try {
+  app.post("/api/tutor", asyncHandler(async (req, res) => {
       const { message, lessonTitle, moduleTitle, history } = req.body;
 
       if (!message) {
@@ -110,13 +110,7 @@ Responda de forma direta e estruturada (2 a 4 parágrafos) focando em aplicaçã
 
       const replyText = response.text || "Desculpe, não consegui gerar uma resposta no momento. Pode tentar novamente?";
       return res.json({ reply: replyText });
-    } catch (err: any) {
-      console.error("Error calling Gemini API:", err);
-      return res.status(500).json({
-        reply: "Ocorreu um erro ao processar sua pergunta com o Tutor Sagacitas E-Learning. Por favor, tente novamente em instantes.",
-      });
-    }
-  });
+  }));
 
   // Generate unique boot ID on server start to track restarts
   const SERVER_BOOT_ID = Date.now().toString();
@@ -451,12 +445,18 @@ Responda de forma direta e estruturada (2 a 4 parágrafos) focando em aplicaçã
   app.get("/auth/callback", handleOAuthCallback);
   app.get("/auth/callback/", handleOAuthCallback);
 
+  // Global Error Handler (deve ser registrado ANTES do Vite middleware)
+  // NOTA: Registrado após todas as rotas de API para capturar erros não tratados
+  app.use('/api', errorHandler as any);
+
   // Vite development middleware or Static server
   if (process.env.NODE_ENV !== "production") {
+    const disableHmr = process.env.DISABLE_HMR === "true";
     const vite = await createViteServer({
       server: { 
         middlewareMode: true,
-        hmr: {
+        hmr: disableHmr ? false : {
+          host: 'localhost',
           port: 12001
         }
       },

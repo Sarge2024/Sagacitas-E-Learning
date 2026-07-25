@@ -142,7 +142,7 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
 
   return (
     <div className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
-      <div className="bg-white border border-slate-200 rounded-md max-w-3xl w-full my-8 overflow-hidden shadow-xl text-slate-800">
+      <div className="bg-white border border-slate-200 rounded-md max-w-3xl w-full my-8 overflow-hidden shadow-2xs text-slate-800">
         {/* Header */}
         <div className="bg-white p-6 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -377,7 +377,7 @@ export const RegisterCertificateModal: React.FC<RegisterCertificateModalProps> =
 
               {uploadedImageUrl ? (
                 <div className="w-full space-y-4">
-                  <div className="relative max-w-md mx-auto rounded overflow-hidden border-2 border-emerald-500 shadow-md group">
+                  <div className="relative max-w-md mx-auto rounded overflow-hidden border-2 border-emerald-500 shadow-2xs group">
                     <img
                       src={uploadedImageUrl}
                       alt="Imagem do Certificado Uploaded"

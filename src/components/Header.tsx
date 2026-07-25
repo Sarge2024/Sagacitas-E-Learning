@@ -110,13 +110,13 @@ export const Header: React.FC<HeaderProps> = ({
               title="Notificações"
             >
               <Bell className="w-4.5 h-4.5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-[#1890ff] rounded-full animate-pulse"></span>
+              <span className="absolute top-1 right-1 w-2 h-2 bg-[#1890ff] rounded-md animate-pulse"></span>
             </button>
 
             {showNotifications && (
               <div
                 id="notifications-dropdown"
-                className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-md p-4 shadow-xl z-50 text-xs space-y-3 animate-fadeIn"
+                className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-md p-4 shadow-2xs z-50 text-xs space-y-3 animate-fadeIn"
               >
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                   <span className="font-bold text-slate-900">Notificações Sagacitas</span>
@@ -154,7 +154,7 @@ export const Header: React.FC<HeaderProps> = ({
             {showSettings && (
               <div
                 id="settings-dropdown"
-                className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-md p-3 shadow-xl z-50 text-xs space-y-2 animate-fadeIn"
+                className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-md p-3 shadow-2xs z-50 text-xs space-y-2 animate-fadeIn"
               >
                 <div className="border-b border-slate-100 pb-2 font-bold text-slate-900">
                   Configurações do Sistema
@@ -174,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onOpenOAuthModal || (() => onSelectView('profile'))}
             className="flex items-center gap-2 group cursor-pointer ml-1"
           >
-            <div className={`w-8 h-8 rounded-full overflow-hidden border transition-all ${
+            <div className={`w-8 h-8 rounded-md overflow-hidden border transition-all ${
               oauthUser ? 'border-emerald-500 group-hover:border-emerald-600' : 'border-slate-300 group-hover:border-[#1890ff]'
             }`}>
               <img

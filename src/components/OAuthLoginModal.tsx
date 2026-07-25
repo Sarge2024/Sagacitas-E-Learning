@@ -76,17 +76,17 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#171f33] border border-white/15 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl text-[#dae2fd]">
+      <div className="bg-[#171f33] border border-white/15 rounded-md max-w-lg w-full overflow-hidden shadow-2xs text-[#dae2fd]">
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 p-6 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-[#2fd9f4]/15 border border-[#2fd9f4]/30 text-[#2fd9f4]">
+            <div className="p-2.5 rounded-md bg-[#2fd9f4]/15 border border-[#2fd9f4]/30 text-[#2fd9f4]">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
               <h3 className="text-lg font-black tracking-tight text-white flex items-center gap-2">
                 <span>Autenticação OAuth 2.0</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#8083ff]/20 text-[#8083ff] font-mono border border-[#8083ff]/30 uppercase font-extrabold">
+                <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#8083ff]/20 text-[#8083ff] font-mono border border-[#8083ff]/30 uppercase font-extrabold">
                   Ambiente Logado
                 </span>
               </h3>
@@ -98,7 +98,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-[#c7c4d7] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-2 rounded-md text-[#c7c4d7] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -109,7 +109,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
           {user ? (
             /* User Authenticated View */
             <div className="space-y-6">
-              <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-4">
+              <div className="p-5 rounded-md bg-emerald-500/10 border border-emerald-500/30 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-emerald-400 font-extrabold text-xs uppercase tracking-wider">
                     <CheckCircle2 className="w-4 h-4" />
@@ -124,7 +124,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
                   <img
                     src={user.avatar}
                     alt={user.name}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-emerald-400/50 shadow-md"
+                    className="w-12 h-12 rounded-md object-cover border-2 border-emerald-400/50 shadow-2xs"
                   />
                   <div>
                     <h4 className="font-extrabold text-white text-base">{user.name}</h4>
@@ -136,7 +136,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2 text-xs text-[#c7c4d7]">
+              <div className="p-4 rounded-md bg-white/5 border border-white/10 space-y-2 text-xs text-[#c7c4d7]">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-white">Papel no LMS:</span>
                   <span className="text-[#2fd9f4] font-semibold">{user.role}</span>
@@ -158,7 +158,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
               <div className="flex items-center justify-between pt-2">
                 <button
                   onClick={onLogout}
-                  className="w-full py-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full py-3 rounded-md bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Encerrar Sessão OAuth</span>
@@ -168,7 +168,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
           ) : (
             /* Login Options View */
             <div className="space-y-6">
-              <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-[#c7c4d7] space-y-2">
+              <div className="p-4 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-xs text-[#c7c4d7] space-y-2">
                 <p className="font-semibold text-white">
                   🔒 Escolha o provedor OAuth para acessar o seu ambiente autenticado de aluno Sagacitas E-Learning.
                 </p>
@@ -183,7 +183,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
                 <button
                   onClick={() => handleConnectOAuth('google')}
                   disabled={loadingProvider === 'google'}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-white text-slate-900 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 hover:bg-slate-100 transition-all shadow-lg cursor-pointer active:scale-98 disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-md bg-white text-slate-900 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 hover:bg-slate-100 transition-all shadow-lg cursor-pointer active:scale-98 disabled:opacity-50"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path
@@ -212,7 +212,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
                 <button
                   onClick={() => handleConnectOAuth('github')}
                   disabled={loadingProvider === 'github'}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-slate-800 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 hover:bg-slate-700 transition-all border border-white/10 shadow-md cursor-pointer active:scale-98 disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-md bg-slate-800 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 hover:bg-slate-700 transition-all border border-white/10 shadow-2xs cursor-pointer active:scale-98 disabled:opacity-50"
                 >
                   <svg className="w-5 h-5 fill-current text-white" viewBox="0 0 24 24">
                     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
@@ -226,7 +226,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
                 <button
                   onClick={() => handleConnectOAuth('sagacitas-sso')}
                   disabled={loadingProvider === 'sagacitas-sso'}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#2fd9f4] to-[#8083ff] text-[#001f25] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 hover:opacity-95 transition-all shadow-lg cursor-pointer active:scale-98 disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-md bg-gradient-to-r from-[#2fd9f4] to-[#8083ff] text-[#001f25] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 hover:opacity-95 transition-all shadow-lg cursor-pointer active:scale-98 disabled:opacity-50"
                 >
                   <Sparkles className="w-5 h-5 text-[#001f25]" />
                   <span>
@@ -248,7 +248,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
                 </button>
 
                 {showConfigGuide && (
-                  <div className="mt-4 p-4 rounded-2xl bg-slate-900 border border-white/10 text-xs space-y-3 font-mono">
+                  <div className="mt-4 p-4 rounded-md bg-slate-900 border border-white/10 text-xs space-y-3 font-mono">
                     <div className="font-extrabold text-[#2fd9f4] uppercase tracking-wider text-[11px]">
                       📋 URLs de Callback OAuth (Redirect URI)
                     </div>
@@ -258,7 +258,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
                         <span className="text-slate-400 block text-[10px] uppercase font-bold">
                           Ambiente de Desenvolvimento (Dev URL):
                         </span>
-                        <div className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-white/10 mt-1">
+                        <div className="flex items-center justify-between bg-black/40 p-2 rounded-md border border-white/10 mt-1">
                           <span className="text-emerald-300 font-mono text-[10px] truncate max-w-[240px]">
                             {devUrl}/auth/callback
                           </span>
@@ -276,7 +276,7 @@ export const OAuthLoginModal: React.FC<OAuthLoginModalProps> = ({
                         <span className="text-slate-400 block text-[10px] uppercase font-bold">
                           Ambiente Compartilhado (Shared URL):
                         </span>
-                        <div className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-white/10 mt-1">
+                        <div className="flex items-center justify-between bg-black/40 p-2 rounded-md border border-white/10 mt-1">
                           <span className="text-emerald-300 font-mono text-[10px] truncate max-w-[240px]">
                             {sharedUrl}/auth/callback
                           </span>

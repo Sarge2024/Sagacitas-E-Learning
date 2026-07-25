@@ -559,20 +559,38 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   // If composing a course, show the UC composer view instead
   if (composingCourse) {
     return (
-      <CourseUCComposerView
-        course={composingCourse}
-        unidades={unidades}
-        onBack={() => setComposingCourse(null)}
-        onOpenSlideEditor={(course, filteredUcIds) => {
-          setSelectedCourseForSlides(course);
-          if (filteredUcIds && filteredUcIds.length > 0) {
-            setSelectedUcIdForSlides(filteredUcIds[0]);
-          } else {
-            setSelectedUcIdForSlides('');
-          }
-          setIsSlideEditorOpen(true);
-        }}
-      />
+      <>
+        <CourseUCComposerView
+          course={composingCourse}
+          unidades={unidades}
+          onBack={() => setComposingCourse(null)}
+          onOpenSlideEditor={(course, filteredUcIds) => {
+            setSelectedCourseForSlides(course);
+            if (filteredUcIds && filteredUcIds.length > 0) {
+              setSelectedUcIdForSlides(filteredUcIds[0]);
+            } else {
+              setSelectedUcIdForSlides('');
+            }
+            setIsSlideEditorOpen(true);
+          }}
+        />
+        {/* Modal Editor & Player Nativo de Slides Interativos */}
+        {selectedCourseForSlides && (
+          <CourseSlideEditorModal
+            course={selectedCourseForSlides}
+            isOpen={isSlideEditorOpen}
+            onClose={() => {
+              setIsSlideEditorOpen(false);
+              setSelectedCourseForSlides(null);
+            }}
+            onSaveCourseSlides={() => {
+              showToast(`Slides do treinamento atualizados com sucesso!`);
+            }}
+            unidades={unidades}
+            initialUcId={selectedUcIdForSlides}
+          />
+        )}
+      </>
     );
   }
 
@@ -734,7 +752,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                     <tr key={student.id} className="hover:bg-blue-50/40 transition-colors">
                       <td className="px-3.5 py-3 font-medium text-slate-900">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-blue-100 text-[#1890ff] flex items-center justify-center font-black text-xs uppercase shrink-0 border border-blue-200">
+                          <div className="w-7 h-7 rounded-md bg-blue-100 text-[#1890ff] flex items-center justify-center font-black text-xs uppercase shrink-0 border border-blue-200">
                             {student.name.charAt(0)}
                           </div>
                           <div>
@@ -756,9 +774,9 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                             <span className="font-mono text-slate-600">{student.completedLessonsText}</span>
                             <span className="font-black text-[#1890ff]">{student.progressPercent}%</span>
                           </div>
-                          <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden border border-slate-200">
+                          <div className="w-full bg-slate-100 h-1.5 rounded-md overflow-hidden border border-slate-200">
                             <div
-                              className="h-full bg-[#1890ff] rounded-full transition-all duration-300"
+                              className="h-full bg-[#1890ff] rounded-md transition-all duration-300"
                               style={{ width: `${student.progressPercent}%` }}
                             />
                           </div>
@@ -780,7 +798,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                           }`}
                         >
                           <span
-                            className={`w-1.5 h-1.5 rounded-full ${
+                            className={`w-1.5 h-1.5 rounded-md ${
                               student.status === 'Concluído'
                                 ? 'bg-emerald-600'
                                 : student.status === 'Em Andamento'
@@ -1061,7 +1079,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                 className="p-3 rounded bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-[#1890ff] shrink-0" />
+                  <div className="w-2 h-2 rounded-md bg-[#1890ff] shrink-0" />
                   <div>
                     <span className="text-slate-900 font-extrabold block">{log.action}</span>
                     <span className="text-[10px] text-slate-500 font-medium">Por {log.actor}</span>
@@ -1512,7 +1530,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
       {/* Modal Cadastro de Nova Categoria */}
       {isCategoryModalOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-md p-5 max-w-sm w-full text-slate-950 shadow-md space-y-4">
+          <div className="bg-white border border-slate-200 rounded-md p-5 max-w-sm w-full text-slate-950 shadow-2xs space-y-4">
             <div>
               <h3 className="text-sm font-black text-slate-900">
                 {editingCategory ? 'Editar Categoria' : 'Cadastrar Nova Categoria'}

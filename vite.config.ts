@@ -2,10 +2,11 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), basicSsl()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
@@ -15,12 +16,8 @@ export default defineConfig(() => {
       port: 12000,
       host: '0.0.0.0',
       // Allow Firebase Auth popup windows (Google/GitHub OAuth) to close properly
-      headers: {
-        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-      },
-      // HMR settings
       // Do not modify—file watching is disabled to prevent flickering during agent edits.
-      hmr: process.env.DISABLE_HMR !== 'true' ? { port: 12001 } : false,
+      hmr: process.env.DISABLE_HMR !== 'true' ? { host: 'localhost', port: 12001 } : false,
       // Provide explicit URL for GitHub Codespaces if needed
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},

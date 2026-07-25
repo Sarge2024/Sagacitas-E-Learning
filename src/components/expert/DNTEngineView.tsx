@@ -48,7 +48,7 @@ export const DNTEngineView: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono font-bold text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60">
+                <span className="text-[10px] font-mono font-bold text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
                   DNT Engine • Isenção Inteligente Ativa
                 </span>
               </div>
@@ -184,11 +184,11 @@ export const DNTEngineView: React.FC = () => {
                       <div className="text-right">
                         <span className="font-mono font-bold text-slate-800 block mb-0.5">{p.score_percentual}%</span>
                         {p.isentado ? (
-                          <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-lg flex items-center gap-1 justify-end">
+                          <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1 justify-end">
                             <CheckCircle2 className="w-3 h-3 text-emerald-600" /> ISENTADO
                           </span>
                         ) : (
-                          <span className="text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-lg flex items-center gap-1 justify-end">
+                          <span className="text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-md flex items-center gap-1 justify-end">
                             <XCircle className="w-3 h-3 text-rose-600" /> REFORÇO
                           </span>
                         )}
@@ -207,7 +207,7 @@ export const DNTEngineView: React.FC = () => {
             <span className="text-[10px] font-mono font-bold text-indigo-600 uppercase tracking-wider block">
               2. Turmas Variáveis e Dinâmicas Geradas
             </span>
-            <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg border border-indigo-200/60">
+            <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md border border-indigo-200/60">
               Segmentação Exclusiva por Déficit Real
             </span>
           </div>
@@ -231,7 +231,7 @@ export const DNTEngineView: React.FC = () => {
                         <span className="font-extrabold text-slate-900 block">{c.nome}</span>
                         <span className="text-[10px] text-slate-500">{c.cargo} • {c.email}</span>
                       </div>
-                      <span className="text-[10px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-lg">
+                      <span className="text-[10px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-md">
                         Necessita Cursar
                       </span>
                     </div>

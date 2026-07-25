@@ -35,14 +35,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       <section id="user-profile-card" className="bg-white border border-slate-200 rounded-md p-4 md:p-5 relative overflow-hidden shadow-2xs">
         <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
           <div className="relative">
-            <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-[#1890ff] p-1 shadow-2xs">
+            <div className="w-24 h-24 md:w-28 md:h-28 rounded-md overflow-hidden border-2 border-[#1890ff] p-1 shadow-2xs">
               <img
                 src={displayAvatar}
                 alt={displayName}
-                className="w-full h-full object-cover rounded-full"
+                className="w-full h-full object-cover rounded-md"
               />
             </div>
-            <span className="absolute bottom-0 right-0 bg-[#1890ff] text-white p-1.5 rounded-full shadow-md">
+            <span className="absolute bottom-0 right-0 bg-[#1890ff] text-white p-1.5 rounded-md shadow-2xs">
               <ShieldCheck className="w-4 h-4" />
             </span>
           </div>

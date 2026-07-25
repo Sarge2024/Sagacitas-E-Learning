@@ -86,7 +86,7 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
               )}
 
               {course.status && course.status !== 'active' && (
-                <span className="absolute top-4 right-4 bg-red-500/30 border border-red-500/50 text-red-200 text-[10px] uppercase font-extrabold tracking-widest px-3 py-1 rounded-full backdrop-blur-md">
+                <span className="absolute top-4 right-4 bg-red-500/30 border border-red-500/50 text-red-200 text-[10px] uppercase font-extrabold tracking-widest px-3 py-1 rounded-md backdrop-blur-md">
                   {course.status === 'blocked' ? 'Bloqueado' : 'Cancelado'}
                 </span>
               )}

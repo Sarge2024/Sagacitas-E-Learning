@@ -291,7 +291,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
             <div
               ref={videoContainerRef}
               id="video-player-container"
-              className="relative group aspect-video w-full rounded-md overflow-hidden bg-slate-950 border border-slate-300 shadow-sm"
+              className="relative group aspect-video w-full rounded-md overflow-hidden bg-slate-950 border border-slate-300 shadow-2xs"
             >
               <img
                 src={
@@ -309,7 +309,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
                 <button
                   id="play-pause-center-btn"
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className="w-16 h-16 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded-full flex items-center justify-center shadow-md transform transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                  className="w-16 h-16 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded-md flex items-center justify-center shadow-2xs transform transition-transform hover:scale-105 active:scale-95 cursor-pointer"
                 >
                   {isPlaying ? (
                     <Pause className="w-8 h-8 fill-current" />
@@ -357,7 +357,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
 
                 {/* Progress Bar Scrub */}
                 <div
-                  className="relative h-2 w-full bg-white/30 rounded-full overflow-hidden cursor-pointer"
+                  className="relative h-2 w-full bg-white/30 rounded-md overflow-hidden cursor-pointer"
                   onClick={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const clickX = e.clientX - rect.left;
@@ -366,7 +366,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
                   }}
                 >
                   <div
-                    className="h-full bg-[#1890ff] rounded-full shadow-xs transition-all duration-300"
+                    className="h-full bg-[#1890ff] rounded-md shadow-xs transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                   ></div>
                 </div>
@@ -380,7 +380,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
               <div
                 ref={videoContainerRef}
                 id="video-player-container-split"
-                className="relative group aspect-video w-full rounded-md overflow-hidden bg-slate-950 border border-slate-300 shadow-sm"
+                className="relative group aspect-video w-full rounded-md overflow-hidden bg-slate-950 border border-slate-300 shadow-2xs"
               >
                 <img
                   src={
@@ -397,7 +397,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
                   <button
                     id="play-pause-center-btn-split"
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="w-14 h-14 bg-[#1890ff] text-white rounded-full flex items-center justify-center shadow-md transform transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                    className="w-14 h-14 bg-[#1890ff] text-white rounded-md flex items-center justify-center shadow-2xs transform transition-transform hover:scale-105 active:scale-95 cursor-pointer"
                   >
                     {isPlaying ? (
                       <Pause className="w-7 h-7 fill-current" />
@@ -481,9 +481,9 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
                 <img
                   src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=256&auto=format&fit=crop"
                   alt="Dr. Elena Sterling"
-                  className="w-16 h-16 rounded-full object-cover border-2 border-[#1890ff]"
+                  className="w-16 h-16 rounded-md object-cover border-2 border-[#1890ff]"
                 />
-                <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full" title="Instrutora Online"></span>
+                <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white rounded-md" title="Instrutora Online"></span>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
@@ -631,7 +631,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
 
           {/* Toast Notification */}
           {toastMessage && (
-            <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-md font-bold text-xs shadow-xl animate-bounce">
+            <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-md font-bold text-xs shadow-2xs animate-bounce">
               {toastMessage}
             </div>
           )}
@@ -643,7 +643,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
             </h3>
 
             <form onSubmit={handleAddComment} className="bg-white p-4 rounded-md border border-slate-200 shadow-2xs flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-[#1890ff] shrink-0 font-bold border border-blue-200">
+              <div className="w-8 h-8 rounded-md bg-blue-50 flex items-center justify-center text-[#1890ff] shrink-0 font-bold border border-blue-200">
                 <User className="w-4 h-4" />
               </div>
 
@@ -673,7 +673,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
                   key={comment.id}
                   className="bg-white p-3 rounded-md border border-slate-200 flex gap-3 shadow-2xs"
                 >
-                  <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0 text-xs font-bold">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0 text-xs font-bold">
                     {comment.author.charAt(0)}
                   </div>
                   <div className="flex-1">

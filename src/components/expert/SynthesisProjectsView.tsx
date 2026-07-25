@@ -44,7 +44,7 @@ export const SynthesisProjectsView: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold text-rose-700 uppercase bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-200/60">
+              <span className="text-[10px] font-mono font-bold text-rose-700 uppercase bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200/60">
                 O Ápice Prático • Nível de Síntese de Bloom
               </span>
             </div>
@@ -63,7 +63,7 @@ export const SynthesisProjectsView: React.FC = () => {
             <span className="text-[10px] font-mono font-bold text-rose-600 uppercase tracking-wider block">
               1. Avaliação de Projetos de Inovação (Síntese)
             </span>
-            <span className="text-[10px] font-bold bg-rose-50 text-rose-700 px-2 py-0.5 rounded-lg border border-rose-200/60">
+            <span className="text-[10px] font-bold bg-rose-50 text-rose-700 px-2 py-0.5 rounded-md border border-rose-200/60">
               Rubrica de Inovação Ativa
             </span>
           </div>
@@ -166,7 +166,7 @@ export const SynthesisProjectsView: React.FC = () => {
             <span className="text-[10px] font-mono font-bold text-[#1890ff] uppercase tracking-wider block">
               2. Dashboard Executivo de Skill Gaps
             </span>
-            <span className="text-[10px] font-bold bg-blue-50 text-[#1890ff] px-2 py-0.5 rounded-lg border border-blue-200/60">
+            <span className="text-[10px] font-bold bg-blue-50 text-[#1890ff] px-2 py-0.5 rounded-md border border-blue-200/60">
               Mapa de Calor por Departamento
             </span>
           </div>
@@ -187,7 +187,7 @@ export const SynthesisProjectsView: React.FC = () => {
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden flex">
+                <div className="w-full bg-slate-200 h-2 rounded-md overflow-hidden flex">
                   <div className="bg-emerald-500 h-full" style={{ width: `${(gap.dominioAltoCount / gap.totalColaboradores) * 100}%` }} title="Domínio Alto" />
                   <div className="bg-amber-400 h-full" style={{ width: `${(gap.gapMedioCount / gap.totalColaboradores) * 100}%` }} title="Gap Médio" />
                   <div className="bg-rose-500 h-full" style={{ width: `${(gap.gapCriticoCount / gap.totalColaboradores) * 100}%` }} title="Gap Crítico" />

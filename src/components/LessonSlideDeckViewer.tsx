@@ -109,14 +109,14 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
 
   return (
     <div
-      className={`w-full bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-lg transition-all ${
+      className={`w-full bg-white border border-slate-200/90 rounded-md overflow-hidden shadow-lg transition-all ${
         isFullscreen ? 'fixed inset-0 z-50 rounded-none p-6 flex flex-col justify-between bg-slate-50' : 'p-5 md:p-6 space-y-4'
       }`}
     >
       {/* Slide Deck Header Toolbar */}
       <div className="flex items-center justify-between pb-3.5 border-b border-slate-200 text-xs text-slate-600">
         <div className="flex items-center gap-3">
-          <div className="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 font-bold">
+          <div className="px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 font-bold">
             <Presentation className="w-4 h-4 text-indigo-600" />
             <span>SLIDES DA AULA {lessonNumber}</span>
           </div>
@@ -132,16 +132,16 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           </span>
 
           {/* Slide counter pill */}
-          <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-indigo-900 font-mono font-bold text-xs">
+          <span className="px-3 py-1 rounded-md bg-slate-100 border border-slate-200 text-indigo-900 font-mono font-bold text-xs">
             {currentSlideIndex + 1} / {slides.length}
           </span>
 
           {/* Auto play button */}
           <button
             onClick={() => setIsAutoPlay(!isAutoPlay)}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 font-semibold text-[11px] cursor-pointer border ${
+            className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 font-semibold text-[11px] cursor-pointer border ${
               isAutoPlay
-                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
             }`}
             title={isAutoPlay ? 'Pausar apresentação' : 'Iniciar reprodução automática'}
@@ -153,7 +153,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           {/* Speaker Notes button */}
           <button
             onClick={() => setShowSpeakerNotes(!showSpeakerNotes)}
-            className={`p-2 rounded-lg transition-all flex items-center gap-1.5 text-[11px] font-semibold cursor-pointer border ${
+            className={`p-2 rounded-md transition-all flex items-center gap-1.5 text-[11px] font-semibold cursor-pointer border ${
               showSpeakerNotes
                 ? 'bg-purple-100 text-purple-900 border-purple-300'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
@@ -167,7 +167,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           {/* Download Slides PDF */}
           <button
             onClick={handleDownloadSlides}
-            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all border border-slate-200 cursor-pointer"
+            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-all border border-slate-200 cursor-pointer"
             title="Baixar Slides em PDF"
           >
             <Download className="w-4 h-4 text-slate-700" />
@@ -176,7 +176,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           {/* Fullscreen toggle */}
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all border border-slate-200 cursor-pointer"
+            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-all border border-slate-200 cursor-pointer"
             title={isFullscreen ? 'Sair do Modo Tela Cheia' : 'Apresentar em Tela Cheia'}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -185,7 +185,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
       </div>
 
       {/* Main Slide Card Stage - High Legibility Light Theme */}
-      <div className={`relative min-h-[400px] md:min-h-[460px] flex flex-col justify-between p-6 md:p-10 rounded-2xl bg-gradient-to-br from-slate-50 via-white to-blue-50/40 border border-slate-200 shadow-sm transition-all ${
+      <div className={`relative min-h-[400px] md:min-h-[460px] flex flex-col justify-between p-6 md:p-10 rounded-md bg-gradient-to-br from-slate-50 via-white to-blue-50/40 border border-slate-200 shadow-2xs transition-all ${
         isFullscreen ? 'flex-1 my-4' : ''
       }`}>
         {/* Top Title Section */}
@@ -214,7 +214,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
         <div className="my-6">
           {/* SLIDE 1: Capa & Provocação */}
           {activeSlide.provocationQuestion && (
-            <div className="p-6 md:p-8 rounded-2xl bg-gradient-to-r from-sky-50 via-indigo-50/60 to-blue-50 border-2 border-indigo-200/80 shadow-sm space-y-4">
+            <div className="p-6 md:p-8 rounded-md bg-gradient-to-r from-sky-50 via-indigo-50/60 to-blue-50 border-2 border-indigo-200/80 shadow-2xs space-y-4">
               <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-indigo-800">
                 <HelpCircle className="w-4 h-4 text-indigo-600" />
                 <span>Pergunta Central do Cotidiano</span>
@@ -229,7 +229,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           {(activeSlide.practicalScenario || activeSlide.identifiedPain) && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {activeSlide.practicalScenario && (
-                <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 space-y-3 shadow-xs">
+                <div className="p-5 rounded-md bg-amber-50 border border-amber-200 space-y-3 shadow-xs">
                   <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-amber-800">
                     <Flame className="w-4 h-4 text-amber-600" />
                     <span>Cenário Prático do Dia a Dia</span>
@@ -241,7 +241,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
               )}
 
               {activeSlide.identifiedPain && (
-                <div className="p-5 rounded-2xl bg-rose-50 border border-rose-200 space-y-3 shadow-xs">
+                <div className="p-5 rounded-md bg-rose-50 border border-rose-200 space-y-3 shadow-xs">
                   <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-rose-800">
                     <AlertTriangle className="w-4 h-4 text-rose-600" />
                     <span>Dor Identificada do Gestor</span>
@@ -256,7 +256,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
 
           {/* SLIDE 3: Conceito Direto & Metáfora */}
           {activeSlide.metaphorName && (
-            <div className="p-5 rounded-2xl bg-indigo-50/90 border border-indigo-200 space-y-2 mb-4 shadow-xs">
+            <div className="p-5 rounded-md bg-indigo-50/90 border border-indigo-200 space-y-2 mb-4 shadow-xs">
               <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-indigo-800">
                 <Compass className="w-4 h-4 text-indigo-600" />
                 <span>Metáfora Orientadora: {activeSlide.metaphorName}</span>
@@ -271,14 +271,14 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           {(activeSlide.systemLocation || activeSlide.numericalExample) && (
             <div className="space-y-4">
               {activeSlide.systemLocation && (
-                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-50 border border-sky-200 text-xs font-mono font-bold text-sky-900 shadow-xs">
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-sky-50 border border-sky-200 text-xs font-mono font-bold text-sky-900 shadow-xs">
                   <Layers className="w-4 h-4 text-sky-600" />
                   <span>Onde Olhar no Sistema: {activeSlide.systemLocation}</span>
                 </div>
               )}
 
               {activeSlide.numericalExample && (
-                <div className="p-4 rounded-xl bg-slate-900 text-emerald-300 font-mono text-sm border border-slate-800 shadow-sm">
+                <div className="p-4 rounded-md bg-slate-900 text-emerald-300 font-mono text-sm border border-slate-800 shadow-2xs">
                   <span className="text-white font-bold block mb-1">Exemplo Numérico (R$ e %):</span>
                   {activeSlide.numericalExample}
                 </div>
@@ -288,8 +288,8 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
 
           {/* SLIDE 5: Regra de Ouro / Frase de Ancoragem */}
           {activeSlide.goldenRule && (
-            <div className="p-8 rounded-2xl bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 border-2 border-amber-400/80 shadow-md text-center space-y-3">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-200/80 text-amber-950 border border-amber-400 text-xs font-black uppercase tracking-widest">
+            <div className="p-8 rounded-md bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 border-2 border-amber-400/80 shadow-2xs text-center space-y-3">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-amber-200/80 text-amber-950 border border-amber-400 text-xs font-black uppercase tracking-widest">
                 <Award className="w-4 h-4 text-amber-700" />
                 <span>Princípio Inegociável de Decisão</span>
               </div>
@@ -303,8 +303,8 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           {activeSlide.bulletPoints && activeSlide.bulletPoints.length > 0 && !activeSlide.provocationQuestion && !activeSlide.goldenRule && (
             <div className="space-y-3">
               {activeSlide.bulletPoints.map((point, index) => (
-                <div key={index} className="flex items-start gap-3 p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs">
-                  <div className="w-2.5 h-2.5 rounded-full bg-indigo-600 mt-2 shrink-0"></div>
+                <div key={index} className="flex items-start gap-3 p-3.5 rounded-md bg-white border border-slate-200 shadow-xs">
+                  <div className="w-2.5 h-2.5 rounded-md bg-indigo-600 mt-2 shrink-0"></div>
                   <p className="text-sm md:text-base text-slate-800 font-medium leading-relaxed">
                     {point}
                   </p>
@@ -315,7 +315,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
 
           {/* Table Data (Numerical Examples & Summary) */}
           {activeSlide.tableData && (
-            <div className="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 shadow-xs">
+            <div className="mt-4 p-4 rounded-md bg-slate-50 border border-slate-200 space-y-2 shadow-xs">
               <div className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 mb-2">
                 Resumo de Indicadores e Metas Alchymist
               </div>
@@ -323,7 +323,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
                 {activeSlide.tableData.map((row, idx) => (
                   <div
                     key={idx}
-                    className={`flex items-center justify-between text-xs p-2.5 rounded-lg border ${
+                    className={`flex items-center justify-between text-xs p-2.5 rounded-md border ${
                       row.highlight
                         ? 'bg-indigo-50 border-indigo-300 text-indigo-950 font-black shadow-xs'
                         : 'bg-white border-slate-200 text-slate-700'
@@ -342,11 +342,11 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           {activeSlide.quizQuestion && (
             <div className="space-y-4">
               {activeSlide.quizCase && (
-                <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs md:text-sm font-extrabold">
+                <div className="p-4 rounded-md bg-purple-50 border border-purple-200 text-purple-900 text-xs md:text-sm font-extrabold">
                   📌 {activeSlide.quizCase}
                 </div>
               )}
-              <div className="p-6 rounded-2xl bg-white border-2 border-indigo-200 text-lg md:text-xl font-extrabold text-slate-900 leading-relaxed shadow-sm">
+              <div className="p-6 rounded-md bg-white border-2 border-indigo-200 text-lg md:text-xl font-extrabold text-slate-900 leading-relaxed shadow-2xs">
                 {activeSlide.quizQuestion}
               </div>
             </div>
@@ -365,13 +365,13 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
                     <button
                       key={opt.key}
                       onClick={() => setSelectedQuizOption(opt.key)}
-                      className={`w-full p-4 rounded-xl text-left font-medium transition-all flex items-start gap-4 border cursor-pointer ${
+                      className={`w-full p-4 rounded-md text-left font-medium transition-all flex items-start gap-4 border cursor-pointer ${
                         isSelected
-                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
+                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-2xs'
                           : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-800'
                       }`}
                     >
-                      <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                      <span className={`w-7 h-7 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${
                         isSelected ? 'bg-white text-indigo-700' : 'bg-slate-100 text-indigo-700 border border-slate-200'
                       }`}>
                         {opt.key}
@@ -389,8 +389,8 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           {/* Quiz Slide 3: Gabarito Comentado */}
           {activeSlide.correctOptionKey && (
             <div className="space-y-4">
-              <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-300 flex items-center gap-4 shadow-xs">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white font-black text-xl flex items-center justify-center shrink-0 shadow-sm">
+              <div className="p-5 rounded-md bg-emerald-50 border border-emerald-300 flex items-center gap-4 shadow-xs">
+                <div className="w-12 h-12 rounded-md bg-emerald-600 text-white font-black text-xl flex items-center justify-center shrink-0 shadow-2xs">
                   {activeSlide.correctOptionKey}
                 </div>
                 <div>
@@ -404,7 +404,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
               </div>
 
               {activeSlide.quizJustification && (
-                <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-2 shadow-xs">
+                <div className="p-5 rounded-md bg-white border border-slate-200 space-y-2 shadow-xs">
                   <div className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
                     Justificativa Pedagógica
                   </div>
@@ -415,7 +415,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
               )}
 
               {activeSlide.quizActionRequired && (
-                <div className="p-5 rounded-2xl bg-sky-50 border border-sky-200 space-y-2 shadow-xs">
+                <div className="p-5 rounded-md bg-sky-50 border border-sky-200 space-y-2 shadow-xs">
                   <div className="text-xs font-bold text-sky-800 uppercase tracking-wider flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-sky-600" />
                     <span>Ação de Matriz de Decisão no Alchymist</span>
@@ -431,7 +431,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
 
         {/* Takeaway / Key Highlight Banner */}
         {activeSlide.takeaway && (
-          <div className="p-4 rounded-xl bg-sky-50 border-l-4 border-sky-600 border border-sky-200/60 flex items-center gap-3">
+          <div className="p-4 rounded-md bg-sky-50 border-l-4 border-sky-600 border border-sky-200/60 flex items-center gap-3">
             <Sparkles className="w-5 h-5 text-sky-600 shrink-0" />
             <p className="text-xs md:text-sm font-bold text-slate-800">
               <span className="text-sky-700 uppercase tracking-wider font-black mr-2">Próximo Passo:</span>
@@ -442,7 +442,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
 
         {/* Speaker Notes Drawer */}
         {showSpeakerNotes && activeSlide.speakerNotes && (
-          <div className="mt-4 p-4 rounded-xl bg-purple-50 border border-purple-200 text-xs text-purple-950 space-y-1">
+          <div className="mt-4 p-4 rounded-md bg-purple-50 border border-purple-200 text-xs text-purple-950 space-y-1">
             <div className="flex items-center gap-2 font-bold text-purple-800 uppercase tracking-wider">
               <FileText className="w-4 h-4 text-purple-600" />
               <span>Anotações do Instrutor Sagacitas</span>
@@ -458,7 +458,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
         <button
           onClick={handlePrev}
-          className="w-full sm:w-auto px-5 py-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-300 shadow-xs"
+          className="w-full sm:w-auto px-5 py-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-md font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-300 shadow-xs"
         >
           <ChevronLeft className="w-4 h-4 text-slate-600" />
           <span>Slide Anterior</span>
@@ -470,9 +470,9 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
             <button
               key={s.id || idx}
               onClick={() => setCurrentSlideIndex(idx)}
-              className={`h-2.5 rounded-full transition-all cursor-pointer ${
+              className={`h-2.5 rounded-md transition-all cursor-pointer ${
                 idx === currentSlideIndex
-                  ? 'w-8 bg-indigo-600 shadow-sm'
+                  ? 'w-8 bg-indigo-600 shadow-2xs'
                   : 'w-2.5 bg-slate-300 hover:bg-slate-400'
               }`}
               title={`Ir para o Slide ${idx + 1}: ${s.title}`}
@@ -484,7 +484,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           {onOpenSlideQuestionModal ? (
             <button
               onClick={() => onOpenSlideQuestionModal(activeSlide)}
-              className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-extrabold text-xs transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+              className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-extrabold text-xs transition-all flex items-center gap-2 shadow-xs cursor-pointer"
               title="Enviar dúvida deste slide para a Carteira do Instrutor"
             >
               <HelpCircle className="w-4 h-4 text-white" />
@@ -493,7 +493,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
           ) : onOpenAITutor ? (
             <button
               onClick={() => onOpenAITutor(`Me explique melhor o conteúdo do Slide ${activeSlide.slideNumber}: ${activeSlide.title}`)}
-              className="px-3 py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 border border-purple-200 cursor-pointer shadow-xs"
+              className="px-3 py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-md font-bold text-xs transition-all flex items-center gap-1.5 border border-purple-200 cursor-pointer shadow-xs"
               title="Tirar dúvida sobre este slide com a IA"
             >
               <MessageSquare className="w-3.5 h-3.5 text-purple-600" />
@@ -503,7 +503,7 @@ export const LessonSlideDeckViewer: React.FC<LessonSlideDeckViewerProps> = ({
 
           <button
             onClick={handleNext}
-            className="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            className="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
           >
             <span>Próximo Slide</span>
             <ChevronRight className="w-4 h-4" />

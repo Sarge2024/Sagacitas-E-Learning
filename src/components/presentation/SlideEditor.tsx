@@ -124,7 +124,7 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
           setSelectedElementId(null);
         }
       }}
-      className={`w-full ${aspectClass} relative rounded-2xl overflow-hidden shadow-2xl border-2 border-dashed select-none cursor-crosshair ${theme === 'dark' ? 'border-white/20 bg-slate-950' : 'border-slate-300 bg-slate-50'}`}
+      className={`w-full ${aspectClass} relative rounded-md overflow-hidden shadow-2xs border-2 border-dashed select-none cursor-crosshair ${theme === 'dark' ? 'border-white/20 bg-slate-950' : 'border-slate-300 bg-slate-50'}`}
       style={{
         backgroundColor: slide.background.type === 'color' ? slide.background.value : '#0f172a',
         backgroundImage:
@@ -196,12 +196,12 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
               <img
                 src={element.content.src || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800'}
                 alt="Element image"
-                className="w-full h-full object-cover rounded-lg pointer-events-none"
+                className="w-full h-full object-cover rounded-md pointer-events-none"
               />
             )}
 
             {element.type === 'video' && (
-              <div className="w-full h-full bg-slate-900 rounded-lg overflow-hidden flex items-center justify-center relative">
+              <div className="w-full h-full bg-slate-900 rounded-md overflow-hidden flex items-center justify-center relative">
                 <video
                   src={element.content.src}
                   className="w-full h-full object-cover pointer-events-none"
@@ -214,7 +214,7 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
             )}
 
             {element.type === 'audio' && (
-              <div className="w-full h-full bg-slate-800 border border-white/20 rounded-lg p-2 text-white text-xs flex flex-col items-center justify-center relative">
+              <div className="w-full h-full bg-slate-800 border border-white/20 rounded-md p-2 text-white text-xs flex flex-col items-center justify-center relative">
                 <span className="text-[24px] mb-1">🎵</span>
                 <span className="text-[9px] font-mono font-bold text-slate-300 truncate w-full text-center">
                   Áudio Selecionado
@@ -224,7 +224,7 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
             )}
 
             {element.type === 'quiz' && (
-              <div className="w-full h-full bg-[#1c222b]/95 border border-[#0a6ed1]/50 rounded-xl p-4 text-white text-xs flex flex-col justify-center pointer-events-none">
+              <div className="w-full h-full bg-[#1c222b]/95 border border-[#0a6ed1]/50 rounded-md p-4 text-white text-xs flex flex-col justify-center pointer-events-none">
                 <span className="text-[10px] text-[#0a6ed1] font-mono font-bold block mb-1">
                   [QUIZ INTERATIVO]
                 </span>
@@ -233,7 +233,7 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
             )}
 
             {element.type === 'custom-widget' && (
-              <div className="w-full h-full bg-[#1c222b] border border-[#0a6ed1]/50 rounded-xl p-3 text-white text-xs flex items-center justify-center pointer-events-none">
+              <div className="w-full h-full bg-[#1c222b] border border-[#0a6ed1]/50 rounded-md p-3 text-white text-xs flex items-center justify-center pointer-events-none">
                 <Sparkles className="w-5 h-5 text-[#0a6ed1] mr-2" />
                 <span className="font-mono text-[#0a6ed1] font-bold">Widget Customizado Sagacitas Builder</span>
               </div>
@@ -243,7 +243,7 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
             {isSelected && (
               <>
                 {/* Drag badge handle */}
-                <div className="absolute -top-6 left-0 bg-[#0a6ed1] text-white font-mono text-[9px] font-extrabold px-2 py-0.5 rounded-t flex items-center gap-1 shadow-md">
+                <div className="absolute -top-6 left-0 bg-[#0a6ed1] text-white font-mono text-[9px] font-extrabold px-2 py-0.5 rounded-t flex items-center gap-1 shadow-2xs">
                   <Move className="w-2.5 h-2.5" />
                   <span>
                     X:{Math.round(element.x)}% Y:{Math.round(element.y)}%
@@ -253,7 +253,7 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
                 {/* Bottom-Right Resize Handle */}
                 <div
                   onMouseDown={(e) => handleResizeMouseDown(e, element, 'se')}
-                  className="absolute -bottom-1.5 -right-1.5 w-4 h-4 bg-[#0a6ed1] border-2 border-slate-950 rounded-full cursor-se-resize shadow-md hover:scale-125 transition-transform"
+                  className="absolute -bottom-1.5 -right-1.5 w-4 h-4 bg-[#0a6ed1] border-2 border-slate-950 rounded-md cursor-se-resize shadow-2xs hover:scale-125 transition-transform"
                 />
               </>
             )}

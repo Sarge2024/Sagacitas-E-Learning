@@ -33,9 +33,15 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ currentUser }) => {
   const checkPermission = (resourceId: string, action: 'c' | 'r' | 'u' | 'd'): boolean => {
     if (!currentUser) return false;
     if (currentUser.role === 'Administrador') return true;
+    
+    if (currentUser.permissionsHash) {
+      const perm = currentUser.permissionsHash[resourceId];
+      return perm ? perm[action] : false;
+    }
+
     if (!currentUser.permissions) return true; // Default allow if no permissions array exists (old users)
-    const perm = currentUser.permissions.find(p => p.resourceId === resourceId);
-    return perm ? perm[action] : false;
+    const legacyPerm = currentUser.permissions.find(p => p.resourceId === resourceId);
+    return legacyPerm ? legacyPerm[action] : false;
   };
 
   const reports = [
@@ -94,7 +100,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ currentUser }) => {
     if (!hasReadPerm) {
       return (
         <div className="bg-white rounded-md p-8 border border-slate-200 shadow-2xs text-center space-y-4 max-w-md mx-auto my-12">
-          <div className="w-16 h-16 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto shadow-2xs">
+          <div className="w-16 h-16 rounded-md bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto shadow-2xs">
             <Lock className="w-8 h-8" />
           </div>
           <h3 className="text-base font-black text-slate-900">Acesso Restrito</h3>
@@ -234,7 +240,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ currentUser }) => {
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-slate-50 border border-slate-200 rounded-md p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
                   <TrendingUp className="w-5 h-5" />
                 </div>
                 <div>
@@ -243,7 +249,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ currentUser }) => {
                 </div>
               </div>
               <div className="bg-slate-50 border border-slate-200 rounded-md p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 text-[#1890ff] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-md bg-blue-50 border border-blue-200 text-[#1890ff] flex items-center justify-center shrink-0">
                   <Award className="w-5 h-5" />
                 </div>
                 <div>
@@ -255,8 +261,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ currentUser }) => {
 
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-md space-y-2">
               <span className="text-xs font-bold text-slate-700 block">Tempo médio para conclusão de disciplinas</span>
-              <div className="w-full bg-slate-200 rounded-full h-3">
-                <div className="bg-[#1890ff] h-3 rounded-full" style={{ width: '75%' }}></div>
+              <div className="w-full bg-slate-200 rounded-md h-3">
+                <div className="bg-[#1890ff] h-3 rounded-md" style={{ width: '75%' }}></div>
               </div>
               <span className="text-[10px] text-slate-500 font-medium block">75% dos alunos concluem em menos de 10 dias úteis</span>
             </div>
@@ -295,7 +301,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ currentUser }) => {
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-slate-50 border border-slate-200 rounded-md p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
                   <DollarSign className="w-5 h-5" />
                 </div>
                 <div>
@@ -304,7 +310,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ currentUser }) => {
                 </div>
               </div>
               <div className="bg-slate-50 border border-slate-200 rounded-md p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 text-[#1890ff] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-md bg-blue-50 border border-blue-200 text-[#1890ff] flex items-center justify-center shrink-0">
                   <TrendingUp className="w-5 h-5" />
                 </div>
                 <div>

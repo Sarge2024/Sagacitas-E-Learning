@@ -142,7 +142,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
     >
       <div
         id="certificate-modal-content"
-        className="w-full max-w-3xl bg-white border border-slate-200 rounded-md p-6 md:p-8 shadow-xl relative text-slate-800 space-y-6 my-8"
+        className="w-full max-w-3xl bg-white border border-slate-200 rounded-md p-6 md:p-8 shadow-2xs relative text-slate-800 space-y-6 my-8"
       >
         <button
           id="close-cert-modal-btn"
@@ -168,19 +168,19 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
         {/* Certificate Rendering Area */}
         {certificate.imageUrl ? (
           /* Custom Uploaded Image Preview */
-          <div className="rounded-2xl border-2 border-[#2fd9f4]/40 overflow-hidden bg-black shadow-2xl relative group">
+          <div className="rounded-md border-2 border-[#2fd9f4]/40 overflow-hidden bg-black shadow-2xs relative group">
             <img
               src={certificate.imageUrl}
               alt={certificate.courseTitle}
               className="w-full h-auto max-h-[500px] object-contain mx-auto"
             />
-            <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md text-xs px-3 py-1.5 rounded-xl border border-white/20 text-[#2fd9f4] font-mono font-bold">
+            <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md text-xs px-3 py-1.5 rounded-md border border-white/20 text-[#2fd9f4] font-mono font-bold">
               Certificado Original Uploaded
             </div>
           </div>
         ) : certificate.templateType === 'pergaminho_sagacitas' ? (
           /* Pergaminho Template View (Matching Attachment 2) */
-          <div className="border-8 border-double border-[#d4af37]/60 bg-[#fbf6ea] text-slate-900 rounded-2xl p-8 md:p-10 text-center space-y-5 relative overflow-hidden shadow-2xl font-serif">
+          <div className="border-8 border-double border-[#d4af37]/60 bg-[#fbf6ea] text-slate-900 rounded-md p-8 md:p-10 text-center space-y-5 relative overflow-hidden shadow-2xs font-serif">
             <div className="text-right text-[11px] font-mono text-amber-900/70">{regNum}</div>
 
             <div className="space-y-1">
@@ -214,21 +214,21 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                 <p>Data de Emissão: <strong className="text-slate-900">{certificate.issueDate}</strong></p>
                 <p>Autenticação: <strong className="text-slate-900">{certificate.credentialId}</strong></p>
               </div>
-              <div className="px-3 py-1 rounded-lg bg-amber-900/10 text-amber-950 text-[10px] font-bold font-mono border border-amber-900/20">
+              <div className="px-3 py-1 rounded-md bg-amber-900/10 text-amber-950 text-[10px] font-bold font-mono border border-amber-900/20">
                 Selo Oficial Alchimia do Prato • Sagacitas
               </div>
             </div>
           </div>
         ) : (
           /* Standard Golden Frame Template View (Matching Attachment 1) */
-          <div className="border-4 border-double border-[#2fd9f4]/40 bg-[#0b1326] rounded-2xl p-8 text-center space-y-6 relative overflow-hidden shadow-[0_0_30px_rgba(47,217,244,0.15)]">
+          <div className="border-4 border-double border-[#2fd9f4]/40 bg-[#0b1326] rounded-md p-8 text-center space-y-6 relative overflow-hidden shadow-[0_0_30px_rgba(47,217,244,0.15)]">
             <div className="flex justify-between items-center text-xs font-mono text-[#2fd9f4]/70">
               <span>{certificate.institutionName || 'SAGACITAS E-LEARNING'}</span>
               <span>{regNum}</span>
             </div>
 
             <div className="flex justify-center">
-              <div className="w-14 h-14 bg-[#2fd9f4]/20 rounded-2xl flex items-center justify-center text-[#2fd9f4] border border-[#2fd9f4]/30">
+              <div className="w-14 h-14 bg-[#2fd9f4]/20 rounded-md flex items-center justify-center text-[#2fd9f4] border border-[#2fd9f4]/30">
                 <Award className="w-7 h-7" />
               </div>
             </div>
@@ -256,7 +256,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                 <p>Data de Emissão: <strong className="text-white">{certificate.issueDate}</strong></p>
                 <p>Carga Horária: <strong className="text-white">{certificate.hours} Horas</strong></p>
               </div>
-              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
+              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-md border border-white/10">
                 <ShieldCheck className="w-4 h-4 text-[#2fd9f4]" />
                 <span className="font-mono text-[11px] text-[#2fd9f4] font-bold">
                   {certificate.credentialId}

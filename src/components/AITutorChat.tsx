@@ -97,12 +97,12 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({
       {isOpen && (
         <div
           id="ai-tutor-chat-window"
-          className="w-80 sm:w-96 mb-4 bg-white border border-slate-200 rounded-md overflow-hidden shadow-xl flex flex-col max-h-[500px] transition-all animate-in fade-in slide-in-from-bottom-5 duration-300 text-slate-800"
+          className="w-80 sm:w-96 mb-4 bg-white border border-slate-200 rounded-md overflow-hidden shadow-2xs flex flex-col max-h-[500px] transition-all animate-in fade-in slide-in-from-bottom-5 duration-300 text-slate-800"
         >
           {/* Header */}
           <div className="p-4 bg-blue-50 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#1890ff] animate-ping"></div>
+              <div className="w-2.5 h-2.5 rounded-md bg-[#1890ff] animate-ping"></div>
               <span className="text-xs font-black text-[#1890ff] uppercase tracking-wider flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-[#1890ff]" />
                 <span>Tutor IA - Suporte</span>
@@ -218,7 +218,7 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({
       <button
         id="toggle-ai-tutor-btn"
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex items-center gap-2.5 bg-[#1890ff] hover:bg-[#096dd9] text-white px-4 py-2.5 rounded-md font-bold text-xs shadow-md active:scale-98 transition-all cursor-pointer"
+        className="group flex items-center gap-2.5 bg-[#1890ff] hover:bg-[#096dd9] text-white px-4 py-2.5 rounded-md font-bold text-xs shadow-2xs active:scale-98 transition-all cursor-pointer"
       >
         <Bot className="w-4.5 h-4.5" />
         <span className="tracking-wide">Tutor IA - Dúvidas?</span>

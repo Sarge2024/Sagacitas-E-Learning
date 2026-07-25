@@ -172,7 +172,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
   };
 
   return (
-    <div className={`w-full lg:w-80 rounded-2xl p-4 space-y-5 text-xs overflow-y-auto max-h-[720px] scrollbar-none ${theme === 'dark' ? 'bg-[#1c222b]/95 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
+    <div className={`w-full lg:w-80 rounded-md p-4 space-y-5 text-xs overflow-y-auto max-h-[720px] scrollbar-none ${theme === 'dark' ? 'bg-[#1c222b]/95 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
       <input type="file" ref={videoInputRef} accept="video/*" className="hidden" onChange={(e) => handleFileUpload(e, 'video')} />
       <input type="file" ref={audioInputRef} accept="audio/*" className="hidden" onChange={(e) => handleFileUpload(e, 'audio')} />
 
@@ -184,42 +184,42 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => handleAddElement('text')}
-            className={`p-2 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
+            className={`p-2 rounded-md font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
           >
             <Type className="w-3.5 h-3.5 text-[#0a6ed1]" />
             <span>Texto</span>
           </button>
           <button
             onClick={() => handleAddElement('image')}
-            className={`p-2 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
+            className={`p-2 rounded-md font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
           >
             <ImageIcon className="w-3.5 h-3.5 text-[#05828e]" />
             <span>Imagem</span>
           </button>
           <button
             onClick={() => handleAddElement('quiz')}
-            className={`p-2 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
+            className={`p-2 rounded-md font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
           >
             <HelpCircle className="w-3.5 h-3.5 text-[#107e3e]" />
             <span>Quiz</span>
           </button>
           <button
             onClick={() => handleAddElement('custom-widget')}
-            className={`p-2 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
+            className={`p-2 rounded-md font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
           >
             <Sparkles className="w-3.5 h-3.5 text-[#e66000]" />
             <span>Widget</span>
           </button>
           <button
             onClick={() => videoInputRef.current?.click()}
-            className={`p-2 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
+            className={`p-2 rounded-md font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
           >
             <Video className="w-3.5 h-3.5 text-purple-500" />
             <span>Vídeo</span>
           </button>
           <button
             onClick={() => audioInputRef.current?.click()}
-            className={`p-2 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
+            className={`p-2 rounded-md font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
           >
             <Music className="w-3.5 h-3.5 text-pink-500" />
             <span>Áudio</span>
@@ -254,7 +254,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
             </span>
             <button
               onClick={() => removeElement(slide.id, selectedElement.id)}
-              className="p-1 bg-[#bb0000]/20 hover:bg-[#bb0000]/40 text-rose-500 rounded-lg transition-all cursor-pointer"
+              className="p-1 bg-[#bb0000]/20 hover:bg-[#bb0000]/40 text-rose-500 rounded-md transition-all cursor-pointer"
               title="Excluir Elemento"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -273,7 +273,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
                   onChange={(e) =>
                     updateElement(slide.id, selectedElement.id, { x: parseFloat(e.target.value) || 0 })
                   }
-                  className={`w-full border rounded-lg p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  className={`w-full border rounded-md p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                 />
               </div>
               <div>
@@ -284,7 +284,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
                   onChange={(e) =>
                     updateElement(slide.id, selectedElement.id, { y: parseFloat(e.target.value) || 0 })
                   }
-                  className={`w-full border rounded-lg p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  className={`w-full border rounded-md p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                 />
               </div>
               <div>
@@ -295,7 +295,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
                   onChange={(e) =>
                     updateElement(slide.id, selectedElement.id, { width: parseFloat(e.target.value) || 10 })
                   }
-                  className={`w-full border rounded-lg p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  className={`w-full border rounded-md p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                 />
               </div>
               <div>
@@ -306,7 +306,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
                   onChange={(e) =>
                     updateElement(slide.id, selectedElement.id, { height: parseFloat(e.target.value) || 10 })
                   }
-                  className={`w-full border rounded-lg p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  className={`w-full border rounded-md p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                 />
               </div>
             </div>
@@ -322,7 +322,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
                   updateElementContent(slide.id, selectedElement.id, { text: e.target.value })
                 }
                 rows={3}
-                className={`w-full border rounded-lg p-2 outline-none focus:ring-1 focus:ring-[#2fd9f4] ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                className={`w-full border rounded-md p-2 outline-none focus:ring-1 focus:ring-[#2fd9f4] ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
               />
               <div className="flex items-center gap-2">
                 <span className={`text-[10px] ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Cor do Texto:</span>
@@ -349,7 +349,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
                 onChange={(e) =>
                   updateElementContent(slide.id, selectedElement.id, { src: e.target.value })
                 }
-                className={`w-full border rounded-lg p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                className={`w-full border rounded-md p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
               />
             </div>
           )}
@@ -365,7 +365,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
                     quizData: { ...selectedElement.content.quizData!, question: e.target.value },
                   })
                 }
-                className={`w-full border rounded-lg p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                className={`w-full border rounded-md p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
               />
             </div>
           )}
@@ -422,7 +422,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
                       effect: e.target.value as any,
                     })
                   }
-                  className={`w-full border rounded-lg p-1.5 cursor-pointer ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                  className={`w-full border rounded-md p-1.5 cursor-pointer ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                 >
                   <option value="fadeIn">Fade In</option>
                   <option value="slideLeft">Slide da Esquerda</option>
@@ -443,7 +443,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
                         duration: parseFloat(e.target.value) || 0.5,
                       })
                     }
-                    className={`w-full border rounded-lg p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                    className={`w-full border rounded-md p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                   />
                 </div>
                 <div>
@@ -457,7 +457,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
                         delay: parseFloat(e.target.value) || 0,
                       })
                     }
-                    className={`w-full border rounded-lg p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                    className={`w-full border rounded-md p-1.5 ${theme === 'dark' ? 'bg-slate-950 border-white/10 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                   />
                 </div>
               </div>

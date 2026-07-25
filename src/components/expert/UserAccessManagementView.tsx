@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { OAuthUser, SystemPermission } from '../../types';
+import { OAuthUser, SystemPermission, RoleProfile, PermissionHash } from '../../types';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import {
@@ -20,6 +20,7 @@ import {
   AlertTriangle,
   RotateCcw
 } from 'lucide-react';
+import { RESOURCES, getPermissionsForRole, getPermissionsHashForRole } from '../../utils/rbac';
 
 interface UserAccessManagementViewProps {
   currentUser: OAuthUser | null;
@@ -28,30 +29,7 @@ interface UserAccessManagementViewProps {
   isSimulated: boolean;
 }
 
-const RESOURCES = [
-  { id: 'dre-simulator', name: 'Simulador de DRE', type: 'ui' as const },
-  { id: 'matrix', name: 'Matriz de Rituais DRE', type: 'ui' as const },
-  { id: 'courses', name: 'Central de Cursos', type: 'ui' as const },
-  { id: 'expert', name: 'Núcleo Expert', type: 'ui' as const },
-  { id: 'instructor-portfolio', name: 'Carteira do Instrutor', type: 'ui' as const },
-  { id: 'rep-performance', name: 'Desempenho de Alunos', type: 'report' as const },
-  { id: 'rep-completion', name: 'Conclusão de Treinamentos', type: 'report' as const },
-  { id: 'rep-ia', name: 'Engajamento & Tutor de IA', type: 'report' as const },
-  { id: 'rep-finance', name: 'Financeiro & Faturamento', type: 'report' as const },
-];
-
-const INITIAL_PERMISSIONS = (isNewUser = false): SystemPermission[] => 
-  RESOURCES.map(res => ({
-    resourceId: res.id,
-    resourceName: res.name,
-    resourceType: res.type,
-    c: isNewUser ? false : true,
-    r: true,
-    u: isNewUser ? false : true,
-    d: isNewUser ? false : true,
-  }));
-
-// Removemos INITIAL_USERS. A lista agora virá diretamente do Firestore em tempo real.
+// We import RESOURCES and getPermissionsForRole from rbac.ts
 
 export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> = ({
   currentUser,
@@ -61,13 +39,29 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
 }) => {
   const [users, setUsers] = useState<OAuthUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [roles, setRoles] = useState<RoleProfile[]>([]);
+  const [viewMode, setViewMode] = useState<'user' | 'role'>('user');
+  const [selectedRoleForPermissions, setSelectedRoleForPermissions] = useState<string>('Visitante');
   
   useEffect(() => {
+    const defaultFallbackUsers: OAuthUser[] = currentUser ? [
+      {
+        ...currentUser,
+        role: currentUser.role || 'Administrador',
+        permissions: currentUser.permissions || getPermissionsForRole('Administrador')
+      }
+    ] : [];
+
     const unsubscribe = onSnapshot(collection(db, 'users'), (snapshot) => {
-      const usersData: OAuthUser[] = [];
+      let usersData: OAuthUser[] = [];
       snapshot.forEach((doc) => {
         usersData.push(doc.data() as OAuthUser);
       });
+      
+      if (usersData.length === 0 && currentUser) {
+        usersData = defaultFallbackUsers;
+      }
+      
       setUsers(usersData);
       
       // Auto-select first user if none selected
@@ -79,10 +73,41 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
           return prev;
         });
       }
+    }, (error) => {
+      console.error("Firestore onSnapshot error:", error);
+      // O banco online não está disponível e/ou não há cache, carregar usuário atual como fallback
+      setUsers(defaultFallbackUsers);
+      if (defaultFallbackUsers.length > 0) {
+        setSelectedUserId(defaultFallbackUsers[0].id);
+      }
     });
 
-    return () => unsubscribe();
-  }, []);
+    const defaultRoles = ['Administrador', 'Gestor', 'Instrutor', 'Visitante', 'Aluno'].map(r => ({
+      id: r,
+      name: r,
+      permissionsHash: getPermissionsHashForRole(r)
+    }));
+
+    const unsubscribeRoles = onSnapshot(collection(db, 'roles'), (snapshot) => {
+      const rolesData: RoleProfile[] = [];
+      snapshot.forEach(doc => rolesData.push(doc.data() as RoleProfile));
+      
+      if (rolesData.length === 0) {
+        // Fallback local and seed
+        setRoles(defaultRoles);
+        defaultRoles.forEach(r => {
+          setDoc(doc(db, 'roles', r.id), r).catch(() => {});
+        });
+      } else {
+        setRoles(rolesData);
+      }
+    }, (error) => {
+      console.error("Firestore onSnapshot roles error:", error);
+      setRoles(defaultRoles);
+    });
+
+    return () => { unsubscribe(); unsubscribeRoles(); };
+  }, [currentUser]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('Todos');
@@ -97,6 +122,10 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
   const [formStatus, setFormStatus] = useState<'active' | 'blocked'>('active');
   const [isSaving, setIsSaving] = useState(false);
   const [justCreated, setJustCreated] = useState(false);
+
+  // Role Conflict State
+  const [isRoleConflictModalOpen, setIsRoleConflictModalOpen] = useState(false);
+  const [pendingUserSaveData, setPendingUserSaveData] = useState<any>(null);
 
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState<Array<{
@@ -156,24 +185,37 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
       return;
     }
 
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Timeout: Conexão com Firestore demorou muito. Verifique se o banco Firestore está criado no Console do Firebase e suas regras de segurança.')), 8000)
-    );
+
 
     try {
       setIsSaving(true);
       if (editingUser) {
-        // Edit mode
+        if (formRole !== editingUser.role) {
+          // Open conflict modal instead of saving
+          setPendingUserSaveData({
+            name: formName,
+            email: formEmail,
+            role: formRole,
+            status: formStatus
+          });
+          setIsRoleConflictModalOpen(true);
+          setIsSaving(false);
+          return;
+        }
+
+        // Edit mode (same role)
         const userRef = doc(db, 'users', editingUser.id);
-        await Promise.race([
-          setDoc(userRef, { 
-            name: formName, 
-            email: formEmail, 
-            role: formRole, 
-            status: formStatus 
-          }, { merge: true }),
-          timeoutPromise
-        ]);
+        
+        // Fire and forget - offline persistence will update local snapshot immediately
+        setDoc(userRef, { 
+          name: formName, 
+          email: formEmail, 
+          role: formRole, 
+          status: formStatus 
+        }, { merge: true }).catch(err => console.error("Sync error:", err));
+
+        // Otimismo de UI: atualiza a lista localmente sem depender do retorno do onSnapshot
+        setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, name: formName, email: formEmail, role: formRole, status: formStatus as any } : u));
 
         setAuditLogs(prev => [
           {
@@ -185,20 +227,16 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
         ]);
         showToast(`Usuário ${formName} atualizado com sucesso!`);
       } else {
-        // Create mode: Check directly against Firestore DB first to make sure document doesn't already exist
-        const sanitizedDocId = `user_${normalizedEmail.replace(/[^a-z0-9]/gi, '_')}`;
-        const userRef = doc(db, 'users', sanitizedDocId);
-        
-        const existingDoc = await Promise.race([
-          getDoc(userRef),
-          timeoutPromise
-        ]) as any;
-
-        if (existingDoc && existingDoc.exists()) {
+        // Create mode: Check against existing loaded users list
+        const existsLocally = users.some(u => u.email.toLowerCase() === normalizedEmail);
+        if (existsLocally) {
           showToast(`Este usuário/e-mail (${formEmail}) já se encontra cadastrado no banco de dados.`);
           setIsSaving(false);
           return;
         }
+
+        const sanitizedDocId = `user_${normalizedEmail.replace(/[^a-z0-9]/gi, '_')}`;
+        const userRef = doc(db, 'users', sanitizedDocId);
 
         const newUser: OAuthUser = {
           id: sanitizedDocId,
@@ -209,13 +247,14 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
           role: formRole,
           authenticatedAt: new Date().toISOString(),
           status: formStatus,
-          permissions: INITIAL_PERMISSIONS(true),
+          permissionsHash: roles.find(r => r.name === formRole)?.permissionsHash || getPermissionsHashForRole(formRole),
         };
         
-        await Promise.race([
-          setDoc(userRef, newUser),
-          timeoutPromise
-        ]);
+        // Fire and forget - offline persistence will update local snapshot immediately
+        setDoc(userRef, newUser).catch(err => console.error("Sync error:", err));
+        
+        // Otimismo de UI: insere na lista localmente
+        setUsers(prev => [...prev, newUser]);
         
         setSelectedUserId(sanitizedDocId);
         setAuditLogs(prev => [
@@ -227,12 +266,18 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
           ...prev
         ]);
         showToast(`Novo usuário ${formName} criado com sucesso!`);
-        setIsModalOpen(false);
-        setEditingUser(null);
-        setFormName('');
-        setFormEmail('');
-        setFormRole('Gestor');
-        setFormStatus('active');
+        setJustCreated(true);
+        
+        setTimeout(() => {
+          setIsModalOpen(false);
+          setJustCreated(false);
+          setEditingUser(null);
+          setFormName('');
+          setFormEmail('');
+          setFormRole('Gestor');
+          setFormStatus('active');
+        }, 2500);
+        
         return;
       }
 
@@ -240,6 +285,61 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
       setEditingUser(null);
       setFormName('');
       setFormEmail('');
+    } catch (error: any) {
+      console.error("Error saving user:", error);
+      showToast(error.message || 'Erro ao salvar usuário. Tente novamente.');
+      setIsModalOpen(false);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleResolveRoleConflict = async (action: 'keep' | 'replace' | 'review') => {
+    setIsRoleConflictModalOpen(false);
+    if (!pendingUserSaveData || !editingUser) return;
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout: Conexão com Firestore demorou muito.')), 8000)
+    );
+
+    try {
+      setIsSaving(true);
+      const userRef = doc(db, 'users', editingUser.id);
+      
+      let newPermissions = editingUser.permissions;
+      if (action === 'replace' || action === 'review') {
+        newPermissions = getPermissionsForRole(pendingUserSaveData.role);
+      }
+
+      const updateData = {
+        ...pendingUserSaveData,
+        permissions: newPermissions
+      };
+
+      await Promise.race([
+        setDoc(userRef, updateData, { merge: true }),
+        timeoutPromise
+      ]);
+
+      setAuditLogs(prev => [
+        {
+          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          action: `Usuário ${pendingUserSaveData.name} requalificado (Perfil: ${pendingUserSaveData.role}). Ação de permissões: ${action}`,
+          operator: currentUser?.name || 'Administrador'
+        },
+        ...prev
+      ]);
+
+      if (action === 'review') {
+        setSelectedUserId(editingUser.id);
+        showToast(`Papel atualizado. Agora você pode revisar as permissões.`);
+      } else {
+        showToast(`Usuário ${pendingUserSaveData.name} atualizado com sucesso!`);
+      }
+      
+      setIsModalOpen(false);
+      setEditingUser(null);
+      setPendingUserSaveData(null);
     } catch (error: any) {
       console.error("Error saving user:", error);
       showToast(error.message || 'Erro ao salvar usuário. Tente novamente.');
@@ -290,52 +390,90 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
   };
 
   const handleTogglePermission = async (resourceId: string, action: 'c' | 'r' | 'u' | 'd') => {
-    if (!selectedUser) return;
-    
-    // We can allow editing anyone's permissions now, or we can protect Master Admin if we want
-    // But since it's real data, let's just make sure they don't break themselves if they are the only admin.
+    if (viewMode === 'role') {
+      const roleObj = roles.find(r => r.name === selectedRoleForPermissions);
+      if (!roleObj) return;
 
-    const permissions = selectedUser.permissions || INITIAL_PERMISSIONS(true);
-    const updatedPerms = permissions.map(p => {
-      if (p.resourceId !== resourceId) return p;
-      return { ...p, [action]: !p[action] };
-    });
-    
-    const userRef = doc(db, 'users', selectedUser.id);
-    await setDoc(userRef, { permissions: updatedPerms }, { merge: true });
+      const currentPerms = roleObj.permissionsHash || getPermissionsHashForRole(roleObj.name);
+      const permObj = currentPerms[resourceId] || { c: false, r: false, u: false, d: false };
+      
+      const newPerms = { ...currentPerms, [resourceId]: { ...permObj, [action]: !permObj[action] } };
+      
+      // Optimistic update
+      setRoles(prev => prev.map(r => r.id === roleObj.id ? { ...r, permissionsHash: newPerms } : r));
+      
+      // Persist to Firebase
+      setDoc(doc(db, 'roles', roleObj.id), { permissionsHash: newPerms }, { merge: true }).catch(err => console.error(err));
+      
+      setAuditLogs(prev => [
+        {
+          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          action: `Permissão ${action.toUpperCase()} para módulo ${resourceId} alterada no Perfil Padrão ${roleObj.name}`,
+          operator: currentUser?.name || 'Administrador'
+        },
+        ...prev
+      ]);
+    } else {
+      if (!selectedUser) return;
+      
+      const currentPerms = selectedUser.permissionsHash || getPermissionsHashForRole(selectedUser.role);
+      const permObj = currentPerms[resourceId] || { c: false, r: false, u: false, d: false };
+      
+      const newPerms = { ...currentPerms, [resourceId]: { ...permObj, [action]: !permObj[action] } };
 
-    // Log the change
-    const resource = RESOURCES.find(r => r.id === resourceId);
-    setAuditLogs(prev => [
-      {
-        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        action: `Permissão ${action.toUpperCase()} para ${resource?.name} alterada para ${selectedUser.name}`,
-        operator: currentUser?.name || 'Administrador'
-      },
-      ...prev
-    ]);
+      // Optimistic update
+      setUsers(prev => prev.map(u => u.id === selectedUser.id ? { ...u, permissionsHash: newPerms } : u));
+      
+      // Persist
+      const userRef = doc(db, 'users', selectedUser.id);
+      await setDoc(userRef, { permissionsHash: newPerms }, { merge: true });
+
+      // Log the change
+      const resource = RESOURCES.find(r => r.id === resourceId);
+      setAuditLogs(prev => [
+        {
+          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          action: `Permissão ${action.toUpperCase()} para ${resource?.name} alterada para ${selectedUser.name}`,
+          operator: currentUser?.name || 'Administrador'
+        },
+        ...prev
+      ]);
+    }
   };
 
   const handleToggleAllPermissions = async (resourceId: string) => {
-    if (!selectedUser) return;
+    if (viewMode === 'role') {
+      const roleObj = roles.find(r => r.name === selectedRoleForPermissions);
+      if (!roleObj) return;
 
-    const permissions = selectedUser.permissions || INITIAL_PERMISSIONS(true);
-    const perm = permissions.find(p => p.resourceId === resourceId);
-    const allTrue = perm ? (perm.c && perm.r && perm.u && perm.d) : false;
-
-    const updatedPerms = permissions.map(p => {
-      if (p.resourceId !== resourceId) return p;
-      return {
-        ...p,
-        c: !allTrue,
-        r: !allTrue,
-        u: !allTrue,
-        d: !allTrue,
+      const currentPerms = roleObj.permissionsHash || getPermissionsHashForRole(roleObj.name);
+      const permObj = currentPerms[resourceId] || { c: false, r: false, u: false, d: false };
+      const allTrue = permObj.c && permObj.r && permObj.u && permObj.d;
+      
+      const newPerms = { 
+        ...currentPerms, 
+        [resourceId]: { c: !allTrue, r: !allTrue, u: !allTrue, d: !allTrue } 
       };
-    });
-    
-    const userRef = doc(db, 'users', selectedUser.id);
-    await setDoc(userRef, { permissions: updatedPerms }, { merge: true });
+      
+      setRoles(prev => prev.map(r => r.id === roleObj.id ? { ...r, permissionsHash: newPerms } : r));
+      setDoc(doc(db, 'roles', roleObj.id), { permissionsHash: newPerms }, { merge: true }).catch(err => console.error(err));
+    } else {
+      if (!selectedUser) return;
+
+      const currentPerms = selectedUser.permissionsHash || getPermissionsHashForRole(selectedUser.role);
+      const permObj = currentPerms[resourceId] || { c: false, r: false, u: false, d: false };
+      const allTrue = permObj.c && permObj.r && permObj.u && permObj.d;
+
+      const newPerms = { 
+        ...currentPerms, 
+        [resourceId]: { c: !allTrue, r: !allTrue, u: !allTrue, d: !allTrue } 
+      };
+
+      setUsers(prev => prev.map(u => u.id === selectedUser.id ? { ...u, permissionsHash: newPerms } : u));
+      
+      const userRef = doc(db, 'users', selectedUser.id);
+      await setDoc(userRef, { permissionsHash: newPerms }, { merge: true });
+    }
   };
 
   const duplicatesCount = users.filter((u, index, self) => 
@@ -408,7 +546,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
           {isSimulated ? (
             <button
               onClick={onRestoreAdmin}
-              className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 rounded font-bold text-xs uppercase transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+              className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 rounded font-bold text-xs uppercase transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Restaurar Admin Geral</span>
@@ -416,7 +554,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
           ) : (
             <button
               onClick={handleOpenCreateUserModal}
-              className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+              className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Novo Usuário</span>
@@ -489,7 +627,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                 return (
                   <div
                     key={user.id}
-                    onClick={() => setSelectedUserId(user.id)}
+                    onClick={() => { setSelectedUserId(user.id); setViewMode('user'); }}
                     className={`p-3 rounded border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                       isSelected 
                         ? 'bg-[#1890ff]/5 border-[#1890ff] ring-1 ring-[#1890ff]/10' 
@@ -500,7 +638,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                       <img
                         src={user.avatar}
                         alt={user.name}
-                        className="w-8 h-8 rounded-full border border-slate-100 shrink-0"
+                        className="w-8 h-8 rounded-md border border-slate-100 shrink-0"
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -580,38 +718,83 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
         <div className="lg:col-span-7">
           <div className="border border-slate-200 rounded-md p-5 space-y-4">
             
-            {/* Header info user selected */}
-            {selectedUser ? (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-3">
-                <img
-                  src={selectedUser.avatar}
-                  alt={selectedUser.name}
-                  className="w-10 h-10 rounded-full border border-slate-200"
-                />
-                <div>
-                  <h3 className="text-sm font-black text-slate-900">{selectedUser.name}</h3>
-                  <p className="text-xs text-slate-500 font-medium">Define permissões de CRUD para a conta</p>
-                </div>
+            {/* View Mode Selector */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50 p-4 rounded-md border border-slate-100 mb-2">
+              <div className="flex-1">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Exibir Permissões de:</label>
+                <select
+                  value={viewMode}
+                  onChange={(e) => setViewMode(e.target.value as 'user' | 'role')}
+                  className="w-full bg-white border border-slate-200 rounded px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer"
+                >
+                  <option value="user">Usuário Específico (Selecionado ao lado)</option>
+                  <option value="role">Padrão por Perfil (Editável)</option>
+                </select>
               </div>
 
-              <button
-                  onClick={() => {
-                    onSimulateLogin(selectedUser);
-                    showToast(`Sessão alternada para ${selectedUser.name}.`);
-                  }}
-                  className="px-3 py-1.5 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase transition-all cursor-pointer flex items-center gap-1.5"
-                >
-                  <UserCheck className="w-3.5 h-3.5" />
-                  <span>Simular Login</span>
-                </button>
+              {viewMode === 'role' && (
+                <div className="flex-1 animate-fadeIn">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Selecione o Perfil:</label>
+                  <select
+                    value={selectedRoleForPermissions}
+                    onChange={(e) => setSelectedRoleForPermissions(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer"
+                  >
+                    <option value="Visitante">Visitante</option>
+                    <option value="Instrutor">Instrutor</option>
+                    <option value="Gestor">Gestor</option>
+                    <option value="Administrador">Administrador</option>
+                  </select>
+                </div>
+              )}
             </div>
+
+            {/* Header info user selected */}
+            {viewMode === 'user' ? (
+              selectedUser ? (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={selectedUser.avatar}
+                      alt={selectedUser.name}
+                      className="w-10 h-10 rounded-md border border-slate-200"
+                    />
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900">{selectedUser.name}</h3>
+                      <p className="text-xs text-slate-500 font-medium">Define permissões de CRUD exclusivas para este usuário</p>
+                    </div>
+                  </div>
+
+                  <button
+                      onClick={() => {
+                        onSimulateLogin(selectedUser);
+                        showToast(`Sessão alternada para ${selectedUser.name}.`);
+                      }}
+                      className="px-3 py-1.5 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase transition-all cursor-pointer flex items-center gap-1.5"
+                    >
+                      <UserCheck className="w-3.5 h-3.5" />
+                      <span>Simular Login</span>
+                    </button>
+                </div>
+              ) : (
+                <div className="text-sm text-slate-500 pb-3 border-b border-slate-100">Selecione um usuário para gerenciar permissões exclusivas.</div>
+              )
             ) : (
-              <div className="text-sm text-slate-500">Selecione um usuário para gerenciar permissões.</div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-md border border-slate-200 bg-[#1890ff]/10 flex items-center justify-center text-[#1890ff]">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900">Perfil Padrão: {selectedRoleForPermissions}</h3>
+                    <p className="text-xs text-slate-500 font-medium">Permissões de referência padrão para novos usuários deste cargo</p>
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Matrix Table */}
-            {selectedUser && (
+            {(viewMode === 'role' || (viewMode === 'user' && selectedUser)) && (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
@@ -626,19 +809,23 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
                   {RESOURCES.map((res) => {
-                    const permissions = selectedUser.permissions || INITIAL_PERMISSIONS(true);
-                    const perm = permissions.find(p => p.resourceId === res.id) || {
-                      resourceId: res.id, resourceName: res.name, resourceType: res.type,
-                      c: false, r: false, u: false, d: false
-                    };
+                    let permObj = { c: false, r: false, u: false, d: false };
+                    if (viewMode === 'role') {
+                      const roleObj = roles.find(r => r.name === selectedRoleForPermissions);
+                      const currentPerms = roleObj ? roleObj.permissionsHash : getPermissionsHashForRole(selectedRoleForPermissions);
+                      permObj = currentPerms[res.id] || permObj;
+                    } else {
+                      const currentPerms = selectedUser!.permissionsHash || getPermissionsHashForRole(selectedUser!.role);
+                      permObj = currentPerms[res.id] || permObj;
+                    }
 
-                    const isAllChecked = perm.c && perm.r && perm.u && perm.d;
+                    const isAllChecked = permObj.c && permObj.r && permObj.u && permObj.d;
 
                     return (
                       <tr key={res.id} className="hover:bg-slate-50/50">
                         <td className="py-3 pr-4">
                           <div className="flex items-center gap-2">
-                            <span className={`w-1.5 h-1.5 rounded-full ${res.type === 'ui' ? 'bg-[#1890ff]' : 'bg-emerald-500'}`} />
+                            <span className={`w-1.5 h-1.5 rounded-md ${res.type === 'ui' ? 'bg-[#1890ff]' : 'bg-emerald-500'}`} />
                             <div>
                               <span className="font-bold text-slate-800 block">{res.name}</span>
                               <span className="text-[9px] text-slate-400 font-mono font-bold uppercase">{res.type === 'ui' ? 'Interface UI' : 'Relatório'}</span>
@@ -649,7 +836,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                         <td className="py-3 text-center">
                           <input
                             type="checkbox"
-                            checked={perm.c}
+                            checked={permObj.c}
                             onChange={() => handleTogglePermission(res.id, 'c')}
                             className="w-4 h-4 rounded border-slate-300 text-[#1890ff] focus:ring-[#1890ff] cursor-pointer"
                           />
@@ -658,7 +845,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                         <td className="py-3 text-center">
                           <input
                             type="checkbox"
-                            checked={perm.r}
+                            checked={permObj.r}
                             onChange={() => handleTogglePermission(res.id, 'r')}
                             className="w-4 h-4 rounded border-slate-300 text-[#1890ff] focus:ring-[#1890ff] cursor-pointer"
                           />
@@ -667,7 +854,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                         <td className="py-3 text-center">
                           <input
                             type="checkbox"
-                            checked={perm.u}
+                            checked={permObj.u}
                             onChange={() => handleTogglePermission(res.id, 'u')}
                             className="w-4 h-4 rounded border-slate-300 text-[#1890ff] focus:ring-[#1890ff] cursor-pointer"
                           />
@@ -676,7 +863,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                         <td className="py-3 text-center">
                           <input
                             type="checkbox"
-                            checked={perm.d}
+                            checked={permObj.d}
                             onChange={() => handleTogglePermission(res.id, 'd')}
                             className="w-4 h-4 rounded border-slate-300 text-[#1890ff] focus:ring-[#1890ff] cursor-pointer"
                           />
@@ -766,8 +953,10 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                     onChange={(e) => setFormRole(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
                   >
-                    <option value="Gestor">Gestor</option>
+                    <option value="Visitante">Visitante</option>
+                    <option value="Aluno">Aluno</option>
                     <option value="Instrutor">Instrutor</option>
+                    <option value="Gestor">Gestor</option>
                     <option value="Administrador">Administrador</option>
                   </select>
                 </div>
@@ -808,6 +997,66 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
           </div>
         </div>
       )}
+
+      {/* Role Conflict Modal */}
+      {isRoleConflictModalOpen && pendingUserSaveData && (
+        <div className="fixed inset-0 bg-[#070b14]/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-md p-6 max-w-lg w-full text-slate-800 shadow-lg relative animate-scaleUp">
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 rounded-md bg-amber-100 flex items-center justify-center mx-auto mb-2">
+                <Shield className="w-6 h-6 text-amber-600" />
+              </div>
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                Novas Permissões de Acesso
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Você alterou o perfil de <strong>{pendingUserSaveData.name}</strong> para <strong>{pendingUserSaveData.role}</strong>. Esse perfil possui um conjunto padrão de autorizações.
+                <br /><br />
+                O que você deseja fazer com as permissões atuais do usuário?
+              </p>
+              
+              <div className="grid grid-cols-1 gap-3 pt-4">
+                <button
+                  onClick={() => handleResolveRoleConflict('replace')}
+                  disabled={isSaving}
+                  className="w-full py-3 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Receber Novas (Padrão do Papel)
+                </button>
+                <button
+                  onClick={() => handleResolveRoleConflict('keep')}
+                  disabled={isSaving}
+                  className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded font-bold text-xs uppercase transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <Lock className="w-4 h-4 text-slate-500" />
+                  Manter Atuais
+                </button>
+                <button
+                  onClick={() => handleResolveRoleConflict('review')}
+                  disabled={isSaving}
+                  className="w-full py-3 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded font-bold text-xs uppercase transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <Sliders className="w-4 h-4" />
+                  Revisar Manualmente
+                </button>
+                <button
+                  onClick={() => {
+                    setIsRoleConflictModalOpen(false);
+                    setPendingUserSaveData(null);
+                    setIsSaving(false);
+                  }}
+                  disabled={isSaving}
+                  className="w-full py-2 bg-transparent text-slate-500 hover:text-slate-700 underline text-xs transition-colors cursor-pointer disabled:opacity-50 mt-2"
+                >
+                  Cancelar Edição
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

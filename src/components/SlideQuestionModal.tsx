@@ -74,7 +74,7 @@ export const SlideQuestionModal: React.FC<SlideQuestionModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fadeIn">
-      <div className="bg-white border border-slate-200 rounded-md max-w-xl w-full overflow-hidden shadow-xl transition-all">
+      <div className="bg-white border border-slate-200 rounded-md max-w-xl w-full overflow-hidden shadow-2xs transition-all">
         {/* Header */}
         <div className="bg-white p-6 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -185,7 +185,7 @@ export const SlideQuestionModal: React.FC<SlideQuestionModalProps> = ({
           ) : (
             /* Success Feedback view with redirect to Instructor Portfolio */
             <div className="py-6 text-center space-y-6">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-300 shadow-xs animate-bounce">
+              <div className="w-16 h-16 rounded-md bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-300 shadow-xs animate-bounce">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
 

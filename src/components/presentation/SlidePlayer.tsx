@@ -189,7 +189,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
       case 'text':
         return (
           <div
-            className="w-full h-full flex flex-col justify-center overflow-hidden rounded-xl p-3 box-border"
+            className="w-full h-full flex flex-col justify-center overflow-hidden rounded-md p-3 box-border"
             style={{
               fontSize: content.style?.fontSize || '1.25rem',
               fontWeight: content.style?.fontWeight || '600',
@@ -211,14 +211,14 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
           <img
             src={content.src || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800'}
             alt="Slide visual element"
-            className="w-full h-full object-cover rounded-xl shadow-xl border border-white/10"
+            className="w-full h-full object-cover rounded-md shadow-2xs border border-white/10"
             style={content.style}
           />
         );
 
       case 'video':
         return (
-          <div className="w-full h-full bg-slate-950 rounded-xl overflow-hidden border border-white/20 flex items-center justify-center shadow-xl">
+          <div className="w-full h-full bg-slate-950 rounded-md overflow-hidden border border-white/20 flex items-center justify-center shadow-2xs">
             {content.src ? (
               <video
                 src={content.src}
@@ -238,7 +238,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
 
       case 'audio':
         return (
-          <div className="w-full h-full bg-slate-800 rounded-xl overflow-hidden border border-white/20 flex flex-col items-center justify-center p-4 shadow-xl">
+          <div className="w-full h-full bg-slate-800 rounded-md overflow-hidden border border-white/20 flex flex-col items-center justify-center p-4 shadow-2xs">
             {content.src ? (
               <>
                 <span className="text-[32px] mb-3">🎵</span>
@@ -264,7 +264,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
         const isCorrect = quizSelectedOption === quiz.correctIndex;
 
         return (
-          <div className="w-full h-full bg-[#1c222b]/95 backdrop-blur-md border border-[#0a6ed1]/40 rounded-2xl p-6 shadow-2xl flex flex-col justify-between overflow-y-auto">
+          <div className="w-full h-full bg-[#1c222b]/95 backdrop-blur-md border border-[#0a6ed1]/40 rounded-md p-6 shadow-2xs flex flex-col justify-between overflow-y-auto">
             <div>
               <div className="flex items-center gap-2 text-[#0a6ed1] text-xs font-mono font-bold uppercase mb-2">
                 <HelpCircle className="w-4 h-4" />
@@ -294,7 +294,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
                       key={idx}
                       disabled={quizSubmitted}
                       onClick={() => setQuizSelectedOption(idx)}
-                      className={`w-full text-left px-4 py-3 rounded-xl border text-xs md:text-sm transition-all flex items-center justify-between cursor-pointer ${btnStyle}`}
+                      className={`w-full text-left px-4 py-3 rounded-md border text-xs md:text-sm transition-all flex items-center justify-between cursor-pointer ${btnStyle}`}
                     >
                       <span>{opt}</span>
                       {quizSubmitted && idx === quiz.correctIndex && (
@@ -314,13 +314,13 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
                 <button
                   disabled={quizSelectedOption === null}
                   onClick={() => setQuizSubmitted(true)}
-                  className="w-full py-2.5 bg-[#0a6ed1] hover:bg-[#0854a0] disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-md"
+                  className="w-full py-2.5 bg-[#0a6ed1] hover:bg-[#0854a0] disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs uppercase tracking-wider rounded-md transition-all cursor-pointer shadow-2xs"
                 >
                   Confirmar Resposta
                 </button>
               ) : (
                 <div
-                  className={`p-3 rounded-xl border text-xs flex items-start gap-2.5 ${
+                  className={`p-3 rounded-md border text-xs flex items-start gap-2.5 ${
                     isCorrect
                       ? 'bg-[#107e3e]/15 border-[#107e3e]/40 text-[#107e3e]'
                       : 'bg-[#bb0000]/15 border-[#bb0000]/40 text-rose-300'
@@ -343,37 +343,37 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
 
       case 'custom-widget':
         return (
-          <div className="w-full h-full bg-[#1c222b]/95 border border-[#0a6ed1]/40 rounded-2xl p-4 shadow-2xl flex flex-col justify-between overflow-y-auto">
+          <div className="w-full h-full bg-[#1c222b]/95 border border-[#0a6ed1]/40 rounded-md p-4 shadow-2xs flex flex-col justify-between overflow-y-auto">
             <div className="flex items-center justify-between border-b border-white/10 pb-2">
               <span className="text-[10px] font-mono font-bold text-[#0a6ed1] uppercase tracking-wider flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-[#0a6ed1]" />
                 <span>Simulador DRE Operacional • Sagacitas Builder</span>
               </span>
-              <span className="text-[9px] bg-[#0a6ed1]/20 text-[#0a6ed1] font-bold px-2 py-0.5 rounded-full">
+              <span className="text-[9px] bg-[#0a6ed1]/20 text-[#0a6ed1] font-bold px-2 py-0.5 rounded-md">
                 Widget Ativo
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-2 my-2 text-[11px]">
-              <div className="bg-slate-950 p-2.5 rounded-xl border border-white/10">
+              <div className="bg-slate-950 p-2.5 rounded-md border border-white/10">
                 <span className="text-slate-400 block text-[9px]">Receita Bruta Estimada</span>
                 <span className="text-[#107e3e] font-extrabold text-sm">R$ 120.000,00</span>
               </div>
-              <div className="bg-slate-950 p-2.5 rounded-xl border border-white/10">
+              <div className="bg-slate-950 p-2.5 rounded-md border border-white/10">
                 <span className="text-slate-400 block text-[9px]">CMV Meta (30%)</span>
                 <span className="text-[#0a6ed1] font-extrabold text-sm">R$ 36.000,00</span>
               </div>
-              <div className="bg-slate-950 p-2.5 rounded-xl border border-white/10">
+              <div className="bg-slate-950 p-2.5 rounded-md border border-white/10">
                 <span className="text-slate-400 block text-[9px]">Folha de Pagamento (25%)</span>
                 <span className="text-[#e66000] font-extrabold text-sm">R$ 30.000,00</span>
               </div>
-              <div className="bg-slate-950 p-2.5 rounded-xl border border-white/10">
+              <div className="bg-slate-950 p-2.5 rounded-md border border-white/10">
                 <span className="text-slate-400 block text-[9px]">EBITDA Estimado (18%)</span>
                 <span className="text-[#107e3e] font-extrabold text-sm">R$ 21.600,00</span>
               </div>
             </div>
 
-            <div className="p-2 bg-[#0a6ed1]/10 border border-[#0a6ed1]/30 rounded-xl text-[10px] text-[#f5f6f7] text-center">
+            <div className="p-2 bg-[#0a6ed1]/10 border border-[#0a6ed1]/30 rounded-md text-[10px] text-[#f5f6f7] text-center">
               💡 Dica do Instrutor: Ajustes de 2% no CMV representam R$ 2.400,00 a mais de lucro no mês!
             </div>
           </div>
@@ -391,7 +391,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
       {/* Slide Viewport Frame */}
       <div
         ref={containerRef}
-        className={`w-full ${aspectClass} relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 select-none`}
+        className={`w-full ${aspectClass} relative rounded-md overflow-hidden shadow-2xs border border-white/10 select-none`}
         style={{
           backgroundColor: slide.background.type === 'color' ? slide.background.value : '#0f172a',
           backgroundImage:
@@ -424,17 +424,17 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
         })}
 
         {/* Slide Counter Overlay */}
-        <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-slate-950/70 border border-white/10 text-[10px] font-mono text-slate-300 backdrop-blur-md">
+        <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-slate-950/70 border border-white/10 text-[10px] font-mono text-slate-300 backdrop-blur-md">
           {slideNumber} / {totalSlides}
         </div>
       </div>
 
       {/* Control Bar */}
-      <div className="bg-slate-900/90 border border-white/10 p-3 rounded-xl flex items-center gap-3 shadow-lg backdrop-blur-md">
+      <div className="bg-slate-900/90 border border-white/10 p-3 rounded-md flex items-center gap-3 shadow-lg backdrop-blur-md">
         {/* Play/Pause */}
         <button
           onClick={handlePlayPause}
-          className="w-8 h-8 rounded-lg bg-[#2fd9f4] hover:bg-[#28c4dd] text-slate-950 flex items-center justify-center font-bold transition-all cursor-pointer shadow-md shrink-0 active:scale-95"
+          className="w-8 h-8 rounded-md bg-[#2fd9f4] hover:bg-[#28c4dd] text-slate-950 flex items-center justify-center font-bold transition-all cursor-pointer shadow-2xs shrink-0 active:scale-95"
           title={isPlaying ? 'Pausar Animação' : 'Reproduzir Animação'}
         >
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
@@ -443,7 +443,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
         {/* Replay */}
         <button
           onClick={handleReplay}
-          className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer shrink-0 active:scale-95"
+          className="w-8 h-8 rounded-md bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer shrink-0 active:scale-95"
           title="Reiniciar Slide"
         >
           <RotateCcw className="w-3.5 h-3.5" />
@@ -453,7 +453,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
         <div className="relative shrink-0">
           <button
             onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-            className="h-8 px-2.5 rounded-lg bg-slate-950 border border-white/10 hover:border-[#2fd9f4]/40 text-white text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+            className="h-8 px-2.5 rounded-md bg-slate-950 border border-white/10 hover:border-[#2fd9f4]/40 text-white text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer"
             title="Ajustar Velocidade de Reprodução"
           >
             <Gauge className="w-3.5 h-3.5 text-[#2fd9f4]" />
@@ -461,7 +461,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
           </button>
 
           {showSpeedMenu && (
-            <div className="absolute bottom-10 left-0 bg-slate-950 border border-white/15 rounded-xl p-1.5 shadow-2xl z-50 flex flex-col gap-1 w-28">
+            <div className="absolute bottom-10 left-0 bg-slate-950 border border-white/15 rounded-md p-1.5 shadow-2xs z-50 flex flex-col gap-1 w-28">
               <span className="text-[9px] font-mono font-bold text-slate-400 px-2 py-1 uppercase">
                 Velocidade
               </span>
@@ -478,7 +478,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
                     setPlaybackSpeed(opt.val);
                     setShowSpeedMenu(false);
                   }}
-                  className={`w-full text-left px-2 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
+                  className={`w-full text-left px-2 py-1 rounded-md text-xs font-mono transition-all cursor-pointer ${
                     playbackSpeed === opt.val
                       ? 'bg-[#2fd9f4] text-slate-950 font-extrabold'
                       : 'text-slate-300 hover:bg-white/10'
@@ -500,7 +500,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
             step={0.001}
             value={progress}
             onChange={handleSeek}
-            className="w-full accent-[#2fd9f4] cursor-pointer h-1.5 bg-slate-950 rounded-lg"
+            className="w-full accent-[#2fd9f4] cursor-pointer h-1.5 bg-slate-950 rounded-md"
           />
           <span className="text-[10px] font-mono text-slate-400 w-9 text-right">
             {Math.round(progress * 100)}%
@@ -512,7 +512,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
           <button
             disabled={!hasPrevSlide}
             onClick={onPrevSlide}
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-all cursor-pointer"
+            className="p-1.5 rounded-md bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-all cursor-pointer"
             title="Slide Anterior"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -520,7 +520,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
           <button
             disabled={!hasNextSlide}
             onClick={onNextSlide}
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-all cursor-pointer"
+            className="p-1.5 rounded-md bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-all cursor-pointer"
             title="Próximo Slide"
           >
             <ChevronRight className="w-4 h-4" />

@@ -262,10 +262,10 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#1890ff] bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200/60">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#1890ff] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60">
                 Tema Sagacitas Line • Multi-Tenant Headless
               </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center gap-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3" />
                 RLS Isolation Active
               </span>
@@ -283,7 +283,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
             <span className="text-[10px] text-slate-400 block font-mono">TENANT ATIVO</span>
             <span className="font-bold text-slate-800">{MOCK_TENANT.nome_fantasia}</span>
           </div>
-          <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-indigo-600 text-white font-mono ml-2">
+          <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-indigo-600 text-white font-mono ml-2">
             PLANO {MOCK_TENANT.plano_assinatura}
           </span>
         </div>
@@ -431,7 +431,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                   </button>
                   <button
                     onClick={handleSaveUc}
-                    className="px-4 py-2 bg-[#1890ff] hover:bg-[#116ebc] text-white rounded-md font-extrabold text-xs transition-all cursor-pointer shadow-md"
+                    className="px-4 py-2 bg-[#1890ff] hover:bg-[#116ebc] text-white rounded-md font-extrabold text-xs transition-all cursor-pointer shadow-2xs"
                   >
                     Salvar Unidade
                   </button>
@@ -547,37 +547,37 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                     <div className="flex flex-wrap gap-1.5">
                       <button 
                         onClick={() => addComponentField('text')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
                       >
                         + Texto
                       </button>
                       <button 
                         onClick={() => addComponentField('image')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
                       >
                         + Imagem
                       </button>
                       <button 
                         onClick={() => addComponentField('video')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
                       >
                         + Vídeo
                       </button>
                       <button 
                         onClick={() => addComponentField('audio')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
                       >
                         + Áudio
                       </button>
                       <button 
                         onClick={() => addComponentField('question')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
                       >
                         + Questão
                       </button>
                       <button 
                         onClick={() => addComponentField('simulation')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
                       >
                         + Simulação
                       </button>
@@ -596,7 +596,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                           {/* Element delete */}
                           <button
                             onClick={() => setUcComponents(ucComponents.filter((_, i) => i !== idx))}
-                            className="absolute top-3 right-3 p-1 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 transition-all cursor-pointer"
+                            className="absolute top-3 right-3 p-1 text-slate-400 hover:text-rose-500 rounded-md hover:bg-rose-50 transition-all cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -765,7 +765,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                                           setUcComponents(list);
                                         }}
                                         placeholder={`Texto da opção ${keyName}`}
-                                        className="flex-1 p-1.5 border border-slate-200 rounded-lg text-xs"
+                                        className="flex-1 p-1.5 border border-slate-200 rounded-md text-xs"
                                       />
                                     </div>
                                   );
@@ -783,7 +783,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                                   }}
                                   placeholder="Explique o porquê de a resposta estar correta..."
                                   rows={2}
-                                  className="w-full p-2 border border-slate-200 rounded-lg text-xs"
+                                  className="w-full p-2 border border-slate-200 rounded-md text-xs"
                                 />
                               </div>
                             </div>
@@ -812,7 +812,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
               </div>
               <button 
                 onClick={openCreateUc}
-                className="px-3.5 py-2 bg-[#1890ff] hover:bg-[#116ebc] text-white rounded-md text-xs font-extrabold transition-all cursor-pointer shadow-md flex items-center gap-1.5 shrink-0"
+                className="px-3.5 py-2 bg-[#1890ff] hover:bg-[#116ebc] text-white rounded-md text-xs font-extrabold transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 shrink-0"
               >
                 <Plus className="w-4 h-4" />
                 <span>Nova Unidade</span>
@@ -828,7 +828,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                   <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                     <div className="flex items-center gap-3">
                       <h2 className="text-base font-extrabold text-slate-800">{topicoNome}</h2>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
                         Complexidade do Tópico: {complexidade}
                       </span>
                     </div>
@@ -842,7 +842,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                       <div 
                         key={uc.id} 
                         onClick={() => setSelectedUcForModal(uc)}
-                        className="bg-white rounded-md p-5 border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 cursor-pointer hover:border-[#1890ff] hover:shadow-md transition-all active:scale-[0.99] select-none relative group"
+                        className="bg-white rounded-md p-5 border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 cursor-pointer hover:border-[#1890ff] hover:shadow-2xs transition-all active:scale-[0.99] select-none relative group"
                       >
                         {/* Edit / Delete Buttons on Hover */}
                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 z-10">
@@ -851,7 +851,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                               e.stopPropagation();
                               openEditUc(uc);
                             }}
-                            className="p-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-lg transition-colors"
+                            className="p-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-md transition-colors"
                             title="Editar Unidade de Conhecimento"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
@@ -863,7 +863,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                                 setUnidades(unidades.filter(u => u.id !== uc.id));
                               }
                             }}
-                            className="p-1 bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 rounded-lg transition-colors"
+                            className="p-1 bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 rounded-md transition-colors"
                             title="Excluir Unidade de Conhecimento"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -872,10 +872,10 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
 
                         <div>
                           <div className="flex items-center justify-between mb-2 pr-12">
-                            <span className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">
+                            <span className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
                               {uc.codigo}
                             </span>
-                            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-lg border ${getBloomBadgeStyle(uc.meta_bloom)}`}>
+                            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md border ${getBloomBadgeStyle(uc.meta_bloom)}`}>
                               Bloom: {uc.meta_bloom}
                             </span>
                           </div>
@@ -1025,12 +1025,12 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                       setAiTutorEnabled(!aiTutorEnabled);
                       showToast(`Tutor de IA ${!aiTutorEnabled ? 'ativado' : 'desativado'}`);
                     }}
-                    className={`w-12 h-6 rounded-full transition-all relative cursor-pointer ${
+                    className={`w-12 h-6 rounded-md transition-all relative cursor-pointer ${
                       aiTutorEnabled ? 'bg-[#1890ff]' : 'bg-slate-300'
                     }`}
                   >
                     <span
-                      className={`w-5 h-5 rounded-full bg-white shadow-md absolute top-0.5 transition-all ${
+                      className={`w-5 h-5 rounded-md bg-white shadow-2xs absolute top-0.5 transition-all ${
                         aiTutorEnabled ? 'left-6' : 'left-0.5'
                       }`}
                     />
@@ -1049,12 +1049,12 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                       setAutoIssueCertificates(!autoIssueCertificates);
                       showToast(`Emissão automática ${!autoIssueCertificates ? 'ativada' : 'desativada'}`);
                     }}
-                    className={`w-12 h-6 rounded-full transition-all relative cursor-pointer ${
+                    className={`w-12 h-6 rounded-md transition-all relative cursor-pointer ${
                       autoIssueCertificates ? 'bg-[#1890ff]' : 'bg-slate-300'
                     }`}
                   >
                     <span
-                      className={`w-5 h-5 rounded-full bg-white shadow-md absolute top-0.5 transition-all ${
+                      className={`w-5 h-5 rounded-md bg-white shadow-2xs absolute top-0.5 transition-all ${
                         autoIssueCertificates ? 'left-6' : 'left-0.5'
                       }`}
                     />
@@ -1085,12 +1085,12 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                       setOauthRequired(!oauthRequired);
                       showToast(`OAuth obrigatório ${!oauthRequired ? 'ativado' : 'desativado'}`);
                     }}
-                    className={`w-12 h-6 rounded-full transition-all relative cursor-pointer ${
+                    className={`w-12 h-6 rounded-md transition-all relative cursor-pointer ${
                       oauthRequired ? 'bg-[#1890ff]' : 'bg-slate-300'
                     }`}
                   >
                     <span
-                      className={`w-5 h-5 rounded-full bg-white shadow-md absolute top-0.5 transition-all ${
+                      className={`w-5 h-5 rounded-md bg-white shadow-2xs absolute top-0.5 transition-all ${
                         oauthRequired ? 'left-6' : 'left-0.5'
                       }`}
                     />
@@ -1124,7 +1124,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
       {/* UC Details Modal Popup */}
       {selectedUcForModal && (
         <div className="fixed inset-0 bg-[#070b14]/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedUcForModal(null)}>
-          <div className="bg-[#131929] border border-white/10 rounded-md p-6 md:p-8 max-w-lg w-full text-[#dae2fd] shadow-md relative space-y-5 animate-scaleUp max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[#131929] border border-white/10 rounded-md p-6 md:p-8 max-w-lg w-full text-[#dae2fd] shadow-2xs relative space-y-5 animate-scaleUp max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             
             {/* Header / Top Row */}
             <div className="flex items-center justify-between">
@@ -1206,20 +1206,20 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                             {comp.title && <h4 className="text-xs font-bold text-white">{comp.title}</h4>}
                           </div>
                           {comp.metadata?.duration && (
-                            <span className="text-[10px] font-mono text-[#94a3b8] font-bold bg-white/5 px-2 py-0.5 rounded-lg border border-white/10">{comp.metadata.duration}</span>
+                            <span className="text-[10px] font-mono text-[#94a3b8] font-bold bg-white/5 px-2 py-0.5 rounded-md border border-white/10">{comp.metadata.duration}</span>
                           )}
                         </div>
                         <div className="relative rounded-md overflow-hidden border border-white/10 bg-slate-950 aspect-video flex flex-col justify-between p-4 group">
                           {/* Mock Video player background */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/30 flex items-center justify-center">
-                            <button className="w-12 h-12 rounded-full bg-[#1890ff] hover:bg-[#116ebc] text-white flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer">
+                            <button className="w-12 h-12 rounded-md bg-[#1890ff] hover:bg-[#116ebc] text-white flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer">
                               <Play className="w-5 h-5 translate-x-0.5 fill-current" />
                             </button>
                           </div>
                           {/* Simulated video controls */}
                           <div className="z-10 flex items-center justify-between w-full text-[10px] text-slate-400 mt-auto">
                             <span className="font-mono">00:00 / {comp.metadata?.duration || '00:00'}</span>
-                            <div className="flex-1 mx-3 h-1 bg-white/20 rounded-full overflow-hidden">
+                            <div className="flex-1 mx-3 h-1 bg-white/20 rounded-md overflow-hidden">
                               <div className="w-1/4 h-full bg-[#1890ff]" />
                             </div>
                           </div>
@@ -1239,18 +1239,18 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                             {comp.title && <h4 className="text-xs font-bold text-white">{comp.title}</h4>}
                           </div>
                           {comp.metadata?.duration && (
-                            <span className="text-[10px] font-mono text-[#94a3b8] font-bold bg-white/5 px-2 py-0.5 rounded-lg border border-white/10">{comp.metadata.duration}</span>
+                            <span className="text-[10px] font-mono text-[#94a3b8] font-bold bg-white/5 px-2 py-0.5 rounded-md border border-white/10">{comp.metadata.duration}</span>
                           )}
                         </div>
                         {/* Audio Player waveform simulation */}
                         <div className="flex items-center gap-3 bg-black/40 border border-white/5 p-3 rounded-md">
-                          <button className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md active:scale-95 cursor-pointer">
+                          <button className="w-8 h-8 rounded-md bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-2xs active:scale-95 cursor-pointer">
                             <Play className="w-4 h-4 translate-x-0.5 fill-current" />
                           </button>
                           <div className="flex-1 flex items-end gap-[2px] h-6">
                             {/* Simulated waveform bars */}
                             {[10,16,24,18,12,8,14,20,18,22,14,8,12,18,24,16,10,14,18,8,12,16].map((h, i) => (
-                              <div key={i} className={`flex-1 rounded-sm transition-all duration-300 ${i < 5 ? 'bg-amber-500' : 'bg-white/20'}`} style={{ height: `${h}px` }} />
+                              <div key={i} className={`flex-1 rounded-md transition-all duration-300 ${i < 5 ? 'bg-amber-500' : 'bg-white/20'}`} style={{ height: `${h}px` }} />
                             ))}
                           </div>
                           <span className="text-[10px] font-mono text-slate-400">{comp.metadata?.duration || '00:00'}</span>
@@ -1283,7 +1283,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                                 }`}
                               >
                                 <div className="flex items-center gap-2.5">
-                                  <span className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] border ${
+                                  <span className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px] border ${
                                     opt.isCorrect 
                                       ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300' 
                                       : 'bg-white/5 border-white/10 text-slate-400'

@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabaseClient';
+import { supabase, getCurrentTenantId } from '../lib/supabaseClient';
 import { 
   DBCourse, 
   DBDiscipline, 
@@ -12,10 +12,19 @@ import {
 } from '../types';
 
 /**
- * Database Service to interface with the Supabase schema
+ * Database Service to interface with the Supabase schema.
+ * 
+ * NOTA MULTI-TENANT: As tabelas transacionais possuem `tenant_id` e políticas RLS
+ * que filtram automaticamente via `current_setting('app.current_tenant_id')`.
+ * 
+ * Para operações de INSERT/UPDATE, o `tenant_id` é injetado explicitamente
+ * para garantir que o registro pertença ao tenant correto.
+ * 
+ * Tabelas de catálogo público (courses, disciplines, lessons, categories)
+ * possuem SELECT público — o RLS permite leitura para todos.
  */
 export const dbService = {
-  // --- Course Categories ---
+  // --- Course Categories (Catálogo público — sem filtro tenant) ---
   async getCategories(): Promise<DBCourseCategory[]> {
     const { data, error } = await supabase
       .from('course_categories')
@@ -26,7 +35,7 @@ export const dbService = {
     return data || [];
   },
 
-  // --- Courses ---
+  // --- Courses (Catálogo público — SELECT sem filtro, INSERT com tenant) ---
   async getCourses(): Promise<DBCourse[]> {
     const { data, error } = await supabase
       .from('courses')
@@ -48,7 +57,7 @@ export const dbService = {
     return data;
   },
 
-  // --- Disciplines ---
+  // --- Disciplines (Catálogo público) ---
   async getDisciplines(courseId: string): Promise<DBDiscipline[]> {
     const { data, error } = await supabase
       .from('disciplines')
@@ -96,7 +105,7 @@ export const dbService = {
     return data || [];
   },
 
-  // --- Classes (Turmas Virtuais) ---
+  // --- Classes (Turmas Virtuais — filtradas por tenant via RLS) ---
   async getClassesForDiscipline(disciplineId: string): Promise<DBClass[]> {
     const { data, error } = await supabase
       .from('classes')
@@ -121,11 +130,13 @@ export const dbService = {
 
   // --- Class Enrollments (Matrículas com limite de 100 alunos) ---
   async enrollStudent(studentId: string, classId: string): Promise<DBClassEnrollment> {
+    const tenantId = getCurrentTenantId();
     const { data, error } = await supabase
       .from('class_enrollments')
       .insert({
         student_id: studentId,
-        class_id: classId
+        class_id: classId,
+        tenant_id: tenantId
       })
       .select('*')
       .single();
@@ -167,7 +178,7 @@ export const dbService = {
     return data || [];
   },
 
-  // --- Companies (B2B) ---
+  // --- Companies (B2B — filtradas por tenant via RLS) ---
   async getCompanyDetails(companyId: string): Promise<DBCompany | null> {
     const { data, error } = await supabase
       .from('companies')
