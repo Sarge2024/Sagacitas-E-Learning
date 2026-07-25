@@ -14,6 +14,10 @@ export default defineConfig(() => {
     server: {
       port: 12000,
       host: '0.0.0.0',
+      // Allow Firebase Auth popup windows (Google/GitHub OAuth) to close properly
+      headers: {
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      },
       // HMR settings
       // Do not modify—file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true' ? { port: 12001 } : false,

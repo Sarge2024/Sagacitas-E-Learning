@@ -11,6 +11,7 @@ interface HeaderProps {
   onToggleCollapse?: () => void;
   oauthUser?: OAuthUser | null;
   onOpenOAuthModal?: () => void;
+  onLogout?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleCollapse,
   oauthUser,
   onOpenOAuthModal,
+  onLogout,
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -83,22 +85,15 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
 
-        {/* OAuth Pill */}
-        {onOpenOAuthModal && (
+        {/* OAuth Logout Button */}
+        {oauthUser && onLogout && (
           <button
-            id="oauth-status-header-btn"
-            onClick={onOpenOAuthModal}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-md border text-xs font-bold transition-all cursor-pointer shadow-2xs ${
-              oauthUser
-                ? 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100'
-                : 'bg-[#1890ff]/10 border-[#1890ff]/30 text-[#1890ff] hover:bg-[#1890ff]/20'
-            }`}
-            title="Gerenciar Autenticação OAuth"
+            id="oauth-logout-header-btn"
+            onClick={onLogout}
+            className="px-3 py-1.5 text-xs font-black text-slate-500 hover:text-rose-600 bg-transparent border-none cursor-pointer uppercase transition-colors"
+            title="Sair do Sistema (Logout)"
           >
-            <ShieldCheck className={`w-3.5 h-3.5 ${oauthUser ? 'text-emerald-600' : 'text-[#1890ff]'}`} />
-            <span className="hidden sm:inline">
-              {oauthUser ? 'OAuth Conectado' : 'Login OAuth'}
-            </span>
+            Logout
           </button>
         )}
 

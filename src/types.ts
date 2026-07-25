@@ -1,4 +1,4 @@
-export type ViewMode = 'dashboard' | 'lesson' | 'courses' | 'profile' | 'dre-simulator' | 'matrix' | 'instructor-portfolio' | 'manager' | 'expert';
+export type ViewMode = 'dashboard' | 'lesson' | 'courses' | 'profile' | 'dre-simulator' | 'matrix' | 'instructor-portfolio' | 'manager' | 'expert' | 'reports';
 
 export interface InstructorQuestion {
   id: string;
@@ -134,6 +134,16 @@ export interface ChatMessage {
   timestamp: string;
 }
 
+export interface SystemPermission {
+  resourceId: string;
+  resourceName: string;
+  resourceType: 'ui' | 'report';
+  c: boolean; // Create
+  r: boolean; // Read
+  u: boolean; // Update
+  d: boolean; // Delete
+}
+
 export interface OAuthUser {
   id: string;
   name: string;
@@ -146,6 +156,8 @@ export interface OAuthUser {
   company_name?: string;
   enrollment_type?: string;
   enrollment_number?: string;
+  permissions?: SystemPermission[];
+  status?: 'active' | 'blocked';
 }
 
 // Database Entities (Supabase Schema Alignment)

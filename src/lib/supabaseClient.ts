@@ -16,7 +16,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Provide dummy values to prevent fatal crash on instantiation when missing
-const finalUrl = supabaseUrl || 'https://placeholder.supabase.co';
+// We use a fast-failing localhost port to avoid long timeouts on DB queries
+const finalUrl = supabaseUrl || 'http://localhost:54321';
 const finalKey = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy';
 
 // Create a single supabase client for interacting with your database

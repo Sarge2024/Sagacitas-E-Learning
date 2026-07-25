@@ -37,9 +37,12 @@ import {
   Filter,
   Check,
   Presentation,
+  FolderPlus,
 } from 'lucide-react';
 import { RegisterCertificateModal } from './RegisterCertificateModal';
 import { CourseSlideEditorModal } from './presentation/CourseSlideEditorModal';
+import { CourseUCComposerView } from './expert/CourseUCComposerView';
+import { UnidadeConhecimento } from '../types/edtechExpert';
 
 export type ManagerTabType = 'students' | 'trainings' | 'certificates' | 'settings' | 'logs';
 
@@ -53,6 +56,7 @@ interface ManagerToolsViewProps {
   activeTab?: ManagerTabType;
   onTabChange?: (tab: ManagerTabType) => void;
   onUpdateCourses?: (courses: Course[]) => void;
+  unidades?: UnidadeConhecimento[];
 }
 
 export interface StudentRecord {
@@ -199,6 +203,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   activeTab: externalTab,
   onTabChange,
   onUpdateCourses,
+  unidades = [],
 }) => {
   const [internalTab, setInternalTab] = useState<ManagerTabType>('students');
   const currentTab = externalTab || internalTab;
@@ -259,7 +264,32 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
 
   // Course Slide Editor State
   const [selectedCourseForSlides, setSelectedCourseForSlides] = useState<Course | null>(null);
+  const [selectedUcIdForSlides, setSelectedUcIdForSlides] = useState<string>('');
   const [isSlideEditorOpen, setIsSlideEditorOpen] = useState(false);
+
+  // Course UC Composer state
+  const [composingCourse, setComposingCourse] = useState<Course | null>(null);
+
+  // Categories management state
+  const [categories, setCategories] = useState<string[]>([
+    'Finanças & DRE',
+    'Engenharia de Cardápio',
+    'Gestão de Custos & CMV',
+    'Gestão de Equipes'
+  ]);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (courses && courses.length > 0) {
+      const existingCats = Array.from(new Set(courses.map(c => c.category).filter(Boolean) as string[]));
+      setCategories(prev => {
+        const merged = Array.from(new Set([...prev, ...existingCats]));
+        return merged;
+      });
+    }
+  }, [courses]);
 
   // Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -526,6 +556,26 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
       c.credentialId.toLowerCase().includes(certSearch.toLowerCase())
   );
 
+  // If composing a course, show the UC composer view instead
+  if (composingCourse) {
+    return (
+      <CourseUCComposerView
+        course={composingCourse}
+        unidades={unidades}
+        onBack={() => setComposingCourse(null)}
+        onOpenSlideEditor={(course, filteredUcIds) => {
+          setSelectedCourseForSlides(course);
+          if (filteredUcIds && filteredUcIds.length > 0) {
+            setSelectedUcIdForSlides(filteredUcIds[0]);
+          } else {
+            setSelectedUcIdForSlides('');
+          }
+          setIsSlideEditorOpen(true);
+        }}
+      />
+    );
+  }
+
   return (
     <div id="manager-tools-view" className="pt-16 md:pt-18 px-3 md:px-5 pb-8 max-w-[1440px] mx-auto space-y-4 bg-[#f9f9ff] min-h-screen">
       {/* Toast Alert */}
@@ -544,191 +594,71 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
             <span>Alchymist Manager • Menu Gestor</span>
           </div>
           <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
-            Central de Gestão de Alunos & Treinamentos
+            {currentTab === 'students' && 'Central de Gestão de Alunos'}
+            {currentTab === 'trainings' && 'Central de Gestão de Cursos'}
+            {currentTab === 'certificates' && 'Gestão de Certificados Emitidos'}
+            {currentTab === 'logs' && 'Logs de Auditoria Administrativa'}
           </h1>
           <p className="text-xs text-slate-600 max-w-2xl font-medium">
-            Acompanhe a evolução individual dos alunos, matricule turmas corporativas, gerencie a grade
-            de treinamentos e emita certificados verificados.
+            {currentTab === 'students' && 'Acompanhe a evolução individual dos alunos, matricule turmas e gerencie o engajamento geral.'}
+            {currentTab === 'trainings' && 'Gerencie a grade curricular, crie novos treinamentos e organize as unidades de conhecimento.'}
+            {currentTab === 'certificates' && 'Consulte, emita e valide os certificados de conclusão de treinamentos de seus alunos.'}
+            {currentTab === 'logs' && 'Monitore o histórico completo das ações administrativas executadas na plataforma.'}
           </p>
         </div>
 
         {/* Action Header Buttons */}
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setIsAddStudentModalOpen(true)}
-            className="px-3.5 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Matricular Aluno</span>
-          </button>
+          {currentTab === 'students' && (
+            <button
+              onClick={() => setIsAddStudentModalOpen(true)}
+              className="px-3.5 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Matricular Aluno</span>
+            </button>
+          )}
 
-          <button
-            onClick={handleOpenNewTrainingModal}
-            className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Novo Treinamento</span>
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div
-          onClick={() => handleSetTab('students')}
-          className={`bg-white border rounded-md p-3.5 flex items-center gap-3 transition-all cursor-pointer shadow-2xs ${
-            currentTab === 'students'
-              ? 'border-[#1890ff] ring-1 ring-[#1890ff]/20'
-              : 'border-slate-200 hover:border-slate-300'
-          }`}
-        >
-          <div className="w-10 h-10 rounded bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1890ff] shrink-0">
-            <Users className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
-              Gestão de Alunos
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-black text-slate-900">{students.length}</span>
-              <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-0.5">
-                <TrendingUp className="w-3 h-3" /> 100% Ativos
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          onClick={() => handleSetTab('trainings')}
-          className={`bg-white border rounded-md p-3.5 flex items-center gap-3 transition-all cursor-pointer shadow-2xs ${
-            currentTab === 'trainings'
-              ? 'border-[#1890ff] ring-1 ring-[#1890ff]/20'
-              : 'border-slate-200 hover:border-slate-300'
-          }`}
-        >
-          <div className="w-10 h-10 rounded bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1890ff] shrink-0">
-            <BookOpen className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
-              Treinamentos Ativos
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-black text-slate-900">{courses.length}</span>
-              <span className="text-[10px] text-[#1890ff] font-bold">4.9 ★ Avaliação</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          onClick={() => handleSetTab('certificates')}
-          className={`bg-white border rounded-md p-3.5 flex items-center gap-3 transition-all cursor-pointer shadow-2xs ${
-            currentTab === 'certificates'
-              ? 'border-emerald-500 ring-1 ring-emerald-500/20'
-              : 'border-slate-200 hover:border-slate-300'
-          }`}
-        >
-          <div className="w-10 h-10 rounded bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
-            <Award className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
-              Certificados Emitidos
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-black text-slate-900">{certificates.length}</span>
-              <span className="text-[10px] text-emerald-700 font-bold">Verificados</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          onClick={() => handleSetTab('settings')}
-          className={`bg-white border rounded-md p-3.5 flex items-center gap-3 transition-all cursor-pointer shadow-2xs ${
-            currentTab === 'settings'
-              ? 'border-amber-500 ring-1 ring-amber-500/20'
-              : 'border-slate-200 hover:border-slate-300'
-          }`}
-        >
-          <div className="w-10 h-10 rounded bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0">
-            <Sliders className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
-              Configurações Globais
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
-                Ativas
-              </span>
-            </div>
-          </div>
+          {currentTab === 'trainings' && (
+            <button
+              onClick={handleOpenNewTrainingModal}
+              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Novo Treinamento</span>
+            </button>
+          )}
         </div>
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex items-center gap-1.5 border-b border-slate-200 overflow-x-auto pb-1.5 scrollbar-none">
-        <button
-          onClick={() => handleSetTab('students')}
-          className={`px-3.5 py-2 rounded font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-            currentTab === 'students'
-              ? 'bg-[#1890ff] text-white shadow-xs'
-              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <Users className="w-3.5 h-3.5" />
-          <span>🎓 Alunos ({students.length})</span>
-        </button>
+      {(currentTab === 'trainings' || currentTab === 'logs') && (
+        <div className="flex items-center gap-1.5 border-b border-slate-200 overflow-x-auto pb-1.5 scrollbar-none">
+          <button
+            onClick={() => handleSetTab('trainings')}
+            className={`px-3.5 py-2 rounded font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              currentTab === 'trainings'
+                ? 'bg-[#1890ff] text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>📚 Grade de Treinamentos ({courses.length})</span>
+          </button>
 
-        <button
-          onClick={() => handleSetTab('trainings')}
-          className={`px-3.5 py-2 rounded font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-            currentTab === 'trainings'
-              ? 'bg-[#1890ff] text-white shadow-xs'
-              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <BookOpen className="w-3.5 h-3.5" />
-          <span>📚 Gestão de Treinamentos ({courses.length})</span>
-        </button>
-
-        <button
-          onClick={() => handleSetTab('certificates')}
-          className={`px-3.5 py-2 rounded font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-            currentTab === 'certificates'
-              ? 'bg-[#1890ff] text-white shadow-xs'
-              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <Award className="w-3.5 h-3.5" />
-          <span>🏆 Certificados ({certificates.length})</span>
-        </button>
-
-        <button
-          onClick={() => handleSetTab('settings')}
-          className={`px-3.5 py-2 rounded font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-            currentTab === 'settings'
-              ? 'bg-[#1890ff] text-white shadow-xs'
-              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <Sliders className="w-3.5 h-3.5" />
-          <span>⚙️ Configurações Globais</span>
-        </button>
-
-        <button
-          onClick={() => handleSetTab('logs')}
-          className={`px-3.5 py-2 rounded font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-            currentTab === 'logs'
-              ? 'bg-[#1890ff] text-white shadow-xs'
-              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <FileText className="w-3.5 h-3.5" />
-          <span>📜 Logs ({logs.length})</span>
-        </button>
-      </div>
+          <button
+            onClick={() => handleSetTab('logs')}
+            className={`px-3.5 py-2 rounded font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              currentTab === 'logs'
+                ? 'bg-[#1890ff] text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>📜 Logs de Auditoria ({logs.length})</span>
+          </button>
+        </div>
+      )}
 
       {/* SUBMENU 1: GESTÃO DE ALUNOS */}
       {currentTab === 'students' && (
@@ -936,17 +866,25 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                 />
               </div>
 
-              <select
-                value={trainingCategoryFilter}
-                onChange={(e) => setTrainingCategoryFilter(e.target.value)}
-                className="w-full sm:w-auto bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
-              >
-                <option value="Todas">Todas as Categorias</option>
-                <option value="Finanças & DRE">Finanças & DRE</option>
-                <option value="Engenharia de Cardápio">Engenharia de Cardápio</option>
-                <option value="Gestão de Custos & CMV">Gestão de Custos & CMV</option>
-                <option value="Gestão de Equipes">Gestão de Equipes</option>
-              </select>
+              <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                <select
+                  value={trainingCategoryFilter}
+                  onChange={(e) => setTrainingCategoryFilter(e.target.value)}
+                  className="bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium w-full sm:w-auto"
+                >
+                  <option value="Todas">Todas as Categorias</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => setIsCategoryModalOpen(true)}
+                  title="Cadastrar Nova Categoria"
+                  className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded border border-slate-200 transition-colors cursor-pointer shrink-0"
+                >
+                  <FolderPlus className="w-4.5 h-4.5" />
+                </button>
+              </div>
             </div>
 
             <button
@@ -1003,6 +941,14 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                   >
                     <Users className="w-3.5 h-3.5 text-[#1890ff]" />
                     <span>Alunos</span>
+                  </button>
+
+                  <button
+                    onClick={() => setComposingCourse(course)}
+                    className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Cadastrar UCs</span>
                   </button>
 
                   <button
@@ -1098,120 +1044,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
         </div>
       )}
 
-      {/* SUBMENU 4: CONFIGURAÇÕES GLOBAIS */}
-      {currentTab === 'settings' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white border border-slate-200 rounded-md p-6 space-y-6 shadow-2xs">
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-              <div className="w-10 h-10 rounded bg-blue-50 text-[#1890ff] flex items-center justify-center border border-blue-200">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-black text-slate-900 text-sm">Recursos de Inteligência & IA</h3>
-                <p className="text-xs text-slate-500 font-medium">
-                  Ativação do Tutor de IA e emissão de certificados
-                </p>
-              </div>
-            </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3.5 rounded bg-slate-50 border border-slate-200">
-                <div>
-                  <span className="text-xs font-black text-slate-900 block">Tutor de IA Educacional</span>
-                  <span className="text-[10px] text-slate-500 font-medium">
-                    Permite aos alunos tirarem dúvidas sobre DRE e gestão em tempo real
-                  </span>
-                </div>
-                <button
-                  onClick={() => {
-                    setAiTutorEnabled(!aiTutorEnabled);
-                    showToast(`Tutor de IA ${!aiTutorEnabled ? 'ativado' : 'desativado'}`);
-                  }}
-                  className={`w-12 h-6 rounded-full transition-all relative cursor-pointer ${
-                    aiTutorEnabled ? 'bg-[#1890ff]' : 'bg-slate-300'
-                  }`}
-                >
-                  <span
-                    className={`w-5 h-5 rounded-full bg-white shadow-md absolute top-0.5 transition-all ${
-                      aiTutorEnabled ? 'left-6' : 'left-0.5'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between p-3.5 rounded bg-slate-50 border border-slate-200">
-                <div>
-                  <span className="text-xs font-black text-slate-900 block">Emissão Automática de Certificados</span>
-                  <span className="text-[10px] text-slate-500 font-medium">
-                    Gerar certificado imediatamente após 100% de conclusão do treinamento
-                  </span>
-                </div>
-                <button
-                  onClick={() => {
-                    setAutoIssueCertificates(!autoIssueCertificates);
-                    showToast(`Emissão automática ${!autoIssueCertificates ? 'ativada' : 'desativada'}`);
-                  }}
-                  className={`w-12 h-6 rounded-full transition-all relative cursor-pointer ${
-                    autoIssueCertificates ? 'bg-[#1890ff]' : 'bg-slate-300'
-                  }`}
-                >
-                  <span
-                    className={`w-5 h-5 rounded-full bg-white shadow-md absolute top-0.5 transition-all ${
-                      autoIssueCertificates ? 'left-6' : 'left-0.5'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-md p-6 space-y-6 shadow-2xs">
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-              <div className="w-10 h-10 rounded bg-blue-50 text-[#1890ff] flex items-center justify-center border border-blue-200">
-                <Lock className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-black text-slate-900 text-sm">Segurança & Licenciamento</h3>
-                <p className="text-xs text-slate-500 font-medium">Autenticação Google OAuth e validade do sistema</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3.5 rounded bg-slate-50 border border-slate-200">
-                <div>
-                  <span className="text-xs font-black text-slate-900 block">Autenticação Obrigatória Google OAuth</span>
-                  <span className="text-[10px] text-slate-500 font-medium">Exigir login Google autenticado para assistir aulas</span>
-                </div>
-                <button
-                  onClick={() => {
-                    setOauthRequired(!oauthRequired);
-                    showToast(`OAuth obrigatório ${!oauthRequired ? 'ativado' : 'desativado'}`);
-                  }}
-                  className={`w-12 h-6 rounded-full transition-all relative cursor-pointer ${
-                    oauthRequired ? 'bg-[#1890ff]' : 'bg-slate-300'
-                  }`}
-                >
-                  <span
-                    className={`w-5 h-5 rounded-full bg-white shadow-md absolute top-0.5 transition-all ${
-                      oauthRequired ? 'left-6' : 'left-0.5'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="p-3.5 rounded bg-slate-50 border border-slate-200 flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-black text-slate-900 block">Licença Alchymist Manager</span>
-                  <span className="text-[10px] text-emerald-700 font-mono font-bold">Alchymist Enterprise • Ativo</span>
-                </div>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
-                  2027
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* SUBMENU 5: LOGS */}
       {currentTab === 'logs' && (
@@ -1538,10 +1371,9 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                     onChange={(e) => setTrainingCategory(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
                   >
-                    <option value="Finanças & DRE">Finanças & DRE</option>
-                    <option value="Engenharia de Cardápio">Engenharia de Cardápio</option>
-                    <option value="Gestão de Custos & CMV">Gestão de Custos & CMV</option>
-                    <option value="Gestão de Equipes">Gestão de Equipes</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -1673,7 +1505,116 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           onSaveCourseSlides={() => {
             showToast(`Slides do treinamento atualizados com sucesso!`);
           }}
+          unidades={unidades}
+          initialUcId={selectedUcIdForSlides}
         />
+      )}
+      {/* Modal Cadastro de Nova Categoria */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-md p-5 max-w-sm w-full text-slate-950 shadow-md space-y-4">
+            <div>
+              <h3 className="text-sm font-black text-slate-900">
+                {editingCategory ? 'Editar Categoria' : 'Cadastrar Nova Categoria'}
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {editingCategory ? 'Altere o nome da categoria selecionada abaixo.' : 'Insira o nome da nova categoria para organizar seus treinamentos.'}
+              </p>
+            </div>
+            
+            <input
+              type="text"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="Ex: Marketing Digital, Logística, etc."
+              className="w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#1890ff] font-medium"
+            />
+
+            <div className="flex justify-end gap-2 text-xs font-bold">
+              <button
+                onClick={() => {
+                  setIsCategoryModalOpen(false);
+                  setNewCategoryName('');
+                  setEditingCategory(null);
+                }}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  const trimmed = newCategoryName.trim();
+                  if (!trimmed) {
+                    showToast('O nome da categoria não pode ser vazio.');
+                    return;
+                  }
+
+                  if (editingCategory) {
+                    if (editingCategory === trimmed) {
+                      setEditingCategory(null);
+                      setNewCategoryName('');
+                      return;
+                    }
+
+                    if (categories.includes(trimmed)) {
+                      showToast(`A categoria "${trimmed}" já existe!`);
+                      return;
+                    }
+
+                    // 1. Update categories list
+                    setCategories(prev => prev.map(c => c === editingCategory ? trimmed : c));
+
+                    // 2. Update courses utilizing this category
+                    if (courses && onUpdateCourses) {
+                      const updatedCourses = courses.map(c => 
+                        c.category === editingCategory ? { ...c, category: trimmed } : c
+                      );
+                      onUpdateCourses(updatedCourses);
+                    }
+
+                    showToast(`Categoria alterada de "${editingCategory}" para "${trimmed}" com sucesso!`);
+                    setEditingCategory(null);
+                    setNewCategoryName('');
+                  } else {
+                    if (categories.includes(trimmed)) {
+                      showToast(`A categoria "${trimmed}" já existe!`);
+                      return;
+                    }
+
+                    setCategories(prev => [...prev, trimmed]);
+                    showToast(`Categoria "${trimmed}" cadastrada com sucesso!`);
+                    setNewCategoryName('');
+                  }
+                }}
+                className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded-md cursor-pointer"
+              >
+                {editingCategory ? 'Salvar Alteração' : 'Salvar'}
+              </button>
+            </div>
+
+            {/* List of existing categories */}
+            <div className="border-t border-slate-100 pt-4 space-y-2">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Categorias Cadastradas</span>
+              <div className="max-h-40 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+                {categories.map((cat) => (
+                  <div key={cat} className="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-100 text-xs font-semibold text-slate-800">
+                    <span>{cat}</span>
+                    <button
+                      onClick={() => {
+                        setEditingCategory(cat);
+                        setNewCategoryName(cat);
+                      }}
+                      title="Editar Categoria"
+                      className="p-1 hover:bg-slate-200 text-[#1890ff] hover:text-[#116ebc] rounded transition-colors cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

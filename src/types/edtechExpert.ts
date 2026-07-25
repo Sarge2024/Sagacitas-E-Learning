@@ -48,10 +48,16 @@ export interface TenantUsageLog {
 export interface LayoutTemplateAST {
   version: string;
   components: Array<{
-    type: 'header' | 'concept' | 'metaphor' | 'formula' | 'simulation' | 'quiz_anchor' | 'summary';
+    type: 'description' | 'text' | 'image' | 'video' | 'audio' | 'question' | 'header' | 'concept' | 'metaphor' | 'formula' | 'simulation' | 'quiz_anchor' | 'summary';
     title: string;
     body: string;
-    metadata?: Record<string, any>;
+    metadata?: {
+      url?: string;
+      duration?: string;
+      options?: Array<{ key: string; text: string; isCorrect: boolean }>;
+      justification?: string;
+      [key: string]: any;
+    };
   }>;
 }
 
@@ -67,6 +73,8 @@ export interface UnidadeConhecimento {
   status: 'ativo' | 'rascunho' | 'arquivado';
   created_at: string;
   updated_at: string;
+  topico?: string;
+  topico_complexidade?: BloomLevel;
 }
 
 export interface MatrizCompetencia {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Course, ViewMode } from '../types';
+import { Course, ViewMode, OAuthUser } from '../types';
 import { USER_PROFILE } from '../data/coursesData';
 import { BookOpen, Award, Clock, ArrowRight } from 'lucide-react';
 
@@ -7,12 +7,14 @@ interface DashboardViewProps {
   courses: Course[];
   onSelectCourse: (course: Course) => void;
   onSelectView: (view: ViewMode) => void;
+  currentUser: OAuthUser | null;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   courses,
   onSelectCourse,
   onSelectView,
+  currentUser,
 }) => {
   // Main active training courses
   const myTrainings = courses.slice(0, 3);
@@ -30,7 +32,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 Sagacitas E-Learning
               </span>
               <h2 className="text-2xl md:text-3xl font-black text-slate-900 mt-2 tracking-tight">
-                Bem-vindo de volta, Gabriel!
+                Bem-vindo de volta, {currentUser?.name || 'Visitante'}!
               </h2>
               <p className="text-slate-600 text-sm max-w-2xl mt-1 leading-relaxed font-normal">
                 Seu progresso esta semana foi excelente. Você completou {USER_PROFILE.weeklyProgress}% dos seus objetivos de aprendizado no portal Sagacitas E-Learning.

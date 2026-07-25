@@ -40,10 +40,10 @@ export const DNTEngineView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top ROI Header */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+      <div className="bg-white rounded-md p-6 border border-slate-200 shadow-2xs space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold shadow-xs">
+            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold shadow-2xs">
               <Target className="w-5 h-5" />
             </div>
             <div>
@@ -60,7 +60,7 @@ export const DNTEngineView: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-bold text-slate-500">Régua de Corte:</span>
-            <span className="text-xs font-mono font-extrabold text-[#1890ff] bg-blue-50 px-3 py-1 rounded-xl border border-blue-200/60">
+            <span className="text-xs font-mono font-extrabold text-[#1890ff] bg-blue-50 px-3 py-1 rounded-md border border-blue-200/60">
               {reguaCorte}% de Acertos
             </span>
           </div>
@@ -68,7 +68,7 @@ export const DNTEngineView: React.FC = () => {
 
         {/* Executive Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
+          <div className="p-4 bg-slate-50 rounded-md border border-slate-200 space-y-1">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[10px] font-mono font-bold uppercase">Colaboradores Avaliados</span>
               <Users className="w-4 h-4 text-[#1890ff]" />
@@ -79,7 +79,7 @@ export const DNTEngineView: React.FC = () => {
             <span className="text-[11px] text-slate-500">Força de trabalho no teste</span>
           </div>
 
-          <div className="p-4 bg-emerald-50/60 rounded-xl border border-emerald-200/80 space-y-1">
+          <div className="p-4 bg-emerald-50/60 rounded-md border border-emerald-200 space-y-1">
             <div className="flex items-center justify-between text-emerald-700">
               <span className="text-[10px] font-mono font-bold uppercase">Taxa de Isenção</span>
               <UserCheck className="w-4 h-4 text-emerald-600" />
@@ -92,7 +92,7 @@ export const DNTEngineView: React.FC = () => {
             </span>
           </div>
 
-          <div className="p-4 bg-blue-50/60 rounded-xl border border-blue-200/80 space-y-1">
+          <div className="p-4 bg-blue-50/60 rounded-md border border-blue-200 space-y-1">
             <div className="flex items-center justify-between text-blue-700">
               <span className="text-[10px] font-mono font-bold uppercase">Horas Salvas na Operação</span>
               <Clock className="w-4 h-4 text-[#1890ff]" />
@@ -103,7 +103,7 @@ export const DNTEngineView: React.FC = () => {
             <span className="text-[11px] text-blue-700 font-medium">Tempo produtivo mantido</span>
           </div>
 
-          <div className="p-4 bg-purple-50/60 rounded-xl border border-purple-200/80 space-y-1">
+          <div className="p-4 bg-purple-50/60 rounded-md border border-purple-200 space-y-1">
             <div className="flex items-center justify-between text-purple-700">
               <span className="text-[10px] font-mono font-bold uppercase">Economia Financeira (ROI)</span>
               <DollarSign className="w-4 h-4 text-purple-600" />
@@ -118,7 +118,7 @@ export const DNTEngineView: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column: Calibration & Controls */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200/80 space-y-4 shadow-xs">
+        <div className="bg-white rounded-md p-6 border border-slate-200 space-y-4 shadow-2xs">
           <span className="text-[10px] font-mono font-bold text-[#1890ff] uppercase tracking-wider block">
             1. Calibração da Régua de Isenção DNT
           </span>
@@ -133,7 +133,7 @@ export const DNTEngineView: React.FC = () => {
                   setSelectedUc(uc);
                   handleRecalcularDNT(uc, reguaCorte);
                 }}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium text-slate-800 focus:ring-2 focus:ring-[#1890ff]/30 outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-xs font-medium text-slate-800 focus:ring-2 focus:ring-[#1890ff]/30 outline-none"
               >
                 {MOCK_UNIDADES_CONHECIMENTO.map((u) => (
                   <option key={u.id} value={u.id}>
@@ -175,7 +175,7 @@ export const DNTEngineView: React.FC = () => {
                 {diagnosticoResult.proficiencias.map((p) => {
                   const colab = MOCK_COLABORADORES.find((c) => c.id === p.colaborador_id);
                   return (
-                    <div key={p.id} className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between text-xs">
+                    <div key={p.id} className="p-3 bg-slate-50 border border-slate-200 rounded-md flex items-center justify-between text-xs">
                       <div>
                         <span className="font-extrabold text-slate-900 block">{colab?.nome}</span>
                         <span className="text-[10px] text-slate-500">{colab?.cargo} • {colab?.departamento}</span>
@@ -184,11 +184,11 @@ export const DNTEngineView: React.FC = () => {
                       <div className="text-right">
                         <span className="font-mono font-bold text-slate-800 block mb-0.5">{p.score_percentual}%</span>
                         {p.isentado ? (
-                          <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-lg flex items-center gap-1 justify-end">
+                          <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-lg flex items-center gap-1 justify-end">
                             <CheckCircle2 className="w-3 h-3 text-emerald-600" /> ISENTADO
                           </span>
                         ) : (
-                          <span className="text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200/80 px-2 py-0.5 rounded-lg flex items-center gap-1 justify-end">
+                          <span className="text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-lg flex items-center gap-1 justify-end">
                             <XCircle className="w-3 h-3 text-rose-600" /> REFORÇO
                           </span>
                         )}
@@ -202,7 +202,7 @@ export const DNTEngineView: React.FC = () => {
         </div>
 
         {/* Right Column: Generated Dynamic Variable Cohort */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200/80 space-y-4 shadow-xs">
+        <div className="bg-white rounded-md p-6 border border-slate-200 space-y-4 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold text-indigo-600 uppercase tracking-wider block">
               2. Turmas Variáveis e Dinâmicas Geradas
@@ -214,7 +214,7 @@ export const DNTEngineView: React.FC = () => {
 
           {diagnosticoResult.turmaDinamica ? (
             <div className="space-y-4">
-              <div className="p-4 bg-indigo-50/60 border border-indigo-200/80 rounded-xl space-y-2">
+              <div className="p-4 bg-indigo-50/60 border border-indigo-200 rounded-md space-y-2">
                 <span className="text-[10px] font-mono font-bold text-indigo-700">CÓDIGO: {diagnosticoResult.turmaDinamica.id}</span>
                 <h4 className="font-extrabold text-sm text-slate-900">{diagnosticoResult.turmaDinamica.titulo}</h4>
                 <p className="text-xs text-indigo-900">{diagnosticoResult.turmaDinamica.descricao_deficit}</p>
@@ -226,7 +226,7 @@ export const DNTEngineView: React.FC = () => {
                 </span>
                 <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                   {diagnosticoResult.turmaDinamica.colaboradores_alocados.map((c) => (
-                    <div key={c.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                    <div key={c.id} className="p-3 bg-slate-50 border border-slate-200 rounded-md flex items-center justify-between text-xs">
                       <div>
                         <span className="font-extrabold text-slate-900 block">{c.nome}</span>
                         <span className="text-[10px] text-slate-500">{c.cargo} • {c.email}</span>
@@ -239,7 +239,7 @@ export const DNTEngineView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-3 bg-blue-50 border border-blue-200/80 rounded-xl text-xs text-blue-900 flex items-start gap-2">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md text-xs text-blue-900 flex items-start gap-2">
                 <Sparkles className="w-4 h-4 text-[#1890ff] shrink-0 mt-0.5" />
                 <span>
                   <strong>Ganho Operacional:</strong> {diagnosticoResult.roi.totalIsencoesConcedidas} colaborador(es) com domínio comprovado continuam em produção normal na empresa sem interromper suas atividades.
@@ -247,7 +247,7 @@ export const DNTEngineView: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="p-8 text-center bg-emerald-50/50 rounded-xl border border-emerald-200 text-emerald-800 text-xs space-y-2">
+            <div className="p-8 text-center bg-emerald-50/50 rounded-md border border-emerald-200 text-emerald-800 text-xs space-y-2">
               <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
               <span className="font-extrabold text-sm block">100% da Força de Trabalho Isentada!</span>
               <p>Todos os colaboradores avaliados comprovaram domínio com nota igual ou superior a {reguaCorte}%. Nenhuma turma de reforço necessária.</p>

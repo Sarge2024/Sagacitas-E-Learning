@@ -6,12 +6,16 @@ import { PropertyInspector } from './PropertyInspector';
 import { X, Play, Edit3, Plus, Trash2, Save, Undo2, Redo2, Layers, Check, Sparkles, BookOpen, Image as ImageIcon, Loader2, Sun, Moon } from 'lucide-react';
 import { Course } from '../../types';
 import { analyzeSlideImage } from '../../utils/slideImport';
+import { UnidadeConhecimento } from '../../types/edtechExpert';
+import { FileText, Volume2, HelpCircle } from 'lucide-react';
 
 interface CourseSlideEditorModalProps {
   course: Course;
   isOpen: boolean;
   onClose: () => void;
   onSaveCourseSlides?: (courseId: string, updatedPresentation: any) => void;
+  unidades?: UnidadeConhecimento[];
+  initialUcId?: string;
 }
 
 export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
@@ -19,6 +23,8 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
   isOpen,
   onClose,
   onSaveCourseSlides,
+  unidades = [],
+  initialUcId = '',
 }) => {
   const {
     presentation,
@@ -41,6 +47,108 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  // Right sidebar tab and selection states
+  const [editorRightTab, setEditorRightTab] = useState<'properties' | 'uc-materials'>('properties');
+  const [selectedUcIdForEditor, setSelectedUcIdForEditor] = useState<string>('');
+
+  React.useEffect(() => {
+    if (isOpen && initialUcId) {
+      setSelectedUcIdForEditor(initialUcId);
+      setEditorRightTab('uc-materials');
+    }
+  }, [isOpen, initialUcId]);
+
+  const handleInsertUcElement = (comp: any) => {
+    if (!currentSlide) return;
+    
+    let elemType: any = 'text';
+    let elemContent: any = {};
+    
+    switch (comp.type) {
+      case 'text':
+      case 'description':
+      case 'concept':
+      case 'summary':
+      case 'header':
+        elemType = 'text';
+        elemContent = {
+          text: comp.body,
+          style: {
+            fontSize: '1.2rem',
+            fontWeight: '600',
+            color: theme === 'dark' ? '#ffffff' : '#0f172a',
+            fontFamily: 'Outfit, sans-serif'
+          }
+        };
+        break;
+      case 'image':
+        elemType = 'image';
+        elemContent = {
+          src: comp.metadata?.url || 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=600&auto=format&fit=crop'
+        };
+        break;
+      case 'video':
+        elemType = 'video';
+        elemContent = {
+          src: comp.metadata?.url || 'https://www.w3schools.com/html/mov_bbb.mp4',
+          mediaSettings: {
+            autoPlay: false,
+            controls: true
+          }
+        };
+        break;
+      case 'audio':
+        elemType = 'audio';
+        elemContent = {
+          src: comp.metadata?.url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+          mediaSettings: {
+            controls: true
+          }
+        };
+        break;
+      case 'question':
+        elemType = 'quiz';
+        elemContent = {
+          quizData: {
+            question: comp.body,
+            options: comp.metadata?.options?.map((o: any) => o.text) || [],
+            correctIndex: comp.metadata?.options?.findIndex((o: any) => o.isCorrect) ?? 0,
+            explanation: comp.metadata?.justification
+          }
+        };
+        break;
+      case 'simulation':
+        elemType = 'custom-widget';
+        elemContent = {
+          widgetComponent: 'DRESimulatorWidget',
+          text: comp.body
+        };
+        break;
+      default:
+        elemType = 'text';
+        elemContent = { text: comp.body };
+    }
+
+    const newElement = {
+      id: `elem-uc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type: elemType,
+      x: 20,
+      y: elemType === 'quiz' || elemType === 'custom-widget' ? 10 : 30,
+      width: elemType === 'quiz' || elemType === 'custom-widget' ? 80 : 60,
+      height: elemType === 'quiz' || elemType === 'custom-widget' ? 80 : 20,
+      zIndex: currentSlide.elements.length + 10,
+      content: elemContent,
+      animation: {
+        effect: 'fadeIn',
+        duration: 0.8,
+        delay: 0.1,
+        order: 1
+      }
+    };
+
+    addElement(currentSlide.id, newElement as any);
+  };
 
   if (!isOpen) return null;
 
@@ -324,10 +432,139 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
             </div>
           </div>
 
-          {/* Right Sidebar: Property Inspector (Only in Editor Mode) */}
+          {/* Right Sidebar: Property Inspector or UC Materials (Only in Editor Mode) */}
           {mode === 'editor' && (
-            <div className={`w-80 border-l p-3 shrink-0 overflow-y-auto ${theme === 'dark' ? 'border-white/10 bg-slate-900' : 'border-slate-200 bg-white'}`}>
-              <PropertyInspector slide={currentSlide} />
+            <div className={`w-80 border-l p-3 shrink-0 flex flex-col overflow-hidden ${theme === 'dark' ? 'border-white/10 bg-[#12171c]' : 'border-slate-200 bg-white'}`}>
+              {/* Tab Selector */}
+              <div className={`flex border-b pb-2 shrink-0 ${theme === 'dark' ? 'border-white/10' : 'border-slate-200'}`}>
+                <button
+                  onClick={() => setEditorRightTab('properties')}
+                  className={`flex-1 py-1.5 text-center text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                    editorRightTab === 'properties'
+                      ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-900')
+                      : 'text-slate-400 hover:text-slate-300'
+                  }`}
+                >
+                  Propriedades
+                </button>
+                <button
+                  onClick={() => {
+                    setEditorRightTab('uc-materials');
+                    if (unidades.length > 0 && !selectedUcIdForEditor) {
+                      setSelectedUcIdForEditor(unidades[0].id);
+                    }
+                  }}
+                  className={`flex-1 py-1.5 text-center text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                    editorRightTab === 'uc-materials'
+                      ? (theme === 'dark' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-900')
+                      : 'text-slate-400 hover:text-slate-300'
+                  }`}
+                >
+                  Recursos de UCs
+                </button>
+              </div>
+
+              {/* Tab Content */}
+              <div className="flex-1 overflow-y-auto mt-3 custom-scrollbar">
+                {editorRightTab === 'properties' ? (
+                  <PropertyInspector slide={currentSlide} />
+                ) : (
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <label className={`text-[10px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                        Selecionar Unidade de Conhecimento
+                      </label>
+                      <select
+                        value={selectedUcIdForEditor}
+                        onChange={(e) => setSelectedUcIdForEditor(e.target.value)}
+                        className={`w-full p-2 rounded-xl text-xs border ${
+                          theme === 'dark' 
+                            ? 'bg-slate-900 border-white/10 text-white' 
+                            : 'bg-white border-slate-200 text-slate-950'
+                        }`}
+                      >
+                        <option value="">Selecione uma UC...</option>
+                        {unidades.map(u => (
+                          <option key={u.id} value={u.id}>
+                            [{u.codigo}] {u.titulo}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Didactic Elements List for Selected UC */}
+                    {(() => {
+                      const selectedUc = unidades.find(u => u.id === selectedUcIdForEditor);
+                      if (!selectedUc) {
+                        return (
+                          <div className={`text-center py-8 text-xs ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+                            Selecione uma UC para ver e inserir os materiais didáticos.
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="space-y-3">
+                          <span className={`text-[10px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                            Elementos Didáticos ({selectedUc.layout_template.components.length})
+                          </span>
+                          
+                          <div className="space-y-2">
+                            {selectedUc.layout_template.components.map((comp, cIdx) => {
+                              let elementIcon = <FileText className="w-3.5 h-3.5" />;
+                              let elementLabel = 'Texto';
+                              
+                              if (comp.type === 'image') {
+                                elementIcon = <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />;
+                                elementLabel = 'Imagem';
+                              } else if (comp.type === 'video') {
+                                elementIcon = <Play className="w-3.5 h-3.5 text-blue-400" />;
+                                elementLabel = 'Vídeo';
+                              } else if (comp.type === 'audio') {
+                                elementIcon = <Volume2 className="w-3.5 h-3.5 text-amber-400" />;
+                                elementLabel = 'Áudio';
+                              } else if (comp.type === 'question') {
+                                elementIcon = <HelpCircle className="w-3.5 h-3.5 text-emerald-400" />;
+                                elementLabel = 'Questão';
+                              } else if (comp.type === 'simulation') {
+                                elementIcon = <Sparkles className="w-3.5 h-3.5 text-purple-400" />;
+                                elementLabel = 'Simulação';
+                              }
+
+                              return (
+                                <div
+                                  key={cIdx}
+                                  className={`p-2.5 rounded-xl border flex flex-col justify-between gap-2 text-xs transition-all ${
+                                    theme === 'dark'
+                                      ? 'border-white/5 bg-white/5 text-[#dae2fd]'
+                                      : 'border-slate-200 bg-slate-50 text-slate-800'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1.5 font-bold">
+                                      {elementIcon}
+                                      <span>{elementLabel}: {comp.title || `Elemento #${cIdx + 1}`}</span>
+                                    </div>
+                                    <button
+                                      onClick={() => handleInsertUcElement(comp)}
+                                      className="px-2 py-1 bg-[#1890ff] hover:bg-[#116ebc] text-white font-extrabold text-[9px] uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                                    >
+                                      Inserir
+                                    </button>
+                                  </div>
+                                  <p className={`text-[10px] line-clamp-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                                    {comp.body}
+                                  </p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

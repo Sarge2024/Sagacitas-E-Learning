@@ -37,9 +37,9 @@ export const SynthesisProjectsView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Intro Banner */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white rounded-md p-6 border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white font-bold shadow-xs">
+          <div className="w-10 h-10 rounded-md bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white font-bold shadow-2xs">
             <Award className="w-5 h-5" />
           </div>
           <div>
@@ -58,7 +58,7 @@ export const SynthesisProjectsView: React.FC = () => {
       {/* Main Grid: Projects Evaluation + Executive Skill Gaps */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column: Synthesis Projects & Innovation Rubric */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200/80 space-y-4 shadow-xs">
+        <div className="bg-white rounded-md p-6 border border-slate-200 space-y-4 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold text-rose-600 uppercase tracking-wider block">
               1. Avaliação de Projetos de Inovação (Síntese)
@@ -80,10 +80,10 @@ export const SynthesisProjectsView: React.FC = () => {
                     setNotaInput(sub.nota_rubrica);
                     setParecerInput(sub.parecer_avaliador || '');
                   }}
-                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between text-xs ${
+                  className={`p-3 rounded-md border transition-all cursor-pointer flex items-center justify-between text-xs ${
                     selectedSub.id === sub.id
                       ? 'bg-rose-50/60 border-rose-300 ring-2 ring-rose-500/20'
-                      : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
                   <div>
@@ -104,7 +104,7 @@ export const SynthesisProjectsView: React.FC = () => {
           {/* Selected Project Detail & Rubric Evaluation */}
           {selectedSub && (
             <div className="pt-3 border-t border-slate-100 space-y-3">
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 text-xs">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-md space-y-1.5 text-xs">
                 <span className="font-bold text-slate-900 block">💡 Melhoria / Inovação Proposta:</span>
                 <p className="text-slate-600 leading-relaxed text-[11px]">{selectedSub.descricao_inovacao}</p>
                 <div className="pt-1 flex items-center justify-between text-[11px]">
@@ -138,21 +138,21 @@ export const SynthesisProjectsView: React.FC = () => {
                   value={parecerInput}
                   onChange={(e) => setParecerInput(e.target.value)}
                   rows={2}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 outline-none focus:ring-2 focus:ring-rose-500/30"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-xs text-slate-800 outline-none focus:ring-2 focus:ring-rose-500/30"
                   placeholder="Escreva a avaliação da viabilidade técnica e grau de inovação..."
                 />
               </div>
 
               <button
                 onClick={handleSalvarAvaliacao}
-                className="w-full py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs rounded-md shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4" />
                 <span>Salvar Avaliação de Síntese</span>
               </button>
 
               {saveSuccessMessage && (
-                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800 text-center">
+                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-md text-xs font-bold text-emerald-800 text-center">
                   {saveSuccessMessage}
                 </div>
               )}
@@ -161,7 +161,7 @@ export const SynthesisProjectsView: React.FC = () => {
         </div>
 
         {/* Right Column: Executive Skill Gaps Heatmap */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200/80 space-y-4 shadow-xs">
+        <div className="bg-white rounded-md p-6 border border-slate-200 space-y-4 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold text-[#1890ff] uppercase tracking-wider block">
               2. Dashboard Executivo de Skill Gaps
@@ -177,7 +177,7 @@ export const SynthesisProjectsView: React.FC = () => {
 
           <div className="space-y-3">
             {MOCK_SKILL_GAPS.map((gap, idx) => (
-              <div key={idx} className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2 text-xs">
+              <div key={idx} className="p-3.5 bg-slate-50 border border-slate-200 rounded-md space-y-2 text-xs">
                 <div className="flex items-center justify-between font-bold text-slate-900">
                   <span className="flex items-center gap-1.5">
                     <Building2 className="w-4 h-4 text-slate-500" />
@@ -202,7 +202,7 @@ export const SynthesisProjectsView: React.FC = () => {
             ))}
           </div>
 
-          <div className="p-3 bg-blue-50 border border-blue-200/80 rounded-xl text-xs text-blue-900 flex items-center justify-between">
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-md text-xs text-blue-900 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-[#1890ff]" />
               <span className="font-bold">Índice Geral de Maturidade Cognitiva:</span>

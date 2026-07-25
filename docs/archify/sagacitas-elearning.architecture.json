@@ -10,7 +10,7 @@
       {
         "id": "full-flow",
         "label": "Full System Architecture",
-        "focus": ["student", "spa", "api_gateway", "tutor_service", "auth_service", "gemini_api", "oauth_provider"],
+        "focus": ["student", "spa", "api_gateway", "tutor_service", "supabase_db", "gemini_api", "oauth_provider"],
         "note": "Main request paths from the student interface to backend microservices and external AI/Auth providers."
       }
     ]
@@ -20,19 +20,19 @@
     { "id": "spa", "type": "frontend", "label": "React SPA", "sublabel": "Vite Application", "pos": [250, 250], "size": [140, 64] },
     { "id": "browser_storage", "type": "database", "label": "Local Storage", "sublabel": "Session Data", "pos": [250, 400], "size": [140, 64] },
     
+    { "id": "supabase_db", "type": "database", "label": "Supabase Postgres", "sublabel": "Relational Data", "pos": [500, 100], "size": [140, 64] },
     { "id": "api_gateway", "type": "backend", "label": "Express Server", "sublabel": "API Router", "pos": [500, 250], "size": [150, 64] },
-    { "id": "env_config", "type": "database", "label": "Env Secrets", "sublabel": ".env Config", "pos": [500, 100], "size": [140, 64] },
     { "id": "static_server", "type": "backend", "label": "Static Assets", "sublabel": "Dist Server", "pos": [500, 400], "size": [140, 64] },
     
-    { "id": "auth_service", "type": "security", "label": "Auth Service", "sublabel": "OAuth Handler", "pos": [720, 150], "size": [140, 64] },
-    { "id": "tutor_service", "type": "backend", "label": "AI Tutor API", "sublabel": "Prompt Logic", "pos": [720, 350], "size": [140, 64] },
+    { "id": "oauth_provider", "type": "cloud", "label": "Firebase Auth", "sublabel": "Google/OAuth", "pos": [750, 100], "size": [140, 64] },
+    { "id": "tutor_service", "type": "backend", "label": "AI Tutor API", "sublabel": "Prompt Logic", "pos": [750, 250], "size": [140, 64] },
+    { "id": "env_config", "type": "database", "label": "Env Secrets", "sublabel": ".env Config", "pos": [750, 400], "size": [140, 64] },
     
-    { "id": "oauth_provider", "type": "cloud", "label": "OAuth Provider", "sublabel": "Google/GitHub", "pos": [950, 150], "size": [140, 64] },
-    { "id": "gemini_api", "type": "cloud", "label": "Gemini AI", "sublabel": "Google GenAI", "pos": [950, 350], "size": [140, 64] }
+    { "id": "gemini_api", "type": "cloud", "label": "Gemini AI", "sublabel": "Google GenAI", "pos": [1000, 250], "size": [140, 64] }
   ],
   "boundaries": [
-    { "kind": "region", "label": "Client Browser", "wraps": ["spa", "browser_storage"] },
-    { "kind": "region", "label": "Sagacitas Backend Core", "wraps": ["env_config", "api_gateway", "static_server", "auth_service", "tutor_service"] },
+    { "kind": "region", "label": "Client Trust Boundary", "wraps": ["spa", "browser_storage"] },
+    { "kind": "region", "label": "Sagacitas Internal Domain", "wraps": ["env_config", "api_gateway", "static_server", "supabase_db", "tutor_service"] },
     { "kind": "region", "label": "External Cloud Dependencies", "wraps": ["oauth_provider", "gemini_api"] }
   ],
   "connections": [
@@ -41,32 +41,33 @@
     { "id": "spa-static", "from": "spa", "to": "static_server", "label": "Fetch Assets", "variant": "default" },
     
     { "id": "spa-api", "from": "spa", "to": "api_gateway", "label": "REST API", "variant": "emphasis" },
+    { "id": "spa-db", "from": "spa", "to": "supabase_db", "label": "Realtime / Direct DB", "variant": "emphasis" },
     
     { "id": "config-api", "from": "env_config", "to": "api_gateway", "variant": "dashed" },
     
-    { "id": "api-auth", "from": "api_gateway", "to": "auth_service", "label": "/api/auth", "variant": "security" },
+    { "id": "spa-oauth", "from": "spa", "to": "oauth_provider", "label": "Auth Request", "variant": "security" },
+    { "id": "oauth-db", "from": "oauth_provider", "to": "supabase_db", "label": "Sync Role", "variant": "security" },
     { "id": "api-tutor", "from": "api_gateway", "to": "tutor_service", "label": "/api/tutor", "variant": "emphasis" },
     
-    { "id": "auth-oauth", "from": "auth_service", "to": "oauth_provider", "label": "Verify", "variant": "security" },
     { "id": "tutor-gemini", "from": "tutor_service", "to": "gemini_api", "label": "Prompt", "variant": "emphasis" }
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "Authentication Flow",
+      "title": "Authentication & Database Flow",
       "items": [
-        "Express handles OAuth redirection to providers like Google or GitHub.",
-        "A simulated OAuth screen is available for local development and testing.",
-        "Tokens and user profile data are synchronized with the browser's Local Storage."
+        "React SPA authenticates directly with Firebase Auth (Google/GitHub).",
+        "Tokens and user profile data are synchronized with Local Storage.",
+        "Users are inserted into Supabase PostgreSQL, where triggers categorize them as Aluno or Instrutor."
       ]
     },
     {
       "dot": "emerald",
       "title": "AI Tutor Integration",
       "items": [
-        "The /api/tutor endpoint orchestrates interactions with Google's Gemini 3.6 Flash model.",
-        "System instructions guide the model to act as a specialized DRE business tutor.",
-        "Chat history is maintained client-side and injected into prompts for context."
+        "The SPA calls the Express /api/tutor endpoint.",
+        "The Express backend securely communicates with Gemini 3.6 Flash.",
+        "System instructions guide the model to act as a specialized DRE business tutor."
       ]
     }
   ]

@@ -6,9 +6,9 @@ import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || "";
-const supabase = (supabaseUrl && supabaseAnonKey)
-  ? createClient(supabaseUrl, supabaseAnonKey)
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+const supabase = (supabaseUrl && supabaseServiceKey)
+  ? createClient(supabaseUrl, supabaseServiceKey)
   : null;
 
 async function startServer() {
@@ -16,6 +16,13 @@ async function startServer() {
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 12000;
 
   app.use(express.json());
+
+  // Allow Firebase Auth popup windows (Google/GitHub OAuth) to close after authentication.
+  // Vite 6.x sets COOP: same-origin by default, which blocks popup window.close().
+  app.use((_req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+    next();
+  });
 
   // Initialize Gemini AI Client lazily or safely with User-Agent header
   const getAi = () => {
@@ -111,9 +118,17 @@ Responda de forma direta e estruturada (2 a 4 parágrafos) focando em aplicaçã
     }
   });
 
+  // Generate unique boot ID on server start to track restarts
+  const SERVER_BOOT_ID = Date.now().toString();
+
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Get current server boot ID
+  app.get("/api/server-info", (_req, res) => {
+    res.json({ bootId: SERVER_BOOT_ID });
   });
 
   // OAuth Authentication Endpoints
@@ -126,7 +141,8 @@ Responda de forma direta e estruturada (2 a 4 parágrafos) focando em aplicaçã
     const redirectUri = `${baseUrl}/auth/callback`;
 
     // Check if custom OAuth credentials exist in environment variables
-    const clientId = process.env.OAUTH_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+    const rawClientId = process.env.OAUTH_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+    const clientId = (rawClientId && rawClientId.trim().length > 0 && !rawClientId.includes("SEU_CLIENT_ID") && !rawClientId.includes("YOUR_CLIENT_ID")) ? rawClientId.trim() : null;
     
     if (clientId) {
       // Real OAuth flow (Google, GitHub, etc.)
@@ -292,17 +308,10 @@ Responda de forma direta e estruturada (2 a 4 parágrafos) focando em aplicaçã
             
             <div class="user-box">
               <label>Nome do Usuário</label>
-              <input type="text" name="name" value="Gabriel Mendes" required>
+              <input type="text" name="name" placeholder="Ex: João Silva" required>
               <br/><br/>
               <label>E-mail de Login OAuth</label>
-              <input type="email" name="email" value="sagacitas.assessoria@gmail.com" required>
-              <br/><br/>
-              <label>Perfil / Role</label>
-              <select name="role" style="width: 100%; box-sizing: border-box; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 13px; outline: none; margin-bottom: 6px;">
-                <option value="Master Admin" selected>Master Admin</option>
-                <option value="Gestor">Gestor</option>
-                <option value="Aluno Autenticado">Aluno Autenticado</option>
-              </select>
+              <input type="email" name="email" placeholder="seu.email@empresa.com" required>
             </div>
 
             <div class="scopes">
@@ -328,7 +337,7 @@ Responda de forma direta e estruturada (2 a 4 parágrafos) focando em aplicaçã
     const email = (req.query.email as string) || "sagacitas.assessoria@gmail.com";
     const name = (req.query.name as string) || "Gabriel Mendes";
     const provider = (req.query.provider as string) || "Google OAuth 2.0";
-    const role = (req.query.role as string) || "Master Admin";
+    const role = (req.query.role as string) || "Visitante";
 
     let companyName = "Nenhuma (Inscrição Individual)";
     let enrollmentType = "individual";
