@@ -40,15 +40,15 @@ CREATE POLICY "Allow read learning_objects"
 
 CREATE POLICY "Allow insert learning_objects"
   ON public.learning_objects FOR INSERT TO authenticated
-  WITH CHECK (tenant_id = (SELECT tenant_id FROM public.users WHERE users.id = auth.uid()));
+  WITH CHECK (tenant_id = (SELECT tenant_id FROM public.users WHERE users.id = auth.uid()::text));
 
 CREATE POLICY "Allow update learning_objects"
   ON public.learning_objects FOR UPDATE TO authenticated
-  USING (tenant_id = (SELECT tenant_id FROM public.users WHERE users.id = auth.uid()));
+  USING (tenant_id = (SELECT tenant_id FROM public.users WHERE users.id = auth.uid()::text));
 
 CREATE POLICY "Allow delete learning_objects"
   ON public.learning_objects FOR DELETE TO authenticated
-  USING (tenant_id = (SELECT tenant_id FROM public.users WHERE users.id = auth.uid()));
+  USING (tenant_id = (SELECT tenant_id FROM public.users WHERE users.id = auth.uid()::text));
 
 
 -- 4. Refatorar Lessons (Tornar apenas contêiner operacional)
