@@ -38,10 +38,6 @@ export const INITIAL_COURSES: Course[] = [
             duration: '05:00',
             completed: true,
             description: 'Conheça os objetivos do treinamento complementar ao Alchymist Manager e como transformar dados do restaurante em decisões práticas.',
-            attachments: [
-              { id: 'att-01-1', name: 'Guia_Apresentacao_Sagacitas_ELearning.pdf', type: 'pdf', size: '1.2 MB' },
-              { id: 'att-01-2', name: 'Apostila_Oficial_DRE_Alchymist.pdf', type: 'pdf', size: '3.4 MB' },
-            ],
           },
           {
             id: 'aula-02',
@@ -50,9 +46,6 @@ export const INITIAL_COURSES: Course[] = [
             duration: '07:30',
             completed: true,
             description: 'A DRE não é relatório para contador; é o painel de direção do dono do restaurante. Entenda o alinhamento de expectativas.',
-            attachments: [
-              { id: 'att-02-1', name: 'Infografico_Painel_do_Carro_vs_DRE.pdf', type: 'pdf', size: '850 KB' },
-            ],
           },
           {
             id: 'aula-03',
@@ -61,9 +54,6 @@ export const INITIAL_COURSES: Course[] = [
             duration: '06:00',
             completed: true,
             description: 'Responda às 3 perguntas de alinhamento sobre suas maiores dúvidas financeiras no restaurante.',
-            attachments: [
-              { id: 'att-03-1', name: 'Formulario_Diagnostico_Inicial.pdf', type: 'pdf', size: '420 KB' },
-            ],
           },
         ],
       },
@@ -113,9 +103,6 @@ export const INITIAL_COURSES: Course[] = [
             duration: '12:00',
             completed: true,
             description: 'Análise detalhada das vendas, comissões de delivery, taxas de cartão e impostos diretos no Alchymist Manager.',
-            attachments: [
-              { id: 'att-07-1', name: 'Tabela_Taxas_Cartao_e_iFood.xlsx', type: 'excel', size: '680 KB' },
-            ],
           },
           {
             id: 'aula-08',
@@ -125,12 +112,6 @@ export const INITIAL_COURSES: Course[] = [
             completed: true,
             active: true,
             description: 'O indicador mais sensível da cozinha: proteínas, hortifrúti, laticínios, bebidas, embalagens e insumos diretos.',
-            videoPoster: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAi2OSUiwM5su5vQhRiIf5shZABoahkI_oaSLTLmZ1Sp9revrSJASseCbGlbWIFlUB02tvy8y2iksxubCmDbcwddkBuSCqQIU_cEFXuTcRVu3kDZD11d5I-Lqren5ULNfggZzEFM-VSiIVz7iDgEplLPTJEx11J6cTDKTagiVfFKUlno4fzuL7kqQ-Gaqi5wwB1KJsmSNxLhYxRgk-AE_AoFsEBJWoSDSFMT-0UmIgA4mz_jGim2zSCt1nF14zCfEUi6yPbCD6kAVSH',
-            attachments: [
-              { id: 'att-08-1', name: 'Planilha_Calculo_CMV_Efetivo.xlsx', type: 'excel', size: '1.4 MB' },
-              { id: 'att-08-2', name: 'Checklist_Auditoria_Insumos_Cozinha.pdf', type: 'pdf', size: '920 KB' },
-              { id: 'att-08-3', name: 'Ficha_Tecnica_Modelo_Alchymist.xlsx', type: 'excel', size: '800 KB' },
-            ],
           },
           {
             id: 'aula-09',
@@ -140,9 +121,6 @@ export const INITIAL_COURSES: Course[] = [
             completed: false,
             locked: false,
             description: 'Entendendo a folha, aluguel, energia, sistemas e a sobra final após todas as despesas da estrutura.',
-            attachments: [
-              { id: 'att-09-1', name: 'Guia_Apuracao_EBITDA_Despesas.pdf', type: 'pdf', size: '1.1 MB' },
-            ],
           },
           {
             id: 'aula-10',

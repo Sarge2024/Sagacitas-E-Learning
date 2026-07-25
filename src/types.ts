@@ -60,6 +60,25 @@ export interface Slide {
   speakerNotes?: string;
 }
 
+export interface LearningObject {
+  id: string;
+  knowledge_unit_id: string;
+  title: string;
+  bloom_level: 1 | 2 | 3 | 4 | 5 | 6;
+  object_type: 'video' | 'reading' | 'quiz' | 'dre_simulation' | 'case_study' | 'interactive';
+  content_payload: Record<string, any>;
+  sequence_order?: number;
+}
+
+export interface KnowledgeUnit {
+  id: string;
+  tenant_id?: string;
+  code?: string;
+  title: string;
+  description?: string;
+  learning_objects?: LearningObject[];
+}
+
 export interface Lesson {
   id: string;
   number: string;
@@ -69,10 +88,7 @@ export interface Lesson {
   active?: boolean;
   locked?: boolean;
   description?: string;
-  videoUrl?: string;
-  videoPoster?: string;
-  attachments?: LessonAttachment[];
-  slides?: Slide[];
+  learning_objects?: LearningObject[];
 }
 
 export interface Module {
