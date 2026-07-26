@@ -223,19 +223,19 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
               </div>
             )}
 
-            {element.type === 'quiz' && (
+            {element.type === 'question' && (
               <div className="w-full h-full bg-[#1c222b]/95 border border-[#0a6ed1]/50 rounded-md p-4 text-white text-xs flex flex-col justify-center pointer-events-none">
                 <span className="text-[10px] text-[#0a6ed1] font-mono font-bold block mb-1">
-                  [QUIZ INTERATIVO]
+                  [QUESTÃO / QUIZ INTERATIVO]
                 </span>
                 <p className="font-bold">{element.content.quizData?.question || 'Questão do Quiz'}</p>
               </div>
             )}
 
-            {element.type === 'custom-widget' && (
+            {element.type === 'simulation' && (
               <div className="w-full h-full bg-[#1c222b] border border-[#0a6ed1]/50 rounded-md p-3 text-white text-xs flex items-center justify-center pointer-events-none">
                 <Sparkles className="w-5 h-5 text-[#0a6ed1] mr-2" />
-                <span className="font-mono text-[#0a6ed1] font-bold">Widget Customizado Sagacitas Builder</span>
+                <span className="font-mono text-[#0a6ed1] font-bold">Simulador Interativo: DRE / Sandbox</span>
               </div>
             )}
 

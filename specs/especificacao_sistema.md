@@ -46,12 +46,12 @@ O esquema relacional é composto por 13 tabelas integradas:
 erDiagram
     users ||--o| students : "estende para"
     users ||--o| instructors : "estende para"
-    courses ||--o{ disciplines : "contém"
-    courses ||--o{ course_knowledge_units : "associa UCs"
-    disciplines ||--o{ discipline_lessons : "agrupa"
-    lessons ||--o{ discipline_lessons : "vincula"
+    courses ||--o{ course_knowledge_units : "composto por"
+    course_knowledge_units }o--|| knowledge_units : "referencia (UC)"
+    knowledge_units ||--o{ learning_objects : "contém (OAs)"
+    lessons ||--o{ lesson_learning_objects : "entrega"
+    learning_objects ||--o{ lesson_learning_objects : "está contido em"
     instructors ||--o{ classes : "leciona"
-    disciplines ||--o{ classes : "associada a"
     students ||--o{ class_enrollments : "matriculado em"
     classes ||--o{ class_enrollments : "contém"
 ```
@@ -65,11 +65,11 @@ Armazena a entidade central de usuários autenticados via Firebase Auth.
 - `email` (TEXT, UNIQUE): E-mail do usuário.
 - `avatar` (TEXT, Nullable): URL da imagem de perfil.
 - `provider` (TEXT, Nullable): Provedor de login (ex: "Password", "Google").
-- `role` (TEXT): Papel no sistema ("Visitante", "Aluno", "Instrutor", "Administrador"). Default: "Visitante".
+- `role` (TEXT): Papel no sistema ("Visitante", "Aluno", "Instrutor", "Administrador"). Default: "Visitante". As permissões do perfil são puxadas da coleção `roles`.
+- `permissionsHash` (TEXT, Nullable): Hash string dinâmico mapeando as permissões (CRUD) de leitura/escrita do usuário, gerado via modelo RBAC.
 - `status` (TEXT): Estado da conta ("active", "blocked"). Default: "active".
 - `company_name` (TEXT, Nullable): Nome da empresa contratante.
 - `enrollment_type` (TEXT, Nullable): Tipo de matrícula (individual/corporativa).
-- `permissions` (JSONB): Matriz de permissões detalhadas por recurso de UI/relatórios.
 - `authenticated_at` (TIMESTAMPTZ, Nullable): Timestamp do último login.
 - `created_at` / `updated_at` (TIMESTAMPTZ): Registro de auditoria temporal.
 
@@ -98,17 +98,40 @@ Catálogo de cursos da plataforma.
 - `description` (TEXT, Nullable): Descrição detalhada.
 - `duration_minutes` (INTEGER, Nullable): Duração total estimada.
 - `status` (TEXT): Estado do curso ("active", "blocked", "cancelled").
-- `category_id` (UUID, FK -> `course_categories.id`).
+- `category_id` (UUID, FK -> `course_categories.id`, Nullable).
 - `course_code` (VARCHAR(10), UNIQUE, Nullable): Código de identificação do curso.
+- `modules` (JSONB, Nullable): Árvore curricular contendo módulos e aulas dinâmicas cadastradas pelo gestor.
+- `presentation` (JSONB, Nullable): Arquivo do deck de slides de autoria salvos no editor de slides.
+- `category` (TEXT, Nullable): Nome direto da categoria para visualização simples no catálogo.
 
 #### Tabela `course_knowledge_units`
 Tabela intermediária que mapeia as Unidades de Conhecimento (UCs) a um determinado Curso.
 - `id` (UUID, PK): ID autogerado.
 - `course_id` (UUID, FK -> `courses.id` ON DELETE CASCADE).
-- `uc_id` (TEXT): Referência lógica à Unidade de Conhecimento (UC) global ou customizada.
+- `uc_id` (UUID, FK -> `knowledge_units.id` ON DELETE CASCADE): Referência rigorosa à Unidade de Conhecimento (UC).
 - `sequence_order` (INTEGER): Ordem de exibição e progressão da UC no curso.
-- `aula_group` (INTEGER, Nullable): Agrupamento de UCs em uma mesma aula conceitual.
 - *Restrição*: `UNIQUE(course_id, uc_id)`.
+
+#### Tabela `learning_objects` (OAs)
+Unidades atômicas de aprendizado modular contidas dentro de uma UC.
+- `id` (UUID, PK): ID autogerado.
+- `knowledge_unit_id` (UUID, FK -> `knowledge_units.id` ON DELETE CASCADE).
+- `object_type` (TEXT): Formato do objeto (`video`, `reading`, `quiz`, `dre_simulation`).
+- `bloom_level` (INTEGER): Nível de complexidade da taxonomia de Bloom (1 a 6).
+- `content_payload` (JSONB): Mídia ou metadados da instrução em si.
+
+#### Tabela `lessons`
+Atua estritamente como um contêiner operacional (encontro temporal ou pacote de entrega).
+- `id` (UUID, PK): ID autogerado.
+- `title` (TEXT): Título da aula.
+- Não armazena mídias diretamente.
+
+#### Tabela `lesson_learning_objects`
+Tabela $N \times N$ que relaciona quais OAs (Objetos de Aprendizagem) são entregues em qual contêiner de Aula.
+- `id` (UUID, PK).
+- `lesson_id` (UUID, FK -> `lessons.id` ON DELETE CASCADE).
+- `learning_object_id` (UUID, FK -> `learning_objects.id` ON DELETE CASCADE).
+- `sequence_order` (INTEGER): Ordem de execução do OA dentro daquela aula.
 
 ---
 
@@ -125,16 +148,20 @@ Dashboard administrativo com abas para gerenciar alunos, turmas, certificados e 
 - **Botão "Editar Aulas"**: Abre o modal clássico de edição direta de slides.
 
 ### 4.3. Compositor de UCs (`CourseUCComposerView`)
-Interface avançada de autoria estruturada em três painéis principais:
-1. **Cabeçalho**: Exibe nome do curso, categoria e estatísticas em tempo real (total de UCs adicionadas, carga horária total acumulada em minutos e contagem total de elementos didáticos).
-2. **Biblioteca de UCs (Painel Direito)**: Lista rolável de Unidades de Conhecimento disponíveis para o gestor. Conta com barra de busca rápida por título/código e badge dinâmico do nível de complexidade na Taxonomia de Bloom.
-3. **Drop Zone Central (Grade Curricular)**: Permite arrastar UCs da biblioteca e soltá-las na grade. Suporta reordenação dinâmica (drag-and-drop nativo ou setas direcionais), exclusão de itens e botão de atalho para editar a aula de cada UC.
+Interface avançada de autoria e organização curricular estruturada em:
+1. **Cabeçalho**: Exibe nome do curso, categoria e estatísticas consolidadas (total de UCs adicionadas, carga horária acumulada e contagem total de elementos didáticos).
+2. **Biblioteca de UCs (Painel Direito)**: Lista rolável de Unidades de Conhecimento cadastradas no sistema, com suporte a busca rápida.
+3. **Grade Curricular Dinâmica (Central)**: Painel interativo para estruturação de **Módulos** e **Aulas**:
+   - Criação, edição (título e foco didático) e exclusão de Módulos sob demanda.
+   - Criação, edição (título e objetivo de aprendizagem) e exclusão de Aulas dentro de cada módulo.
+   - **Alocação via Drag and Drop**: O gestor pode arrastar UCs da biblioteca e soltá-las diretamente dentro de qualquer Aula da grade curricular. A associação é mapeada e persistida no banco por meio do identificador sequencial `aula_group`.
 
 ### 4.4. Editor e Player de Slides (`CourseSlideEditorModal`)
-Editor visual WYSIWYG e player dinâmico de apresentações interativas.
-- **Canvas Central**: Renderiza o slide atual respeitando a proporção (ex: 16:9).
-- **Importação de Recursos**: Na aba "Recursos de UCs", o gestor pode carregar os componentes de mídia (textos, imagens, áudios, vídeos, quizzes e simulações do simulador DRE) gerados a partir do modelo instrucional da UC para dentro do slide ativo.
-- **Modos adicionais**: Modo Player com reprodução automática, controle de histórico (Undo/Redo), tema claro/escuro e recurso de IA/OCR para extração automática de textos em imagens de fundo.
+Editor WYSIWYG que permite aos gestores criarem apresentações multimídia interativas vinculadas às aulas do curso:
+- **Canvas Central**: Renderiza a tela de pintura e posicionamento dos slides em proporção (16:9).
+- **Padronização de Componentes**: A barra de ferramentas lateral importa e cria elementos seguindo estritamente a tipagem unificada de UCs (`text`, `image`, `video`, `audio`, `question` e `simulation`).
+- **Níveis de Camada (Z-Index)**: Suporte nativo para configuração de camadas (`zIndex`) de cada elemento no PropertyInspector para evitar sobreposição indesejada.
+- **Persistência & Roteamento Dinâmico**: A apresentação de slides completa é salva na coluna `presentation` do curso. No player de aula do aluno (`LessonPlayerView`), os slides são carregados e filtrados em tempo real de acordo com a numeração sequencial (`aula_group`) da aula selecionada.
 
 ### 4.5. EdTech Expert Module
 Área avançada de engenharia pedagógica:

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   MOCK_TENANT, 
   MOCK_UNIDADES_CONHECIMENTO, 
@@ -6,7 +6,10 @@ import {
   MOCK_PROFICIENCIA_DNT,
   ExpertService
 } from '../../services/expertService';
-import { UnidadeConhecimento, BloomLevel } from '../../types/edtechExpert';
+import { uploadService } from '../../services/uploadService';
+import { dbService } from '../../services/dbService';
+import { PMESTGeneratorService } from '../../services/pmestGenerator';
+import { UnidadeConhecimento, BloomLevel, TaxonomyOption } from '../../types/edtechExpert';
 import { 
   Layers, 
   BrainCircuit, 
@@ -36,6 +39,11 @@ import {
   Edit3,
   Lock,
   Users,
+  UploadCloud,
+  Loader2,
+  ClipboardPaste,
+  Search,
+  Settings
 } from 'lucide-react';
 import { ReverseEngineeringView } from './ReverseEngineeringView';
 import { DNTEngineView } from './DNTEngineView';
@@ -70,9 +78,64 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
   const activeTab = propActiveTab !== undefined ? propActiveTab : localActiveTab;
   const setActiveTab = onTabChange !== undefined ? onTabChange : setLocalActiveTab;
   
-  const [localUnidades, setLocalUnidades] = useState<UnidadeConhecimento[]>(MOCK_UNIDADES_CONHECIMENTO);
+  const [localUnidades, setLocalUnidades] = useState<UnidadeConhecimento[]>([]);
   const unidades = propUnidades !== undefined ? propUnidades : localUnidades;
   const setUnidades = onUpdateUnidades !== undefined ? onUpdateUnidades : setLocalUnidades;
+
+  useEffect(() => {
+    const fetchUCs = async () => {
+      try {
+        const ucs = await dbService.getKnowledgeUnits();
+        const mappedUcs: UnidadeConhecimento[] = ucs.map(dbUc => ({
+          id: dbUc.id,
+          tenant_id: dbUc.tenant_id,
+          codigo: dbUc.signatures && dbUc.signatures.length > 0 ? dbUc.signatures[0].code : undefined,
+          signatures: dbUc.signatures,
+          subgroups: dbUc.subgroups,
+          titulo: dbUc.title,
+          descricao_curta: dbUc.description,
+          meta_bloom: dbUc.bloom_level === 1 ? 'CONHECIMENTO' : 
+                      dbUc.bloom_level === 2 ? 'COMPREENSAO' : 
+                      dbUc.bloom_level === 3 ? 'APLICACAO_SIMPLES' : 
+                      dbUc.bloom_level === 4 ? 'ANALISE' : 
+                      dbUc.bloom_level === 5 ? 'SINTESE' : 'COMPREENSAO',
+          duracao_estimada_minutos: dbUc.estimated_duration_minutes,
+          status: dbUc.status as any,
+          created_at: dbUc.created_at,
+          updated_at: dbUc.updated_at,
+          topico: dbUc.topic,
+          topico_complexidade: dbUc.topic_complexity as any || 'CONHECIMENTO',
+          area: dbUc.area || 'SAG',
+          context: dbUc.context || 'GLOBAL',
+          layout_template: { version: '1.0', components: [] }
+        }));
+
+        setLocalUnidades(mappedUcs);
+        if (onUpdateUnidades) {
+          onUpdateUnidades(mappedUcs);
+        }
+        if (mappedUcs.length > 0 && selectedUcForTest === MOCK_UNIDADES_CONHECIMENTO[0]?.id) {
+          setSelectedUcForTest(mappedUcs[0].id);
+        }
+      } catch (err) {
+        console.error("Failed to fetch UCs", err);
+      }
+    };
+    
+    const fetchTaxonomyOptions = async () => {
+      try {
+        const areas = await dbService.getTaxonomyOptions('AREA');
+        const contexts = await dbService.getTaxonomyOptions('CONTEXT');
+        setAreasList(areas || []);
+        setContextsList(contexts || []);
+      } catch (err) {
+        console.error("Failed to fetch taxonomies", err);
+      }
+    };
+
+    fetchUCs();
+    fetchTaxonomyOptions();
+  }, [propUnidades]);
 
   const [proficiencias, setProficiencias] = useState(MOCK_PROFICIENCIA_DNT);
   
@@ -88,7 +151,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
   };
   
   // DNT Simulator state
-  const [selectedUcForTest, setSelectedUcForTest] = useState<string>(MOCK_UNIDADES_CONHECIMENTO[0].id);
+  const [selectedUcForTest, setSelectedUcForTest] = useState<string>(MOCK_UNIDADES_CONHECIMENTO[0]?.id || '');
   const [scoreInput, setScoreInput] = useState<number>(85);
   const [simulationResult, setSimulationResult] = useState<string | null>(null);
   const [selectedUcForModal, setSelectedUcForModal] = useState<UnidadeConhecimento | null>(null);
@@ -97,55 +160,130 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
   const [isCreatingUc, setIsCreatingUc] = useState(false);
   const [editingUc, setEditingUc] = useState<UnidadeConhecimento | null>(null);
 
-  const [ucCodigo, setUcCodigo] = useState('');
+  // Taxonomy Management States
+  const [areasList, setAreasList] = useState<TaxonomyOption[]>([]);
+  const [contextsList, setContextsList] = useState<TaxonomyOption[]>([]);
+  const [isTaxonomyModalOpen, setIsTaxonomyModalOpen] = useState(false);
+  const [taxCategory, setTaxCategory] = useState<'AREA' | 'CONTEXT'>('AREA');
+  const [taxNewCode, setTaxNewCode] = useState('');
+  const [taxNewName, setTaxNewName] = useState('');
+
+  const [baseSignature, setBaseSignature] = useState('');
+  const [ucSignatures, setUcSignatures] = useState<string[]>([]);
+  const [editingSignatureIndex, setEditingSignatureIndex] = useState<number | null>(null);
+  const [isSignaturesModalOpen, setIsSignaturesModalOpen] = useState(false);
+  const [newSignatureStr, setNewSignatureStr] = useState('');
+  const [activeBloomTab, setActiveBloomTab] = useState<number>(2);
   const [ucTitulo, setUcTitulo] = useState('');
   const [ucDescricao, setUcDescricao] = useState('');
   const [ucMetaBloom, setUcMetaBloom] = useState<BloomLevel>('CONHECIMENTO');
-  const [ucDuracao, setUcDuracao] = useState(15);
+  const [ucDuracao, setUcDuracao] = useState(0);
   const [ucTopico, setUcTopico] = useState('');
   const [ucTopicoComplexidade, setUcTopicoComplexidade] = useState<BloomLevel>('CONHECIMENTO');
+  const [ucArea, setUcArea] = useState('');
+  const [ucContext, setUcContext] = useState('');
   const [ucComponents, setUcComponents] = useState<Array<{
     type: 'text' | 'image' | 'video' | 'audio' | 'question' | 'simulation';
     title: string;
     body: string;
+    bloomLevel?: number;
     metadata?: any;
   }>>([]);
+
+  useEffect(() => {
+    const sig = PMESTGeneratorService.generateBaseSignature(
+      ucArea, // Personalidade (Área Geral)
+      ucTopico, // Matéria (Tópico)
+      ucMetaBloom, // Energia (Nível de Bloom)
+      ucContext, // Espaço (Contexto)
+      ucDuracao // Tempo (Duração)
+    );
+    setBaseSignature(sig);
+  }, [ucArea, ucTopico, ucMetaBloom, ucContext, ucDuracao]);
 
   const openCreateUc = () => {
     setIsCreatingUc(true);
     setEditingUc(null);
-    setUcCodigo(`FIN-DRE-0${unidades.length + 1}`);
+    setUcSignatures([]);
+    setNewSignatureStr('');
+    setActiveBloomTab(2);
     setUcTitulo('');
     setUcDescricao('');
     setUcMetaBloom('CONHECIMENTO');
-    setUcDuracao(15);
-    setUcTopico('Tópico DRE');
+    setUcDuracao(0);
+    setUcTopico('');
     setUcTopicoComplexidade('CONHECIMENTO');
+    setUcArea('');
+    setUcContext('');
     setUcComponents([
-      { type: 'text', title: 'Introdução do Conteúdo', body: 'Escreva a explicação geral aqui...' }
+      { type: 'text', title: 'Introdução do Conteúdo', body: 'Escreva a explicação geral aqui...', bloomLevel: 2 }
     ]);
+  };
+
+  const handleNewSignature = () => {
+    setEditingSignatureIndex(null);
+    setUcArea('');
+    setUcContext('');
+    setUcTopico('');
+    setUcMetaBloom('CONHECIMENTO');
+    setUcDuracao(0);
+  };
+
+  const handleSaveSignature = () => {
+    if (editingSignatureIndex !== null) {
+      const newSigs = [...ucSignatures];
+      if ((baseSignature && !newSigs.includes(baseSignature)) || newSigs[editingSignatureIndex] === baseSignature) {
+        newSigs[editingSignatureIndex] = baseSignature;
+        setUcSignatures(newSigs);
+        setEditingSignatureIndex(null);
+      } else if (newSigs.includes(baseSignature)) {
+        setEditingSignatureIndex(null);
+      }
+    } else {
+      if (baseSignature && !ucSignatures.includes(baseSignature)) {
+        setUcSignatures([...ucSignatures, baseSignature]);
+      }
+    }
   };
 
   const openEditUc = (uc: UnidadeConhecimento) => {
     setEditingUc(uc);
-    setIsCreatingUc(false);
-    setUcCodigo(uc.codigo);
+    setIsCreatingUc(true); // Abre o modal de edição (usa a mesma flag do formulário)
+    
+    const dynamicBase = PMESTGeneratorService.generateBaseSignature(uc.area || 'SAG', uc.topico || '', uc.meta_bloom || 'CONHECIMENTO', uc.context || 'GLOBAL', uc.duracao_estimada_minutos || 15);
+    const allSigs = uc.signatures ? uc.signatures.map(s => s.code) : (uc.codigo ? [uc.codigo] : []);
+    
+    // Remove the base signature if it's stored in the DB, as it will be generated dynamically
+    setUcSignatures(allSigs.filter(s => s !== dynamicBase));
+    
+    setNewSignatureStr('');
+    setActiveBloomTab(2);
     setUcTitulo(uc.titulo);
-    setUcDescricao(uc.descricao_curta);
+    setUcDescricao(uc.descricao_curta ?? '');
     setUcMetaBloom(uc.meta_bloom);
-    setUcDuracao(uc.duracao_estimada_minutos);
+    setUcDuracao(uc.duracao_estimada_minutos || 0);
     setUcTopico(uc.topico || '');
     setUcTopicoComplexidade(uc.topico_complexidade || 'CONHECIMENTO');
-    setUcComponents(uc.layout_template.components.map(c => ({
-      type: c.type as any,
-      title: c.title,
-      body: c.body,
-      metadata: c.metadata ? JSON.parse(JSON.stringify(c.metadata)) : undefined
-    })));
+    setUcArea(uc.area || '');
+    setUcContext(uc.context || '');
+    if (uc.subgroups && uc.subgroups.length > 0) {
+      const flattened = uc.subgroups.flatMap(sg => 
+        (sg.content_payload || []).map((c: any) => ({ ...c, bloomLevel: sg.bloom_level_required }))
+      );
+      setUcComponents(flattened);
+    } else {
+      setUcComponents(uc.layout_template.components.map(c => ({
+        type: c.type as any,
+        title: c.title,
+        body: c.body,
+        bloomLevel: 2,
+        metadata: c.metadata ? JSON.parse(JSON.stringify(c.metadata)) : undefined
+      })));
+    }
   };
 
   const addComponentField = (type: 'text' | 'image' | 'video' | 'audio' | 'question' | 'simulation') => {
-    const base: any = { type, title: '', body: '' };
+    const base: any = { type, title: '', body: '', bloomLevel: activeBloomTab };
     if (type === 'image') base.metadata = { url: '' };
     if (type === 'video') base.metadata = { url: '', duration: '05:00' };
     if (type === 'audio') base.metadata = { url: '', duration: '03:00' };
@@ -163,53 +301,120 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
     setUcComponents([...ucComponents, base]);
   };
 
-  const handleSaveUc = () => {
-    if (!ucCodigo || !ucTitulo || !ucDescricao || !ucTopico) {
-      alert("Por favor, preencha todos os campos obrigatórios.");
+  const handleSaveUc = async () => {
+    if (!ucTitulo || !ucDescricao || !ucTopico) {
+      alert("Por favor, preencha todos os campos obrigatórios (Título, Descrição e Tópico).");
       return;
     }
 
-    if (isCreatingUc) {
-      const newUc: UnidadeConhecimento = {
-        id: `uc-${Date.now()}`,
-        tenant_id: null,
-        codigo: ucCodigo,
-        titulo: ucTitulo,
-        descricao_curta: ucDescricao,
-        meta_bloom: ucMetaBloom,
-        duracao_estimada_minutos: Number(ucDuracao),
-        status: 'ativo',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        topico: ucTopico,
-        topico_complexidade: ucTopicoComplexidade,
-        layout_template: {
-          version: '1.0',
-          components: ucComponents as any
-        }
-      };
-      setUnidades([...unidades, newUc]);
-    } else if (editingUc) {
-      const updated = unidades.map(u => u.id === editingUc.id ? {
-        ...u,
-        codigo: ucCodigo,
-        titulo: ucTitulo,
-        descricao_curta: ucDescricao,
-        meta_bloom: ucMetaBloom,
-        duracao_estimada_minutos: Number(ucDuracao),
-        topico: ucTopico,
-        topico_complexidade: ucTopicoComplexidade,
-        layout_template: {
-          version: '1.0',
-          components: ucComponents as any
-        }
-      } : u);
-      setUnidades(updated);
+    const finalSignatures = [baseSignature, ...ucSignatures];
+
+    const groupedComponents = ucComponents.reduce((acc: Record<number, any[]>, curr) => {
+      const bl = curr.bloomLevel || 2;
+      if (!acc[bl]) acc[bl] = [];
+      acc[bl].push(curr);
+      return acc;
+    }, {});
+
+    const payloadUc = {
+      titulo: ucTitulo,
+      descricao_curta: ucDescricao,
+      meta_bloom: activeBloomTab,
+      duracao_estimada_minutos: Number(ucDuracao),
+      status: 'ativo',
+      created_at: editingUc ? editingUc.created_at : new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      topico: ucTopico,
+      topico_complexidade: ucTopicoComplexidade,
+      area: ucArea,
+      context: ucContext
+    };
+
+    try {
+      if (isCreatingUc && !editingUc) {
+        await dbService.createKnowledgeUnit(payloadUc, finalSignatures, groupedComponents);
+        showToast("UC criada com sucesso (Multimodular)!");
+      } else if (editingUc) {
+        await dbService.updateKnowledgeUnit(editingUc.id, payloadUc, finalSignatures, groupedComponents);
+        showToast("UC atualizada com sucesso!");
+      }
+      
+      // Reload units
+      const ucs = await dbService.getKnowledgeUnits();
+      const mappedUcs: UnidadeConhecimento[] = ucs.map(dbUc => ({
+        id: dbUc.id,
+        tenant_id: dbUc.tenant_id,
+        codigo: dbUc.signatures && dbUc.signatures.length > 0 ? dbUc.signatures[0].code : undefined,
+        signatures: dbUc.signatures,
+        subgroups: dbUc.subgroups,
+        titulo: dbUc.title,
+        descricao_curta: dbUc.description,
+        meta_bloom: dbUc.bloom_level === 1 ? 'CONHECIMENTO' : 
+                    dbUc.bloom_level === 2 ? 'COMPREENSAO' : 
+                    dbUc.bloom_level === 3 ? 'APLICACAO_SIMPLES' : 
+                    dbUc.bloom_level === 4 ? 'ANALISE' : 
+                    dbUc.bloom_level === 5 ? 'SINTESE' : 'COMPREENSAO',
+        duracao_estimada_minutos: dbUc.estimated_duration_minutes,
+        status: dbUc.status as any,
+        created_at: dbUc.created_at,
+        updated_at: dbUc.updated_at,
+        topico: dbUc.topic,
+        topico_complexidade: dbUc.topic_complexity as any || 'CONHECIMENTO',
+        area: dbUc.area || 'SAG',
+        context: dbUc.context || 'GLOBAL',
+        layout_template: { version: '1.0', components: [] }
+      }));
+      setUnidades(mappedUcs);
+      
+      // Reset authoring state
+      setIsCreatingUc(false);
+      setEditingUc(null);
+    } catch (err: any) {
+      console.error(err);
+      alert("Erro ao salvar: " + err.message);
     }
-    
-    // Reset authoring state
-    setIsCreatingUc(false);
-    setEditingUc(null);
+  };
+
+  const handleOpenTaxonomyModal = (category: 'AREA' | 'CONTEXT') => {
+    setTaxCategory(category);
+    setTaxNewCode('');
+    setTaxNewName('');
+    setIsTaxonomyModalOpen(true);
+  };
+
+  const handleSaveTaxonomy = async () => {
+    if (!taxNewCode || !taxNewName) {
+      alert('Preencha o código e o nome.');
+      return;
+    }
+    try {
+      await dbService.createTaxonomyOption({
+        category: taxCategory,
+        code: taxNewCode,
+        name: taxNewName
+      });
+      // Refetch
+      const updated = await dbService.getTaxonomyOptions(taxCategory);
+      if (taxCategory === 'AREA') setAreasList(updated || []);
+      else setContextsList(updated || []);
+      setTaxNewCode('');
+      setTaxNewName('');
+    } catch (err: any) {
+      console.error(err);
+      alert('Erro ao criar taxonomia: ' + err.message);
+    }
+  };
+
+  const handleDeleteTaxonomy = async (id: string, category: 'AREA' | 'CONTEXT') => {
+    try {
+      await dbService.deleteTaxonomyOption(id);
+      const updated = await dbService.getTaxonomyOptions(category);
+      if (category === 'AREA') setAreasList(updated || []);
+      else setContextsList(updated || []);
+    } catch (err: any) {
+      console.error(err);
+      alert('Erro ao excluir taxonomia: ' + err.message);
+    }
   };
 
   // Helper badge color for Bloom Levels
@@ -401,7 +606,6 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
       </div>
 
       {/* Tab 1: Unidades de Conhecimento Atômicas */}
-      {/* Tab 1: Unidades de Conhecimento Atômicas */}
       {activeTab === 'ucs' && (() => {
         if (isCreatingUc || editingUc !== null) {
           return (
@@ -443,17 +647,38 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                 {/* Column 1: Info Geral */}
                 <div className="lg:col-span-1 space-y-4">
                   <span className="text-xs font-bold text-slate-400 block uppercase tracking-wider">Informações Gerais</span>
-                  
-                  {/* Codigo */}
-                  <div className="space-y-1">
-                    <label className="text-xs font-extrabold text-slate-700 block">Código da UC <span className="text-rose-500">*</span></label>
-                    <input 
-                      type="text" 
-                      value={ucCodigo} 
-                      onChange={(e) => setUcCodigo(e.target.value)}
-                      placeholder="Ex: FIN-DRE-08"
-                      className="w-full p-2.5 rounded-md border border-slate-200 text-xs focus:ring-1 focus:ring-[#1890ff] focus:border-[#1890ff]"
-                    />
+                  <div className="space-y-2">
+                    <label className="text-xs font-extrabold text-slate-700 block">Assinaturas PMEST <span className="text-rose-500">*</span></label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        readOnly
+                        value={baseSignature} 
+                        placeholder="Configure os campos abaixo para gerar o código"
+                        className="flex-1 p-2.5 rounded-md border border-slate-200 bg-slate-50 text-xs font-mono font-bold text-slate-500 cursor-not-allowed"
+                      />
+                      <button 
+                        type="button"
+                        onClick={handleNewSignature}
+                        className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md text-[11px] font-bold transition-colors cursor-pointer"
+                      >
+                        Novo
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setIsSignaturesModalOpen(true)}
+                        className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-center"
+                      >
+                        Pesquisa
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={handleSaveSignature}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-[11px] font-bold transition-colors cursor-pointer"
+                      >
+                        Salvar
+                      </button>
+                    </div>
                   </div>
 
                   {/* Titulo */}
@@ -476,6 +701,58 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                       onChange={(e) => setUcDescricao(e.target.value)}
                       placeholder="Resumo didático da unidade..."
                       rows={3}
+                      className="w-full p-2.5 rounded-md border border-slate-200 text-xs focus:ring-1 focus:ring-[#1890ff] focus:border-[#1890ff]"
+                    />
+                  </div>
+
+                  {/* Area and Context Inputs */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-extrabold text-slate-700 block">Personalidade / Área (P)</label>
+                        <button onClick={() => handleOpenTaxonomyModal('AREA')} className="text-slate-400 hover:text-indigo-600 transition-colors">
+                          <Settings className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <select 
+                        value={ucArea} 
+                        onChange={(e) => setUcArea(e.target.value)}
+                        className="w-full p-2.5 rounded-md border border-slate-200 text-xs focus:ring-1 focus:ring-[#1890ff] focus:border-[#1890ff]"
+                      >
+                        <option value="">-- Selecione uma Área --</option>
+                        {areasList.map(a => (
+                          <option key={a.id} value={a.code}>{a.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-extrabold text-slate-700 block">Espaço / Contexto (S)</label>
+                        <button onClick={() => handleOpenTaxonomyModal('CONTEXT')} className="text-slate-400 hover:text-indigo-600 transition-colors">
+                          <Settings className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <select 
+                        value={ucContext} 
+                        onChange={(e) => setUcContext(e.target.value)}
+                        className="w-full p-2.5 rounded-md border border-slate-200 text-xs focus:ring-1 focus:ring-[#1890ff] focus:border-[#1890ff]"
+                      >
+                        <option value="">-- Selecione um Contexto --</option>
+                        {contextsList.map(c => (
+                          <option key={c.id} value={c.code}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Topico & Complexidade do Topico */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-extrabold text-slate-700 block">Matéria / Tópico (M) <span className="text-rose-500">*</span></label>
+                    <input 
+                      type="text" 
+                      value={ucTopico} 
+                      onChange={(e) => setUcTopico(e.target.value)}
+                      placeholder="Ex: DRE, Operações"
                       className="w-full p-2.5 rounded-md border border-slate-200 text-xs focus:ring-1 focus:ring-[#1890ff] focus:border-[#1890ff]"
                     />
                   </div>
@@ -510,17 +787,6 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Topico & Complexidade do Topico */}
-                  <div className="space-y-1">
-                    <label className="text-xs font-extrabold text-slate-700 block">Tópico Pertencente <span className="text-rose-500">*</span></label>
-                    <input 
-                      type="text" 
-                      value={ucTopico} 
-                      onChange={(e) => setUcTopico(e.target.value)}
-                      placeholder="Ex: Tópico DRE, Operações"
-                      className="w-full p-2.5 rounded-md border border-slate-200 text-xs"
-                    />
-                  </div>
                   <div className="space-y-1">
                     <label className="text-xs font-extrabold text-slate-700 block">Complexidade Geral do Tópico</label>
                     <select 
@@ -542,56 +808,77 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
 
                 {/* Column 2 & 3: Elementos Didaticos (AST) */}
                 <div className="lg:col-span-2 space-y-4 border-l border-slate-100 pl-0 lg:pl-6">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Conteúdo & Elementos Didáticos</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      <button 
-                        onClick={() => addComponentField('text')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
-                      >
-                        + Texto
-                      </button>
-                      <button 
-                        onClick={() => addComponentField('image')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
-                      >
-                        + Imagem
-                      </button>
-                      <button 
-                        onClick={() => addComponentField('video')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
-                      >
-                        + Vídeo
-                      </button>
-                      <button 
-                        onClick={() => addComponentField('audio')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
-                      >
-                        + Áudio
-                      </button>
-                      <button 
-                        onClick={() => addComponentField('question')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
-                      >
-                        + Questão
-                      </button>
-                      <button 
-                        onClick={() => addComponentField('simulation')} 
-                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
-                      >
-                        + Simulação
-                      </button>
-                    </div>
+                   <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Conteúdo & Subgrupos Bloom</span>
+                  </div>
+
+                  {/* Bloom Tabs */}
+                  <div className="flex gap-1 border-b border-slate-200 pb-2 overflow-x-auto custom-scrollbar">
+                    {[1, 2, 3, 4, 5, 6].map(level => {
+                      const labels = ["1. Conhec.", "2. Compreen.", "3. Aplicação", "4. Análise", "5. Síntese", "6. Avaliação"];
+                      const isActive = activeBloomTab === level;
+                      const hasItems = ucComponents.some(c => (c.bloomLevel || 2) === level);
+                      return (
+                        <button
+                          key={level}
+                          onClick={() => setActiveBloomTab(level)}
+                          className={`px-3 py-1.5 text-[11px] font-bold rounded-t-md border-b-2 whitespace-nowrap transition-colors cursor-pointer ${isActive ? 'border-[#1890ff] text-[#1890ff] bg-[#1890ff]/5' : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}
+                        >
+                          {labels[level - 1]} {hasItems && <span className="ml-1 w-2 h-2 inline-block bg-indigo-500 rounded-full"></span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 pt-2">
+                    <button 
+                      onClick={() => addComponentField('text')} 
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
+                    >
+                      + Texto
+                    </button>
+                    <button 
+                      onClick={() => addComponentField('image')} 
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
+                    >
+                      + Imagem
+                    </button>
+                    <button 
+                      onClick={() => addComponentField('video')} 
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
+                    >
+                      + Vídeo
+                    </button>
+                    <button 
+                      onClick={() => addComponentField('audio')} 
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
+                    >
+                      + Áudio
+                    </button>
+                    <button 
+                      onClick={() => addComponentField('question')} 
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
+                    >
+                      + Questão
+                    </button>
+                    <button 
+                      onClick={() => addComponentField('simulation')} 
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-bold transition-colors cursor-pointer"
+                    >
+                      + Simulação
+                    </button>
                   </div>
 
                   {/* Components List */}
                   <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
-                    {ucComponents.length === 0 ? (
+                    {ucComponents.filter(c => (c.bloomLevel || 2) === activeBloomTab).length === 0 ? (
                       <div className="text-center py-8 text-slate-400 text-xs border-2 border-dashed border-slate-200 rounded-md">
-                        Nenhum elemento didático adicionado. Use os botões acima para estruturar a aula.
+                        Nenhum componente cadastrado no Nível {activeBloomTab}. Use os botões acima para estruturar a aula.
                       </div>
                     ) : (
-                      ucComponents.map((comp, idx) => (
+                      ucComponents.map((comp, idx) => {
+                        if ((comp.bloomLevel || 2) !== activeBloomTab) return null;
+                        return (
                         <div key={idx} className="bg-slate-50 border border-slate-200 rounded-md p-4 relative space-y-3 shadow-2xs">
                           {/* Element delete */}
                           <button
@@ -643,20 +930,203 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
 
                           {/* Image fields */}
                           {comp.type === 'image' && (
-                            <div className="space-y-1">
-                              <label className="text-[10px] font-extrabold text-slate-600 block">URL da Imagem</label>
-                              <input 
-                                type="text" 
-                                value={comp.metadata?.url || ''} 
-                                onChange={(e) => {
-                                  const list = [...ucComponents];
-                                  if (!list[idx].metadata) list[idx].metadata = {};
-                                  list[idx].metadata.url = e.target.value;
-                                  setUcComponents(list);
-                                }}
-                                placeholder="https://unsplash.com/..."
-                                className="w-full p-2 bg-white border border-slate-200 rounded-md text-xs font-mono"
-                              />
+                            <div className="space-y-2 bg-slate-50 border border-slate-200 rounded-md p-3">
+                              <label className="text-[10px] font-extrabold text-slate-600 block">
+                                Inserir Imagem
+                              </label>
+                              <div className="flex flex-col gap-2">
+                                <div 
+                                  className={`border-2 border-dashed rounded-md p-4 flex flex-col items-center justify-center text-center transition-colors focus:outline-none focus:ring-2 focus:ring-[#1890ff]/50 cursor-pointer
+                                    ${comp.metadata?.isUploading ? 'border-[#1890ff] bg-blue-50' : 'border-slate-300 hover:border-slate-400 bg-white'}
+                                  `}
+                                  tabIndex={0}
+                                  onPaste={async (e) => {
+                                    const items = e.clipboardData?.items;
+                                    if (!items) return;
+                                    let imageFile = null;
+                                    for (let i = 0; i < items.length; i++) {
+                                      if (items[i].type.indexOf('image') !== -1) {
+                                        imageFile = items[i].getAsFile();
+                                        break;
+                                      }
+                                    }
+                                    if (imageFile) {
+                                      e.preventDefault();
+                                      setUcComponents(prev => {
+                                        const list = [...prev];
+                                        if (!list[idx].metadata) list[idx].metadata = {};
+                                        list[idx].metadata.isUploading = true;
+                                        return list;
+                                      });
+                                      
+                                      try {
+                                        const url = await uploadService.uploadFile(imageFile, 'learning-objects');
+                                        setUcComponents(prev => {
+                                          const list = [...prev];
+                                          if (!list[idx].metadata) list[idx].metadata = {};
+                                          list[idx].metadata.url = url;
+                                          list[idx].metadata.isUploading = false;
+                                          return list;
+                                        });
+                                      } catch (err) {
+                                        console.error('Falha ao subir imagem via clipboard', err);
+                                        setUcComponents(prev => {
+                                          const list = [...prev];
+                                          if (list[idx].metadata) list[idx].metadata.isUploading = false;
+                                          return list;
+                                        });
+                                      }
+                                    }
+                                  }}
+                                >
+                                  {comp.metadata?.isUploading ? (
+                                    <>
+                                      <Loader2 className="w-6 h-6 text-[#1890ff] animate-spin mb-2" />
+                                      <span className="text-[10px] font-bold text-blue-600">Enviando imagem...</span>
+                                    </>
+                                  ) : comp.metadata?.url && comp.metadata.url.startsWith('http') ? (
+                                    <div className="relative group w-full flex items-center justify-center py-2">
+                                      <img src={comp.metadata.url} alt="Preview" className="max-h-48 rounded-md object-contain shadow-2xs" />
+                                      <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setUcComponents(prev => {
+                                              const list = [...prev];
+                                              if (list[idx].metadata) list[idx].metadata.url = '';
+                                              return list;
+                                            });
+                                          }}
+                                          className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-md text-[10px] font-bold shadow-2xs flex items-center gap-1.5"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" /> Remover Imagem
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <UploadCloud className="w-6 h-6 text-slate-400 mb-2" />
+                                      <div className="flex items-center gap-3 mt-2">
+                                        <button
+                                          type="button"
+                                          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1890ff] hover:bg-[#116ebc] text-white rounded-md text-[10px] font-bold transition-colors shadow-2xs"
+                                          onClick={async (e) => {
+                                            e.stopPropagation();
+                                            try {
+                                              const clipboardItems = await navigator.clipboard.read();
+                                              let foundImage = false;
+                                              for (const item of clipboardItems) {
+                                                console.log('Tipos encontrados no clipboard:', item.types);
+                                                const imageTypes = item.types.filter(type => type.startsWith('image/'));
+                                                for (const type of imageTypes) {
+                                                  console.log(`[Clipboard] Extraindo blob do tipo ${type}...`);
+                                                  const blob = await item.getType(type);
+                                                  console.log(`[Clipboard] Blob extraído! Tamanho:`, blob.size);
+                                                  const file = new File([blob], `pasted-image-${Date.now()}.png`, { type });
+                                                  
+                                                  foundImage = true;
+                                                  
+                                                  setUcComponents(prev => {
+                                                    const list = [...prev];
+                                                    if (!list[idx].metadata) list[idx].metadata = {};
+                                                    list[idx].metadata.isUploading = true;
+                                                    return list;
+                                                  });
+                                                  
+                                                  try {
+                                                    console.log(`[Clipboard] Iniciando chamada para uploadService...`);
+                                                    const url = await uploadService.uploadFile(file, 'learning-objects');
+                                                    console.log(`[Clipboard] Upload Service retornou com URL:`, url);
+                                                    setUcComponents(prev => {
+                                                      const list = [...prev];
+                                                      if (!list[idx].metadata) list[idx].metadata = {};
+                                                      list[idx].metadata.url = url;
+                                                      list[idx].metadata.isUploading = false;
+                                                      return list;
+                                                    });
+                                                  } catch (err) {
+                                                    console.error('Falha ao subir imagem do clipboard', err);
+                                                    setUcComponents(prev => {
+                                                      const list = [...prev];
+                                                      if (list[idx].metadata) list[idx].metadata.isUploading = false;
+                                                      return list;
+                                                    });
+                                                    alert('Erro ao enviar imagem para o servidor: ' + (err as Error).message);
+                                                  }
+                                                  return;
+                                                }
+                                              }
+                                              if (!foundImage) {
+                                                alert('Nenhuma imagem encontrada na área de transferência. Tipos detectados: ' + (clipboardItems[0]?.types.join(', ') || 'Nenhum'));
+                                              }
+                                            } catch (err: any) {
+                                              console.error('Clipboard Error:', err);
+                                              alert(`Não foi possível ler a área de transferência.\nErro: ${err.name} - ${err.message}\n\nDica: Use o atalho Ctrl+V dentro da área tracejada.`);
+                                            }
+                                          }}
+                                        >
+                                          <ClipboardPaste className="w-3.5 h-3.5" /> Colar do Clipboard
+                                        </button>
+                                        
+                                        <span className="text-[10px] text-slate-400 font-medium">ou</span>
+                                        
+                                        <input 
+                                          type="file" 
+                                          accept="image/*"
+                                          className="text-[10px] file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+                                          onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                              setUcComponents(prev => {
+                                                const list = [...prev];
+                                                if (!list[idx].metadata) list[idx].metadata = {};
+                                                list[idx].metadata.isUploading = true;
+                                                return list;
+                                              });
+                                              
+                                              try {
+                                                const url = await uploadService.uploadFile(file, 'learning-objects');
+                                                setUcComponents(prev => {
+                                                  const list = [...prev];
+                                                  if (!list[idx].metadata) list[idx].metadata = {};
+                                                  list[idx].metadata.url = url;
+                                                  list[idx].metadata.isUploading = false;
+                                                  return list;
+                                                });
+                                              } catch (err) {
+                                                console.error('Falha ao subir arquivo', err);
+                                                setUcComponents(prev => {
+                                                  const list = [...prev];
+                                                  if (list[idx].metadata) list[idx].metadata.isUploading = false;
+                                                  return list;
+                                                });
+                                                alert('Erro ao enviar imagem para o servidor: ' + (err as Error).message);
+                                              }
+                                            }
+                                          }}
+                                        />
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] font-extrabold text-slate-500">URL Alternativa:</span>
+                                  <input 
+                                    type="text" 
+                                    value={comp.metadata?.url || ''} 
+                                    onChange={(e) => {
+                                      const list = [...ucComponents];
+                                      if (!list[idx].metadata) list[idx].metadata = {};
+                                      list[idx].metadata.url = e.target.value;
+                                      setUcComponents(list);
+                                    }}
+                                    placeholder="https://unsplash.com/... (se não for upload)"
+                                    className="flex-1 p-2 bg-white border border-slate-200 rounded-md text-[10px] font-mono"
+                                    disabled={comp.metadata?.isUploading}
+                                  />
+                                </div>
+                              </div>
                             </div>
                           )}
 
@@ -789,7 +1259,8 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                             </div>
                           )}
                         </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>
@@ -857,10 +1328,17 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
                           <button
-                            onClick={(e) => {
+                            onClick={async (e) => {
                               e.stopPropagation();
-                              if (confirm("Tem certeza que deseja excluir esta Unidade de Conhecimento?")) {
-                                setUnidades(unidades.filter(u => u.id !== uc.id));
+                              if(confirm('Excluir Unidade de Conhecimento definitivamente?')) {
+                                try {
+                                  await dbService.deleteKnowledgeUnit(uc.id);
+                                  setUnidades(unidades.filter(u => u.id !== uc.id));
+                                  showToast("UC excluída com sucesso.");
+                                } catch (err) {
+                                  console.error("Erro ao excluir", err);
+                                  alert("Falha ao excluir a UC.");
+                                }
                               }
                             }}
                             className="p-1 bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 rounded-md transition-colors"
@@ -1365,6 +1843,120 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
         <div className="fixed bottom-4 right-4 z-50 bg-slate-900 border border-slate-700 rounded-md py-2.5 px-4 text-xs font-bold text-white shadow-lg flex items-center gap-2 animate-fadeIn">
           <Sparkles className="w-4 h-4 text-[#1890ff]" />
           <span>{toastMessage}</span>
+        </div>
+      )}
+      {/* Taxonomy Management Modal */}
+      {isTaxonomyModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <Settings className="w-5 h-5 text-indigo-600" />
+                Gerenciar Opções: {taxCategory === 'AREA' ? 'Áreas (P)' : 'Contextos (S)'}
+              </h2>
+              <button onClick={() => setIsTaxonomyModalOpen(false)} className="text-slate-400 hover:text-rose-500 transition-colors">
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
+              <div className="space-y-4">
+                <div className="flex gap-2 items-end bg-slate-50 p-3 rounded-lg border border-slate-200">
+                  <div className="flex-1 space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Código</label>
+                    <input 
+                      type="text" 
+                      value={taxNewCode} 
+                      onChange={e => setTaxNewCode(e.target.value.toUpperCase())}
+                      placeholder="Ex: FIN"
+                      className="w-full p-2 rounded-md border border-slate-300 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Nome da Opção</label>
+                    <input 
+                      type="text" 
+                      value={taxNewName} 
+                      onChange={e => setTaxNewName(e.target.value)}
+                      placeholder="Ex: Finanças"
+                      className="w-full p-2 rounded-md border border-slate-300 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleSaveTaxonomy}
+                    className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors flex items-center justify-center"
+                    title="Adicionar"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-2 mt-4">
+                  <h3 className="text-xs font-bold text-slate-500 uppercase">Opções Existentes</h3>
+                  {(taxCategory === 'AREA' ? areasList : contextsList).map(tax => (
+                    <div key={tax.id} className="flex items-center justify-between p-2 rounded-md border border-slate-100 hover:border-slate-300 transition-colors bg-white">
+                      <div>
+                        <span className="inline-block w-16 text-xs font-bold text-slate-800">{tax.code}</span>
+                        <span className="text-xs text-slate-600">{tax.name}</span>
+                      </div>
+                      <button 
+                        onClick={() => handleDeleteTaxonomy(tax.id, taxCategory)}
+                        className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {(taxCategory === 'AREA' ? areasList : contextsList).length === 0 && (
+                    <div className="text-center p-4 text-slate-500 text-xs italic">Nenhuma opção cadastrada.</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Signatures Modal */}
+      {isSignaturesModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-800">Assinaturas Disponíveis (UC)</h3>
+              <button onClick={() => setIsSignaturesModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto space-y-2 bg-slate-50 flex-1">
+              {[baseSignature, ...ucSignatures].filter(Boolean).map((sig, idx) => (
+                <div 
+                  key={idx} 
+                  onClick={() => {
+                    setEditingSignatureIndex(idx === 0 ? null : idx - 1);
+                    const parsed = PMESTGeneratorService.parseSignature(sig);
+                    if (parsed) {
+                      setUcArea(parsed.area);
+                      setUcTopico(parsed.topic);
+                      setUcMetaBloom(parsed.bloom);
+                      setUcContext(parsed.context);
+                      setUcDuracao(parsed.durationMin);
+                    }
+                    setIsSignaturesModalOpen(false);
+                  }}
+                  className="p-3 bg-white border border-slate-200 rounded-lg shadow-sm hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-mono font-bold text-indigo-700">{sig}</span>
+                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1 line-clamp-1">{ucTitulo || 'Sem título'}</p>
+                </div>
+              ))}
+              {[baseSignature, ...ucSignatures].filter(Boolean).length === 0 && (
+                <div className="text-center py-6 text-slate-400 text-sm">
+                  Nenhuma assinatura configurada ainda.
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

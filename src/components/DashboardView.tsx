@@ -89,8 +89,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Quick Tools Banner */}
       <section id="alchymist-quick-tools" className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div 
-          onClick={() => onSelectView('dre-simulator')}
-          className="bg-white border border-slate-200 rounded-md p-5 hover:border-[#1890ff] transition-all cursor-pointer group shadow-2xs"
+          onClick={() => onSelectView('assignments')}
+          className="bg-white rounded-md p-6 border border-slate-200 hover:border-[#1890ff] hover:shadow-lg transition-all group cursor-pointer"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-black text-[#1890ff] tracking-wider uppercase bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
@@ -105,8 +105,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         <div 
-          onClick={() => onSelectView('matrix')}
-          className="bg-white border border-slate-200 rounded-md p-5 hover:border-[#1890ff] transition-all cursor-pointer group shadow-2xs"
+          onClick={() => onSelectView('calendar')}
+          className="bg-white rounded-md p-6 border border-slate-200 hover:border-[#1890ff] hover:shadow-lg transition-all group cursor-pointer"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-black text-purple-700 tracking-wider uppercase bg-purple-50 px-2.5 py-0.5 rounded border border-purple-200">

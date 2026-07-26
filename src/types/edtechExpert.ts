@@ -61,13 +61,33 @@ export interface LayoutTemplateAST {
   }>;
 }
 
+export interface UCPmestSignature {
+  id: string;
+  uc_id: string;
+  code: string;
+  tenant_id: string;
+  created_at?: string;
+}
+
+export interface UCSubgroup {
+  id: string;
+  uc_id: string;
+  bloom_level_required: number;
+  content_payload: any; // JSONB array of components
+  tenant_id: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface UnidadeConhecimento {
   id: string;
   tenant_id?: string | null; // null se for global/prateleira
-  codigo: string;
+  codigo?: string; // Legado: será substituído por assinaturas
+  signatures?: UCPmestSignature[];
+  subgroups?: UCSubgroup[];
   titulo: string;
   descricao_curta?: string;
-  layout_template: LayoutTemplateAST;
+  layout_template: LayoutTemplateAST; // Mantido para retrocompatibilidade ou design global da UC
   meta_bloom: BloomLevel;
   duracao_estimada_minutos: number;
   status: 'ativo' | 'rascunho' | 'arquivado';
@@ -75,6 +95,17 @@ export interface UnidadeConhecimento {
   updated_at: string;
   topico?: string;
   topico_complexidade?: BloomLevel;
+  area?: string;
+  context?: string;
+}
+
+export interface TaxonomyOption {
+  id: string;
+  tenant_id?: string | null;
+  category: 'AREA' | 'CONTEXT' | string;
+  code: string;
+  name: string;
+  created_at: string;
 }
 
 export interface MatrizCompetencia {

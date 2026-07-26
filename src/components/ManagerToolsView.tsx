@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Course, Certificate, OAuthUser } from '../types';
+import { Course, Certificate, OAuthUser, Module } from '../types';
+import { dbService } from '../services/dbService';
 import {
   ShieldCheck,
   Users,
@@ -38,13 +39,15 @@ import {
   Check,
   Presentation,
   FolderPlus,
+  Building2,
 } from 'lucide-react';
 import { RegisterCertificateModal } from './RegisterCertificateModal';
 import { CourseSlideEditorModal } from './presentation/CourseSlideEditorModal';
 import { CourseUCComposerView } from './expert/CourseUCComposerView';
 import { UnidadeConhecimento } from '../types/edtechExpert';
+import { CompaniesManagerView } from './CompaniesManagerView';
 
-export type ManagerTabType = 'students' | 'trainings' | 'certificates' | 'settings' | 'logs';
+export type ManagerTabType = 'students' | 'trainings' | 'certificates' | 'companies' | 'settings' | 'logs';
 
 interface ManagerToolsViewProps {
   courses: Course[];
@@ -476,55 +479,102 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
     setIsTrainingModalOpen(true);
   };
 
-  const handleSaveTrainingSubmit = (e: React.FormEvent) => {
+  const handleSaveTrainingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!trainingTitle.trim()) return;
 
-    if (editingCourse && onUpdateCourses) {
-      const updated = courses.map((c) =>
-        c.id === editingCourse.id
-          ? {
-              ...c,
-              title: trainingTitle,
-              category: trainingCategory,
-              level: trainingLevel,
-              description: trainingDescription,
-            }
-          : c
-      );
-      onUpdateCourses(updated);
-      showToast(`Treinamento "${trainingTitle}" atualizado!`);
-    } else if (onUpdateCourses) {
-      const newCourse: Course = {
-        id: `course-${Date.now()}`,
-        title: trainingTitle,
-        category: trainingCategory,
-        description: trainingDescription || 'Treinamento completo para alta performance gastronômica.',
-        progress: 0,
-        completedLessons: 0,
-        totalLessons: 10,
-        level: trainingLevel,
-        image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800',
-        modules: [
+    try {
+      if (editingCourse && onUpdateCourses) {
+        const dbUpdated = await dbService.updateCourse(editingCourse.id, {
+          title: trainingTitle,
+          description: trainingDescription,
+          level: trainingLevel,
+          category: trainingCategory,
+          status: editingCourse.status || 'active',
+        });
+
+        const updated = courses.map((c) =>
+          c.id === editingCourse.id
+            ? {
+                ...c,
+                title: dbUpdated.title,
+                category: dbUpdated.category || trainingCategory,
+                level: dbUpdated.level as any,
+                description: dbUpdated.description,
+              }
+            : c
+        );
+        onUpdateCourses(updated);
+        showToast(`Treinamento "${trainingTitle}" atualizado!`);
+      } else if (onUpdateCourses) {
+        const initialModules = [
           {
-            id: `m-1`,
-            title: 'Módulo 1: Fundamentos & Estruturação',
-            duration: '4h',
+            id: `mod-${Date.now()}-1`,
+            title: 'Módulo 1: Introdução & Fundamentos',
+            focus: 'Fundamentos iniciais e alinhamento didático do treinamento.',
+            duration: '45 min',
             lessons: [
               {
-                id: `l-1`,
+                id: `aula-${Date.now()}-1`,
                 number: '01',
-                title: 'Aula 01: Introdução e Métricas Essenciais',
-                duration: '25 min',
+                title: 'Aula 01: Apresentação da Disciplina',
+                duration: '15:00',
                 completed: false,
                 active: true,
+                description: 'Nesta aula de boas-vindas apresentamos a ementa do curso e os objetivos didáticos gerais.',
+                learning_objects: []
               },
             ],
           },
-        ],
-      };
-      onUpdateCourses([newCourse, ...courses]);
-      showToast(`Novo treinamento "${trainingTitle}" criado com sucesso!`);
+        ];
+
+        const mapDBModulesToModules = (dbMods: any[] | undefined): Module[] => {
+          if (!dbMods) return [];
+          return dbMods.map((m) => ({
+            id: m.id || '',
+            title: m.title || '',
+            focus: m.focus || '',
+            lessons: (m.lessons || []).map((l: any, idx: number) => ({
+              id: l.id || '',
+              number: l.number || String(idx + 1).padStart(2, '0'),
+              title: l.title || '',
+              duration: l.duration || '45 min',
+              completed: l.completed || false,
+              description: l.description || l.objectives || '',
+            }))
+          }));
+        };
+
+        const dbCreated = await dbService.createCourse({
+          title: trainingTitle,
+          description: trainingDescription || 'Treinamento completo para alta performance gastronômica.',
+          level: trainingLevel,
+          status: 'active',
+          category: trainingCategory,
+          modules: initialModules as any,
+          presentation: undefined
+        });
+
+        const newCourse: Course = {
+          id: dbCreated.id,
+          title: dbCreated.title,
+          category: dbCreated.category || trainingCategory,
+          description: dbCreated.description || '',
+          progress: 0,
+          completedLessons: 0,
+          totalLessons: 1,
+          level: dbCreated.level as any,
+          image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800',
+          modules: dbCreated.modules ? mapDBModulesToModules(dbCreated.modules) : initialModules,
+          presentation: dbCreated.presentation || undefined,
+        };
+
+        onUpdateCourses([newCourse, ...courses]);
+        showToast(`Novo treinamento "${trainingTitle}" criado com sucesso!`);
+      }
+    } catch (err) {
+      console.error('Erro ao salvar treinamento:', err);
+      showToast('Falha ao salvar o treinamento no banco de dados.');
     }
 
     setIsTrainingModalOpen(false);
@@ -544,7 +594,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   const filteredCourses = courses.filter((c) => {
     const matchesSearch =
       c.title.toLowerCase().includes(trainingSearch.toLowerCase()) ||
-      c.description.toLowerCase().includes(trainingSearch.toLowerCase());
+      (c.description ?? '').toLowerCase().includes(trainingSearch.toLowerCase());
     const matchesCat = trainingCategoryFilter === 'Todas' || c.category === trainingCategoryFilter;
     return matchesSearch && matchesCat;
   });
@@ -583,8 +633,20 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
               setIsSlideEditorOpen(false);
               setSelectedCourseForSlides(null);
             }}
-            onSaveCourseSlides={() => {
-              showToast(`Slides do treinamento atualizados com sucesso!`);
+            onSaveCourseSlides={async (courseId, presentation) => {
+              try {
+                await dbService.updateCourse(courseId, { presentation });
+                if (onUpdateCourses && courses) {
+                  const updated = courses.map(c =>
+                    c.id === courseId ? { ...c, presentation } : c
+                  );
+                  onUpdateCourses(updated);
+                }
+                showToast(`Slides do treinamento atualizados com sucesso!`);
+              } catch (err) {
+                console.error("Erro ao salvar slides:", err);
+                showToast("Erro ao persistir slides no banco.");
+              }
             }}
             unidades={unidades}
             initialUcId={selectedUcIdForSlides}
@@ -1063,6 +1125,10 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
       )}
 
 
+      {/* SUBMENU 4.5: EMPRESAS */}
+      {currentTab === 'companies' && (
+        <CompaniesManagerView />
+      )}
 
       {/* SUBMENU 5: LOGS */}
       {currentTab === 'logs' && (
@@ -1520,8 +1586,20 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
             setIsSlideEditorOpen(false);
             setSelectedCourseForSlides(null);
           }}
-          onSaveCourseSlides={() => {
-            showToast(`Slides do treinamento atualizados com sucesso!`);
+          onSaveCourseSlides={async (courseId, presentation) => {
+            try {
+              await dbService.updateCourse(courseId, { presentation });
+              if (onUpdateCourses && courses) {
+                const updated = courses.map(c =>
+                  c.id === courseId ? { ...c, presentation } : c
+                );
+                onUpdateCourses(updated);
+              }
+              showToast(`Slides do treinamento atualizados com sucesso!`);
+            } catch (err) {
+              console.error("Erro ao salvar slides:", err);
+              showToast("Erro ao persistir slides no banco.");
+            }
           }}
           unidades={unidades}
           initialUcId={selectedUcIdForSlides}

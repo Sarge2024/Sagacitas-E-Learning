@@ -186,7 +186,7 @@ export const SAMPLE_PRESENTATION: Presentation = {
       elements: [
         {
           id: 'elem-3-1',
-          type: 'quiz',
+          type: 'question',
           x: 10,
           y: 12,
           width: 80,

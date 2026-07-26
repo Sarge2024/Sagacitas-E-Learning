@@ -3,62 +3,63 @@
   "diagram_type": "architecture",
   "meta": {
     "title": "Sagacitas E-Learning Architecture",
-    "subtitle": "High-level component interactions and trust boundaries",
+    "subtitle": "High-level component interactions, SOC Polymorphism, and trust boundaries",
     "output": "sagacitas-elearning-architecture.html",
     "quality_profile": "standard",
+    "viewBox": [1400, 700],
     "views": [
       {
         "id": "full-flow",
         "label": "Full System Architecture",
-        "focus": ["student", "spa", "api_gateway", "tutor_service", "supabase_db", "gemini_api", "oauth_provider"],
-        "note": "Main request paths from the student interface to backend microservices and external AI/Auth providers."
+        "focus": ["student", "spa_player", "api_gateway", "soc_resolver", "tutor_service", "supabase_db", "gemini_api", "oauth_provider"],
+        "note": "Main request paths for the Polymorphic SOC structure and AI Tutor."
       }
     ]
   },
   "components": [
-    { "id": "student", "type": "external", "label": "Student", "sublabel": "End User", "pos": [50, 250], "size": [120, 64] },
-    { "id": "spa", "type": "frontend", "label": "React SPA", "sublabel": "Vite Application", "pos": [250, 250], "size": [140, 64] },
-    { "id": "browser_storage", "type": "database", "label": "Local Storage", "sublabel": "Session Data", "pos": [250, 400], "size": [140, 64] },
+    { "id": "student", "type": "external", "label": "Student", "sublabel": "End User", "pos": [50, 150], "size": [120, 64] },
+    { "id": "spa_player", "type": "frontend", "label": "Student SPA", "sublabel": "Learning Player", "pos": [250, 150], "size": [140, 64] },
+    { "id": "spa_expert", "type": "frontend", "label": "Expert SPA", "sublabel": "Authoring Tool", "pos": [250, 450], "size": [140, 64] },
     
-    { "id": "supabase_db", "type": "database", "label": "Supabase Postgres", "sublabel": "Relational Data", "pos": [500, 100], "size": [140, 64] },
-    { "id": "api_gateway", "type": "backend", "label": "Express Server", "sublabel": "API Router", "pos": [500, 250], "size": [150, 64] },
-    { "id": "static_server", "type": "backend", "label": "Static Assets", "sublabel": "Dist Server", "pos": [500, 400], "size": [140, 64] },
+    { "id": "oauth_provider", "type": "cloud", "label": "Firebase Auth", "sublabel": "Identity", "pos": [550, 50], "size": [140, 64] },
+    { "id": "api_gateway", "type": "backend", "label": "Express Server", "sublabel": "API Router", "pos": [550, 150], "size": [150, 64] },
+    { "id": "soc_resolver", "type": "backend", "label": "SOC Context Resolver", "sublabel": "/api/soc/resolve", "pos": [550, 300], "size": [160, 64] },
     
-    { "id": "oauth_provider", "type": "cloud", "label": "Firebase Auth", "sublabel": "Google/OAuth", "pos": [750, 100], "size": [140, 64] },
-    { "id": "tutor_service", "type": "backend", "label": "AI Tutor API", "sublabel": "Prompt Logic", "pos": [750, 250], "size": [140, 64] },
-    { "id": "env_config", "type": "database", "label": "Env Secrets", "sublabel": ".env Config", "pos": [750, 400], "size": [140, 64] },
+    { "id": "tutor_service", "type": "backend", "label": "AI Tutor API", "sublabel": "Prompt Logic", "pos": [850, 150], "size": [140, 64] },
+    { "id": "supabase_db", "type": "database", "label": "Supabase Postgres", "sublabel": "RLS Policies", "pos": [850, 450], "size": [140, 64] },
     
-    { "id": "gemini_api", "type": "cloud", "label": "Gemini AI", "sublabel": "Google GenAI", "pos": [1000, 250], "size": [140, 64] }
+    { "id": "gemini_api", "type": "cloud", "label": "Gemini AI", "sublabel": "Google GenAI", "pos": [1150, 150], "size": [140, 64] }
   ],
   "boundaries": [
-    { "kind": "region", "label": "Client Trust Boundary", "wraps": ["spa", "browser_storage"] },
-    { "kind": "region", "label": "Sagacitas Internal Domain", "wraps": ["env_config", "api_gateway", "static_server", "supabase_db", "tutor_service"] },
+    { "kind": "region", "label": "Client Trust Boundary", "wraps": ["spa_player", "spa_expert"] },
+    { "kind": "region", "label": "Sagacitas Internal Domain", "wraps": ["api_gateway", "soc_resolver", "supabase_db", "tutor_service"] },
     { "kind": "region", "label": "External Cloud Dependencies", "wraps": ["oauth_provider", "gemini_api"] }
   ],
   "connections": [
-    { "id": "user-spa", "from": "student", "to": "spa", "label": "Interact", "variant": "default" },
-    { "id": "spa-storage", "from": "spa", "to": "browser_storage", "label": "Tokens", "variant": "dashed", "labelDy": 24 },
-    { "id": "spa-static", "from": "spa", "to": "static_server", "label": "Fetch Assets", "variant": "default" },
+    { "id": "user-spa", "from": "student", "to": "spa_player", "label": "Learn", "variant": "default" },
     
-    { "id": "spa-api", "from": "spa", "to": "api_gateway", "label": "REST API", "variant": "emphasis" },
-    { "id": "spa-db", "from": "spa", "to": "supabase_db", "label": "Realtime / Direct DB", "variant": "emphasis" },
+    { "id": "expert-db", "from": "spa_expert", "to": "supabase_db", "label": "Authoring", "variant": "emphasis", "labelDy": -20 },
     
-    { "id": "config-api", "from": "env_config", "to": "api_gateway", "variant": "dashed" },
+    { "id": "spa-api", "from": "spa_player", "to": "api_gateway", "label": "REST API", "variant": "emphasis", "labelDy": -20 },
+    { "id": "spa-resolver", "from": "spa_player", "to": "soc_resolver", "label": "Fetch UCs", "variant": "emphasis" },
     
-    { "id": "spa-oauth", "from": "spa", "to": "oauth_provider", "label": "Auth Request", "variant": "security" },
-    { "id": "oauth-db", "from": "oauth_provider", "to": "supabase_db", "label": "Sync Role", "variant": "security" },
-    { "id": "api-tutor", "from": "api_gateway", "to": "tutor_service", "label": "/api/tutor", "variant": "emphasis" },
+    { "id": "resolver-db", "from": "soc_resolver", "to": "supabase_db", "label": "Fetch Subgroups", "variant": "dashed" },
     
-    { "id": "tutor-gemini", "from": "tutor_service", "to": "gemini_api", "label": "Prompt", "variant": "emphasis" }
+    { "id": "spa-oauth", "from": "spa_player", "to": "oauth_provider", "label": "Login", "variant": "security" },
+    { "id": "oauth-db", "from": "oauth_provider", "to": "supabase_db", "label": "Sync Identity", "variant": "security" },
+    
+    { "id": "api-tutor", "from": "api_gateway", "to": "tutor_service", "label": "/api/tutor", "variant": "emphasis", "labelDy": -20 },
+    
+    { "id": "tutor-gemini", "from": "tutor_service", "to": "gemini_api", "label": "Inference", "variant": "emphasis", "labelDy": -20 }
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "Authentication & Database Flow",
+      "title": "Polymorphic SOC System",
       "items": [
-        "React SPA authenticates directly with Firebase Auth (Google/GitHub).",
-        "Tokens and user profile data are synchronized with Local Storage.",
-        "Users are inserted into Supabase PostgreSQL, where triggers categorize them as Aluno or Instrutor."
+        "The SOC Context Resolver computes the appropriate Bloom level for the user based on PMEST signatures.",
+        "It queries uc_pmest_signatures and uc_subgroups from Supabase to construct customized payloads.",
+        "Soft Failures are enforced to serve lower energy states if the user is unauthenticated or lacks clearance."
       ]
     },
     {
@@ -66,8 +67,8 @@
       "title": "AI Tutor Integration",
       "items": [
         "The SPA calls the Express /api/tutor endpoint.",
-        "The Express backend securely communicates with Gemini 3.6 Flash.",
-        "System instructions guide the model to act as a specialized DRE business tutor."
+        "The Express backend securely communicates with Gemini Flash.",
+        "System instructions guide the model to act as a specialized business tutor."
       ]
     }
   ]

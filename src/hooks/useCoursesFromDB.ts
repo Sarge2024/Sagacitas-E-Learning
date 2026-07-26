@@ -1,7 +1,27 @@
 import { useState, useEffect } from 'react';
-import { Course } from '../types';
+import { Course, Module, DBModule } from '../types';
 import { dbService } from '../services/dbService';
 import { INITIAL_COURSES } from '../data/coursesData';
+
+/**
+ * Helper to convert DBModule[] to frontend Module[] format.
+ */
+function mapDBModulesToModules(dbModules: DBModule[] | undefined): Module[] {
+  if (!dbModules) return [];
+  return dbModules.map((m) => ({
+    id: m.id,
+    title: m.title,
+    focus: m.focus,
+    lessons: (m.lessons || []).map((l, idx) => ({
+      id: l.id,
+      number: String(idx + 1).padStart(2, '0'),
+      title: l.title,
+      duration: '45 min',
+      completed: false,
+      description: l.objectives || '',
+    })),
+  }));
+}
 
 /**
  * Hook that loads courses from Supabase DB with graceful fallback to static mock data.
@@ -42,6 +62,8 @@ export function useCoursesFromDB() {
                 totalHours: dbCourse.duration_minutes
                   ? `${Math.floor(dbCourse.duration_minutes / 60)}h ${dbCourse.duration_minutes % 60}min`
                   : staticMatch.totalHours,
+                modules: dbCourse.modules ? mapDBModulesToModules(dbCourse.modules) : (staticMatch.modules || []),
+                presentation: dbCourse.presentation || staticMatch.presentation || undefined,
               };
             }
 
@@ -49,7 +71,7 @@ export function useCoursesFromDB() {
             return {
               id: dbCourse.id,
               title: dbCourse.title,
-              category: 'Curso',
+              category: dbCourse.category || 'Curso',
               progress: 0,
               image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600',
               description: dbCourse.description || '',
@@ -61,6 +83,8 @@ export function useCoursesFromDB() {
                 : undefined,
               completedLessons: 0,
               totalLessons: 0,
+              modules: mapDBModulesToModules(dbCourse.modules),
+              presentation: dbCourse.presentation || undefined,
             };
           });
 

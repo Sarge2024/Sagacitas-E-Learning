@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { usePresentationStore } from '../../store/usePresentationStore';
+import { usePresentationStore, SAMPLE_PRESENTATION } from '../../store/usePresentationStore';
 import { SlidePlayer } from './SlidePlayer';
 import { SlideEditor } from './SlideEditor';
 import { PropertyInspector } from './PropertyInspector';
@@ -7,7 +7,8 @@ import { X, Play, Edit3, Plus, Trash2, Save, Undo2, Redo2, Layers, Check, Sparkl
 import { Course } from '../../types';
 import { analyzeSlideImage } from '../../utils/slideImport';
 import { UnidadeConhecimento } from '../../types/edtechExpert';
-import { FileText, Volume2, HelpCircle } from 'lucide-react';
+import { FileText, Volume2, HelpCircle, ChevronDown, ChevronRight, Folder } from 'lucide-react';
+import { supabase } from '../../lib/supabaseClient';
 
 interface CourseSlideEditorModalProps {
   course: Course;
@@ -28,6 +29,7 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
 }) => {
   const {
     presentation,
+    setPresentation,
     currentSlideIndex,
     mode,
     theme,
@@ -53,27 +55,103 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
   const [selectedUcIdForEditor, setSelectedUcIdForEditor] = useState<string>('');
 
   React.useEffect(() => {
-    if (isOpen && initialUcId) {
-      setSelectedUcIdForEditor(initialUcId);
-      setEditorRightTab('uc-materials');
+    if (isOpen) {
+      if (course.presentation) {
+        setPresentation(course.presentation);
+      } else {
+        setPresentation(SAMPLE_PRESENTATION);
+      }
+      if (initialUcId) {
+        setSelectedUcIdForEditor(initialUcId);
+        setEditorRightTab('uc-materials');
+      }
     }
-  }, [isOpen, initialUcId]);
+  }, [isOpen, course.id, course.presentation, initialUcId, setPresentation]);
 
-  const handleInsertUcElement = (comp: any) => {
+  const [learningObjects, setLearningObjects] = useState<any[]>([]);
+  const [maxAulas, setMaxAulas] = useState<number>(1);
+  const [collapsedAulas, setCollapsedAulas] = useState<Set<number>>(new Set());
+
+  React.useEffect(() => {
+    if (selectedUcIdForEditor) {
+      const fetchObjects = async () => {
+        const uc = unidades.find(u => u.id === selectedUcIdForEditor);
+        
+        // Mapear objetos armazenados localmente na própria UC (do EdTechExpertView)
+        if (uc && uc.layout_template?.components && uc.layout_template.components.length > 0) {
+          const mapped = uc.layout_template.components.map((comp: any, idx: number) => {
+            let objType = comp.type;
+            let title = comp.title || 'Objeto ' + (idx + 1);
+            let payload: any = { text: comp.body };
+            
+            if (comp.type === 'image') {
+              payload.url = comp.metadata?.url || '';
+            } else if (comp.type === 'video') {
+              payload.url = comp.metadata?.url || '';
+            } else if (comp.type === 'question') {
+              objType = 'question';
+              payload.question = comp.body;
+              payload.options = comp.metadata?.options?.map((o: any) => o.text) || [];
+              payload.correctIndex = comp.metadata?.options?.findIndex((o: any) => o.isCorrect) || 0;
+              payload.explanation = comp.metadata?.justification || '';
+            } else if (comp.type === 'simulation') {
+              objType = 'simulation';
+            }
+
+            return {
+              id: `mapped-${idx}`,
+              object_type: objType,
+              title: title,
+              content_payload: payload,
+              _originalComp: comp
+            };
+          });
+          setLearningObjects(mapped);
+          return;
+        }
+
+        // Fallback: buscar na tabela do Supabase
+        const { data } = await supabase
+          .from('learning_objects')
+          .select('*')
+          .eq('knowledge_unit_id', selectedUcIdForEditor);
+        setLearningObjects(data || []);
+      };
+      fetchObjects();
+    } else {
+      setLearningObjects([]);
+    }
+  }, [selectedUcIdForEditor, unidades]);
+
+  React.useEffect(() => {
+    if (presentation.slides.length > 0) {
+      setMaxAulas(prev => Math.max(prev, ...presentation.slides.map(s => s.aula_group || 1)));
+    }
+  }, [presentation.slides]);
+
+  const toggleAulaCollapse = (aulaId: number) => {
+    setCollapsedAulas(prev => {
+      const next = new Set(prev);
+      if (next.has(aulaId)) next.delete(aulaId);
+      else next.add(aulaId);
+      return next;
+    });
+  };
+
+  const handleAddNewAula = () => setMaxAulas(prev => prev + 1);
+
+  const handleInsertUcElement = (oa: any) => {
     if (!currentSlide) return;
     
     let elemType: any = 'text';
     let elemContent: any = {};
     
-    switch (comp.type) {
-      case 'text':
-      case 'description':
-      case 'concept':
-      case 'summary':
-      case 'header':
+    switch (oa.object_type) {
+      case 'reading':
+      case 'case_study':
         elemType = 'text';
         elemContent = {
-          text: comp.body,
+          text: oa.content_payload?.text || oa.title,
           style: {
             fontSize: '1.2rem',
             fontWeight: '600',
@@ -82,61 +160,55 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
           }
         };
         break;
-      case 'image':
-        elemType = 'image';
-        elemContent = {
-          src: comp.metadata?.url || 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=600&auto=format&fit=crop'
-        };
-        break;
       case 'video':
         elemType = 'video';
         elemContent = {
-          src: comp.metadata?.url || 'https://www.w3schools.com/html/mov_bbb.mp4',
+          src: oa.content_payload?.url || 'https://www.w3schools.com/html/mov_bbb.mp4',
           mediaSettings: {
             autoPlay: false,
             controls: true
           }
         };
         break;
-      case 'audio':
-        elemType = 'audio';
+      case 'image':
+        elemType = 'image';
         elemContent = {
-          src: comp.metadata?.url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-          mediaSettings: {
-            controls: true
-          }
+          src: oa.content_payload?.url || 'https://via.placeholder.com/800x600?text=Nova+Imagem',
+          alt: oa.title
         };
         break;
       case 'question':
-        elemType = 'quiz';
+      case 'quiz':
+        elemType = 'question';
         elemContent = {
           quizData: {
-            question: comp.body,
-            options: comp.metadata?.options?.map((o: any) => o.text) || [],
-            correctIndex: comp.metadata?.options?.findIndex((o: any) => o.isCorrect) ?? 0,
-            explanation: comp.metadata?.justification
+            question: oa.content_payload?.question || oa.title,
+            options: oa.content_payload?.options || ['A', 'B', 'C', 'D'],
+            correctIndex: oa.content_payload?.correctIndex ?? 0,
+            explanation: oa.content_payload?.explanation
           }
         };
         break;
       case 'simulation':
-        elemType = 'custom-widget';
+      case 'dre_simulation':
+        elemType = 'simulation';
         elemContent = {
           widgetComponent: 'DRESimulatorWidget',
-          text: comp.body
+          text: oa.title
         };
         break;
       default:
         elemType = 'text';
-        elemContent = { text: comp.body };
+        elemContent = { text: oa.title };
     }
 
     const newElement = {
       id: `elem-uc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       type: elemType,
       x: 20,
-      y: elemType === 'quiz' || elemType === 'custom-widget' ? 10 : 30,
-      width: elemType === 'quiz' || elemType === 'custom-widget' ? 80 : 60,
-      height: elemType === 'quiz' || elemType === 'custom-widget' ? 80 : 20,
+      y: elemType === 'question' || elemType === 'simulation' ? 10 : 30,
+      width: elemType === 'question' || elemType === 'simulation' ? 80 : 60,
+      height: elemType === 'question' || elemType === 'simulation' ? 80 : 20,
       zIndex: currentSlide.elements.length + 10,
       content: elemContent,
       animation: {
@@ -154,10 +226,11 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
 
   const currentSlide = presentation.slides[currentSlideIndex] || presentation.slides[0];
 
-  const handleAddNewSlide = () => {
+  const handleAddNewSlideToAula = (aulaGroup: number) => {
     const newSlideId = `slide-${Date.now()}`;
     addSlide({
       id: newSlideId,
+      aula_group: aulaGroup,
       title: `Slide ${presentation.slides.length + 1}`,
       background: {
         type: 'color',
@@ -346,62 +419,95 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
         <div className="flex-1 flex overflow-hidden">
           {/* Left Sidebar: Slides Thumbnails */}
           <div className={`w-64 border-r p-3 space-y-3 flex flex-col shrink-0 overflow-y-auto ${theme === 'dark' ? 'bg-slate-950/80 border-white/10' : 'bg-[#f9f9ff] border-slate-200'}`}>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                 <Layers className="w-3.5 h-3.5 text-[#2fd9f4]" />
-                <span>Slides ({presentation.slides.length})</span>
+                <span>Total de Slides: {presentation.slides.length}</span>
               </span>
               <button
-                onClick={handleAddNewSlide}
+                onClick={handleAddNewAula}
                 className="p-1.5 bg-[#2fd9f4]/15 hover:bg-[#2fd9f4]/30 text-[#2fd9f4] rounded-md transition-all cursor-pointer flex items-center gap-1 text-[10px] font-bold"
-                title="Novo Slide"
+                title="Nova Aula"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Adicionar</span>
+                <span>Nova Aula</span>
               </button>
             </div>
 
-            <div className="space-y-2.5 flex-1">
-              {presentation.slides.map((slideItem, index) => {
-                const isActive = index === currentSlideIndex;
+            <div className="space-y-4 flex-1">
+              {Array.from({ length: maxAulas }).map((_, aulaIdx) => {
+                const aulaNumber = aulaIdx + 1;
+                const isCollapsed = collapsedAulas.has(aulaNumber);
+                const slidesInAula = presentation.slides
+                  .map((slideItem, index) => ({ slideItem, index }))
+                  .filter(({ slideItem }) => (slideItem.aula_group || 1) === aulaNumber);
 
                 return (
-                  <div
-                    key={slideItem.id}
-                    onClick={() => setCurrentSlideIndex(index)}
-                    className={`p-2.5 rounded-md border transition-all cursor-pointer relative group ${
-                      isActive
-                        ? 'border-[#2fd9f4] bg-[#2fd9f4]/10 shadow-[0_0_15px_rgba(47,217,244,0.15)]'
-                        : (theme === 'dark' ? 'border-white/10 bg-slate-900/60 hover:border-white/20' : 'border-slate-200 bg-white hover:border-slate-300')
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[10px] font-mono font-bold text-slate-400">
-                        Slide 0{index + 1}
-                      </span>
-                      {presentation.slides.length > 1 && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeSlide(slideItem.id);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-rose-400 transition-opacity"
-                          title="Excluir Slide"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      )}
+                  <div key={`aula-${aulaNumber}`} className="space-y-2">
+                    <div className={`flex items-center justify-between p-2 rounded-md cursor-pointer select-none transition-colors ${theme === 'dark' ? 'bg-slate-900 hover:bg-slate-800' : 'bg-slate-200/50 hover:bg-slate-200'}`} onClick={() => toggleAulaCollapse(aulaNumber)}>
+                      <div className="flex items-center gap-2">
+                        {isCollapsed ? <ChevronRight className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                        <span className={`text-[11px] font-extrabold uppercase tracking-wider ${theme === 'dark' ? 'text-white' : 'text-slate-700'}`}>
+                          Aula {String(aulaNumber).padStart(2, '0')}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono font-bold">{slidesInAula.length} slides</span>
                     </div>
 
-                    <div
-                      className="w-full aspect-video rounded-md border border-white/10 p-2 flex items-center justify-center text-center overflow-hidden text-[9px] text-slate-300 font-medium"
-                      style={{
-                        backgroundColor:
-                          slideItem.background.type === 'color' ? slideItem.background.value : '#0f172a',
-                      }}
-                    >
-                      <span className="line-clamp-2">{slideItem.title}</span>
-                    </div>
+                    {!isCollapsed && (
+                      <div className="pl-2 space-y-2.5 border-l-2 border-slate-200/50 ml-3">
+                        {slidesInAula.map(({ slideItem, index }) => {
+                          const isActive = index === currentSlideIndex;
+                          return (
+                            <div
+                              key={slideItem.id}
+                              onClick={() => setCurrentSlideIndex(index)}
+                              className={`p-2.5 rounded-md border transition-all cursor-pointer relative group ${
+                                isActive
+                                  ? 'border-[#2fd9f4] bg-[#2fd9f4]/10 shadow-[0_0_15px_rgba(47,217,244,0.15)]'
+                                  : (theme === 'dark' ? 'border-white/10 bg-slate-900/60 hover:border-white/20' : 'border-slate-200 bg-white hover:border-slate-300')
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-[10px] font-mono font-bold text-slate-400">
+                                  Slide 0{index + 1}
+                                </span>
+                                {presentation.slides.length > 1 && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      removeSlide(slideItem.id);
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-rose-400 transition-opacity"
+                                    title="Excluir Slide"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+
+                              <div
+                                className="w-full aspect-video rounded-md border border-white/10 p-2 flex items-center justify-center text-center overflow-hidden text-[9px] text-slate-300 font-medium"
+                                style={{
+                                  backgroundColor:
+                                    slideItem.background.type === 'color' ? slideItem.background.value : '#0f172a',
+                                }}
+                              >
+                                <span className="line-clamp-2">{slideItem.title}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        <button
+                          onClick={() => handleAddNewSlideToAula(aulaNumber)}
+                          className="w-full py-2 flex items-center justify-center gap-1 text-[10px] font-bold rounded-md border border-dashed transition-all cursor-pointer opacity-50 hover:opacity-100 mt-2"
+                          style={{ borderColor: '#2fd9f4', color: '#2fd9f4' }}
+                        >
+                          <Plus className="w-3.5 h-3.5" /> Adicionar Slide
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -498,7 +604,15 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                       if (!selectedUc) {
                         return (
                           <div className={`text-center py-8 text-xs ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
-                            Selecione uma UC para ver e inserir os materiais didáticos.
+                            Selecione uma UC para ver os Objetos de Aprendizagem vinculados a ela.
+                          </div>
+                        );
+                      }
+
+                      if (learningObjects.length === 0) {
+                        return (
+                          <div className={`text-center py-8 text-xs ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+                            Nenhum objeto de aprendizagem encontrado para esta UC.
                           </div>
                         );
                       }
@@ -506,55 +620,57 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
                       return (
                         <div className="space-y-3">
                           <span className={`text-[10px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
-                            Elementos Didáticos ({selectedUc.layout_template.components.length})
+                            Objetos de Aprendizagem ({learningObjects.length})
                           </span>
                           
                           <div className="space-y-2">
-                            {selectedUc.layout_template.components.map((comp, cIdx) => {
+                            {learningObjects.map((oa, cIdx) => {
                               let elementIcon = <FileText className="w-3.5 h-3.5" />;
-                              let elementLabel = 'Texto';
+                              let elementLabel = 'Leitura';
                               
-                              if (comp.type === 'image') {
-                                elementIcon = <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />;
-                                elementLabel = 'Imagem';
-                              } else if (comp.type === 'video') {
+                              if (oa.object_type === 'video') {
                                 elementIcon = <Play className="w-3.5 h-3.5 text-blue-400" />;
                                 elementLabel = 'Vídeo';
-                              } else if (comp.type === 'audio') {
-                                elementIcon = <Volume2 className="w-3.5 h-3.5 text-amber-400" />;
-                                elementLabel = 'Áudio';
-                              } else if (comp.type === 'question') {
+                              } else if (oa.object_type === 'image') {
+                                elementIcon = <ImageIcon className="w-3.5 h-3.5 text-pink-400" />;
+                                elementLabel = 'Imagem';
+                              } else if (oa.object_type === 'question' || oa.object_type === 'quiz') {
                                 elementIcon = <HelpCircle className="w-3.5 h-3.5 text-emerald-400" />;
                                 elementLabel = 'Questão';
-                              } else if (comp.type === 'simulation') {
+                              } else if (oa.object_type === 'simulation' || oa.object_type === 'dre_simulation') {
                                 elementIcon = <Sparkles className="w-3.5 h-3.5 text-purple-400" />;
                                 elementLabel = 'Simulação';
+                              } else if (oa.object_type === 'case_study') {
+                                elementIcon = <BookOpen className="w-3.5 h-3.5 text-amber-400" />;
+                                elementLabel = 'Estudo de Caso';
                               }
 
                               return (
                                 <div
-                                  key={cIdx}
+                                  key={oa.id || cIdx}
                                   className={`p-2.5 rounded-md border flex flex-col justify-between gap-2 text-xs transition-all ${
                                     theme === 'dark'
                                       ? 'border-white/5 bg-white/5 text-[#dae2fd]'
                                       : 'border-slate-200 bg-slate-50 text-slate-800'
                                   }`}
                                 >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 font-bold">
-                                      {elementIcon}
-                                      <span>{elementLabel}: {comp.title || `Elemento #${cIdx + 1}`}</span>
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex items-start gap-1.5 font-bold">
+                                      <div className="pt-0.5">{elementIcon}</div>
+                                      <span className="leading-tight">{elementLabel}: {oa.title}</span>
                                     </div>
                                     <button
-                                      onClick={() => handleInsertUcElement(comp)}
-                                      className="px-2 py-1 bg-[#1890ff] hover:bg-[#116ebc] text-white font-extrabold text-[9px] uppercase tracking-wider rounded-md transition-colors cursor-pointer"
+                                      onClick={() => handleInsertUcElement(oa)}
+                                      className="px-2 py-1 bg-[#1890ff] hover:bg-[#116ebc] text-white font-extrabold text-[9px] uppercase tracking-wider rounded-md transition-colors cursor-pointer shrink-0"
                                     >
                                       Inserir
                                     </button>
                                   </div>
-                                  <p className={`text-[10px] line-clamp-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
-                                    {comp.body}
-                                  </p>
+                                  {oa.content_payload?.text && (
+                                    <p className={`text-[10px] line-clamp-2 mt-1 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                                      {oa.content_payload.text}
+                                    </p>
+                                  )}
                                 </div>
                               );
                             })}

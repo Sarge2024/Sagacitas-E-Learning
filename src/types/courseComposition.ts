@@ -5,6 +5,7 @@ export interface CourseUCSlot {
   uc_id: string;             // Reference to UnidadeConhecimento.id
   sequence_order: number;    // Position within the course curriculum
   aula_group?: number;       // Optional: group number when multiple UCs share one Aula
+  is_split?: boolean;        // Indicates if the UC spans to the next Aula
 }
 
 export interface CourseComposition {

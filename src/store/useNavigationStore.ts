@@ -4,8 +4,9 @@ import { ViewMode } from '../types';
 interface NavigationState {
   currentView: ViewMode;
   isSidebarCollapsed: boolean;
-  managerActiveTab: 'students' | 'trainings' | 'certificates' | 'settings' | 'logs';
-  expertActiveTab: 'ucs' | 'bloom' | 'reverse' | 'dnt' | 'synthesis' | 'multitenant' | 'settings' | 'users';
+  managerActiveTab: 'students' | 'trainings' | 'certificates' | 'companies' | 'settings' | 'logs';
+  expertActiveTab: 'ucs' | 'bloom' | 'reverse' | 'dnt' | 'dnt-test' | 'synthesis' | 'multitenant' | 'settings' | 'users';
+  reportsActiveTab: string | null;
   searchQuery: string;
 
   // Actions
@@ -14,6 +15,7 @@ interface NavigationState {
   setSidebarCollapsed: (collapsed: boolean) => void;
   setManagerTab: (tab: NavigationState['managerActiveTab']) => void;
   setExpertTab: (tab: NavigationState['expertActiveTab']) => void;
+  setReportsTab: (tab: string | null) => void;
   setSearchQuery: (query: string) => void;
 }
 
@@ -22,6 +24,7 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   isSidebarCollapsed: false,
   managerActiveTab: 'students',
   expertActiveTab: 'ucs',
+  reportsActiveTab: null,
   searchQuery: '',
 
   setView: (view, subTab) => set((state) => {
@@ -32,6 +35,13 @@ export const useNavigationStore = create<NavigationState>((set) => ({
     }
     if (view === 'expert' && subTab) {
       updates.expertActiveTab = subTab as NavigationState['expertActiveTab'];
+    }
+    if (view === 'reports') {
+      if (subTab) {
+        updates.reportsActiveTab = subTab;
+      } else {
+        updates.reportsActiveTab = null;
+      }
     }
     if (view === 'lesson') {
       updates.isSidebarCollapsed = true;
@@ -52,6 +62,8 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   setManagerTab: (tab) => set({ managerActiveTab: tab }),
 
   setExpertTab: (tab) => set({ expertActiveTab: tab }),
+
+  setReportsTab: (tab) => set({ reportsActiveTab: tab }),
 
   setSearchQuery: (query) => set((state) => {
     const updates: Partial<NavigationState> = { searchQuery: query };

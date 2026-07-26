@@ -123,10 +123,10 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
           order: slide.elements.length + 1,
         },
       };
-    } else if (type === 'quiz') {
+    } else if (type === 'question') {
       newElem = {
         id: newId,
-        type: 'quiz',
+        type: 'question',
         x: 10,
         y: 10,
         width: 80,
@@ -150,7 +150,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
     } else {
       newElem = {
         id: newId,
-        type: 'custom-widget',
+        type: 'simulation',
         x: 15,
         y: 25,
         width: 70,
@@ -197,18 +197,18 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
             <span>Imagem</span>
           </button>
           <button
-            onClick={() => handleAddElement('quiz')}
+            onClick={() => handleAddElement('question')}
             className={`p-2 rounded-md font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
           >
             <HelpCircle className="w-3.5 h-3.5 text-[#107e3e]" />
-            <span>Quiz</span>
+            <span>Questão</span>
           </button>
           <button
-            onClick={() => handleAddElement('custom-widget')}
+            onClick={() => handleAddElement('simulation')}
             className={`p-2 rounded-md font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${theme === 'dark' ? 'bg-slate-950 hover:bg-slate-800 border-white/10 text-white' : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'}`}
           >
             <Sparkles className="w-3.5 h-3.5 text-[#e66000]" />
-            <span>Widget</span>
+            <span>Simulação</span>
           </button>
           <button
             onClick={() => videoInputRef.current?.click()}
@@ -312,6 +312,46 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
             </div>
           </div>
 
+          {/* Layer Ordering (Z-Index) */}
+          <div className="space-y-2">
+            <span className={`text-[10px] font-bold block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ordem de Exibição (Z-Index: {selectedElement.zIndex || 1})</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => updateElement(slide.id, selectedElement.id, { zIndex: Math.max(1, (selectedElement.zIndex || 1) - 1) })}
+                className={`flex-1 p-1.5 rounded-md text-[10px] font-bold transition-all border ${theme === 'dark' ? 'bg-slate-950 border-white/10 hover:bg-slate-800 text-slate-300' : 'bg-white border-slate-200 hover:bg-slate-100 text-slate-700'}`}
+                title="Descer um nível"
+              >
+                Descer (-1)
+              </button>
+              <button
+                onClick={() => updateElement(slide.id, selectedElement.id, { zIndex: (selectedElement.zIndex || 1) + 1 })}
+                className={`flex-1 p-1.5 rounded-md text-[10px] font-bold transition-all border ${theme === 'dark' ? 'bg-slate-950 border-white/10 hover:bg-slate-800 text-slate-300' : 'bg-white border-slate-200 hover:bg-slate-100 text-slate-700'}`}
+                title="Subir um nível"
+              >
+                Subir (+1)
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => updateElement(slide.id, selectedElement.id, { zIndex: 1 })}
+                className={`flex-1 p-1.5 rounded-md text-[10px] font-bold transition-all border ${theme === 'dark' ? 'bg-slate-950 border-white/10 hover:bg-slate-800 text-slate-300' : 'bg-white border-slate-200 hover:bg-slate-100 text-slate-700'}`}
+                title="Enviar totalmente para o fundo"
+              >
+                Ao Fundo
+              </button>
+              <button
+                onClick={() => {
+                  const maxZ = Math.max(10, ...slide.elements.map(e => e.zIndex || 1));
+                  updateElement(slide.id, selectedElement.id, { zIndex: maxZ + 1 });
+                }}
+                className={`flex-1 p-1.5 rounded-md text-[10px] font-bold transition-all border ${theme === 'dark' ? 'bg-slate-950 border-white/10 hover:bg-slate-800 text-slate-300' : 'bg-white border-slate-200 hover:bg-slate-100 text-slate-700'}`}
+                title="Trazer totalmente para a frente"
+              >
+                À Frente
+              </button>
+            </div>
+          </div>
+
           {/* Content Inputs according to type */}
           {selectedElement.type === 'text' && (
             <div className="space-y-2">
@@ -354,7 +394,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
             </div>
           )}
 
-          {selectedElement.type === 'quiz' && selectedElement.content.quizData && (
+          {selectedElement.type === 'question' && selectedElement.content.quizData && (
             <div className="space-y-2">
               <span className={`text-[10px] font-bold block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Pergunta do Quiz</span>
               <input

@@ -1,4 +1,4 @@
-export type ElementType = 'text' | 'image' | 'video' | 'audio' | 'quiz' | 'custom-widget';
+export type ElementType = 'text' | 'image' | 'video' | 'audio' | 'question' | 'simulation';
 
 export interface ElementAnimation {
   effect: 'fadeIn' | 'slideLeft' | 'slideRight' | 'zoomIn' | 'custom';
@@ -43,6 +43,7 @@ export interface Slide {
     value: string;
   };
   elements: SlideElement[];
+  aula_group?: number;
 }
 
 export interface Presentation {

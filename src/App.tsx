@@ -36,6 +36,7 @@ export default function App() {
   const isSidebarCollapsed = useNavigationStore(state => state.isSidebarCollapsed);
   const managerActiveTab = useNavigationStore(state => state.managerActiveTab);
   const expertActiveTab = useNavigationStore(state => state.expertActiveTab);
+  const reportsActiveTab = useNavigationStore(state => state.reportsActiveTab);
   const searchQuery = useNavigationStore(state => state.searchQuery);
   const setView = useNavigationStore(state => state.setView);
   const toggleSidebar = useNavigationStore(state => state.toggleSidebar);
@@ -53,7 +54,7 @@ export default function App() {
   const checkViewPermission = useAuthStore(state => state.checkViewPermission);
   
   // Course State
-  const { courses, isLoading: isLoadingCourses } = useCoursesFromDB(); // Hook populates DB data automatically
+  const { courses, setCourses, isLoading: isLoadingCourses } = useCoursesFromDB(); // Hook populates DB data automatically
   const selectedCourse = useCourseStore(state => state.selectedCourse);
   const selectCourse = useCourseStore(state => state.selectCourse);
   const certificates = useCourseStore(state => state.certificates);
@@ -215,6 +216,7 @@ export default function App() {
         currentView={currentView}
         managerActiveTab={managerActiveTab}
         expertActiveTab={expertActiveTab}
+        reportsActiveTab={reportsActiveTab}
         onSelectView={setView}
         onOpenProModal={() => setIsProModalOpen(true)}
         isCollapsed={isSidebarCollapsed}
@@ -309,9 +311,9 @@ export default function App() {
           </div>
         ) : (
           <>
-            {currentView === 'dre-simulator' && <DRESimulatorView />}
+            {currentView === 'assignments' && <DRESimulatorView />}
 
-            {currentView === 'matrix' && <DRERitualMatrixView />}
+            {currentView === 'calendar' && <DRERitualMatrixView />}
 
             {currentView === 'expert' && (
               <EdTechExpertView 
@@ -348,13 +350,25 @@ export default function App() {
                 oauthUser={activeUser}
                 activeTab={managerActiveTab}
                 onTabChange={setManagerTab}
-                onUpdateCourses={() => {}} /* Now handled by useCoursesFromDB or store */
+                onUpdateCourses={(updatedCourses) => {
+                  setCourses(updatedCourses);
+                  // Sincronizar o curso selecionado no Zustand caso ele tenha sido atualizado
+                  const currentSel = useCourseStore.getState().selectedCourse;
+                  if (currentSel) {
+                    const match = updatedCourses.find(c => c.id === currentSel.id);
+                    if (match) {
+                      useCourseStore.getState().selectCourse(match);
+                    }
+                  }
+                }}
                 unidades={unidades}
               />
             )}
 
             {currentView === 'reports' && (
-              <ReportsView currentUser={activeUser} />
+              <ReportsView 
+                currentUser={activeUser}
+              />
             )}
           </>
         )}

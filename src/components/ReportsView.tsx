@@ -12,16 +12,17 @@ import {
   Sparkles,
   DollarSign,
   ArrowLeft,
-  CheckCircle2,
   Users
 } from 'lucide-react';
+import { useNavigationStore } from '../store/useNavigationStore';
 
 interface ReportsViewProps {
   currentUser: OAuthUser | null;
 }
 
 export const ReportsView: React.FC<ReportsViewProps> = ({ currentUser }) => {
-  const [activeReportId, setActiveReportId] = useState<string | null>(null);
+  const activeReportId = useNavigationStore(state => state.reportsActiveTab);
+  const setActiveReportId = useNavigationStore(state => state.setReportsTab);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {

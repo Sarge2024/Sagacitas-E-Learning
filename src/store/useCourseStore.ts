@@ -33,7 +33,7 @@ interface CourseState {
 
 export const useCourseStore = create<CourseState>((set) => ({
   courses: INITIAL_COURSES,
-  selectedCourse: INITIAL_COURSES[0],
+  selectedCourse: INITIAL_COURSES.length > 0 ? INITIAL_COURSES[0] : null,
   certificates: INITIAL_CERTIFICATES,
   instructorQuestions: INITIAL_INSTRUCTOR_QUESTIONS,
   activeSlideForQuestion: null,

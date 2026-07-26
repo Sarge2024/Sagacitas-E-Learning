@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthState>()(
         if (!activeUser) return true;
         if (activeUser.role === 'Administrador') return true;
         
-        const publicViews = ['dashboard', 'lesson', 'courses', 'profile', 'reports'];
+        const publicViews = ['profile'];
         if (publicViews.includes(viewId)) return true;
 
         if (!activeUser.permissionsHash) {

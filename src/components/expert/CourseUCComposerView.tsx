@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Course } from '../../types';
+import { Course, Module, Lesson } from '../../types';
 import { UnidadeConhecimento } from '../../types/edtechExpert';
 import { CourseUCSlot } from '../../types/courseComposition';
 import { supabase } from '../../lib/supabaseClient';
@@ -20,6 +20,10 @@ import {
   ChevronUp,
   Sparkles,
   Package,
+  Trash2,
+  FolderPlus,
+  Folder,
+  FileText
 } from 'lucide-react';
 
 interface CourseUCComposerViewProps {
@@ -36,16 +40,30 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
   onOpenSlideEditor,
 }) => {
   const [slots, setSlots] = useState<CourseUCSlot[]>([]);
+  const [modules, setModules] = useState<Module[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [savedSuccess, setSavedSuccess] = useState(false);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [dragOverLessonSeq, setDragOverLessonSeq] = useState<number | null>(null);
   const [isDraggingFromPanel, setIsDraggingFromPanel] = useState(false);
-  const dropZoneRef = useRef<HTMLDivElement>(null);
 
-  // Load slots from Supabase on mount
+  // Load modules & slots from Supabase on mount
   useEffect(() => {
-    const loadSlots = async () => {
+    const loadData = async () => {
       try {
+        // Load Course info to get modules
+        const { data: courseData, error: courseError } = await supabase
+          .from('courses')
+          .select('modules')
+          .eq('id', course.id)
+          .single();
+
+        if (!courseError && courseData) {
+          setModules(courseData.modules || course.modules || []);
+        } else {
+          setModules(course.modules || []);
+        }
+
+        // Load composition slots
         const { data, error } = await supabase
           .from('course_knowledge_units')
           .select('*')
@@ -55,20 +73,21 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
         if (error) throw error;
         if (data) {
           setSlots(data.map((item: any) => ({
-            id: item.id,
+            id: item.id || `slot-${item.uc_id}-${Date.now()}`,
             uc_id: item.uc_id,
             sequence_order: item.sequence_order,
-            aula_group: item.aula_group || undefined
+            aula_group: item.aula_group || 1,
+            is_split: item.is_split || false
           })));
         }
       } catch (err) {
         console.error('Failed to load course composition from Supabase:', err);
       }
     };
-    loadSlots();
-  }, [course.id]);
+    loadData();
+  }, [course.id, course.modules]);
 
-  // Bloom level display helper
+  // Bloom level helper
   const getBloomLabel = (level: string) => {
     const map: Record<string, string> = {
       CONHECIMENTO: 'Conhecimento',
@@ -97,28 +116,95 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
     }
   };
 
-  // UCs already in the composition
   const usedUcIds = new Set(slots.map(s => s.uc_id));
 
-  // Filter available UCs (not yet added + search)
+  // Filter available UCs
   const availableUcs = unidades.filter(uc => {
     if (usedUcIds.has(uc.id)) return false;
     if (!searchTerm) return true;
     const q = searchTerm.toLowerCase();
     return (
       uc.titulo.toLowerCase().includes(q) ||
-      uc.codigo.toLowerCase().includes(q) ||
+      (uc.codigo ?? '').toLowerCase().includes(q) ||
       (uc.descricao_curta || '').toLowerCase().includes(q)
     );
   });
 
-  // Get UC data by id
   const getUc = useCallback(
     (ucId: string) => unidades.find(u => u.id === ucId),
     [unidades]
   );
 
-  // ─── Drag from sidebar panel ───
+  // --- CRUD Módulos ---
+  const handleAddModule = () => {
+    const nextModNum = modules.length + 1;
+    const newModule: Module = {
+      id: `mod-${Date.now()}-${nextModNum}`,
+      title: `Módulo ${nextModNum}: Novo Módulo`,
+      focus: 'Foco de aprendizado do módulo.',
+      duration: '1h 30min',
+      lessons: []
+    };
+    setModules([...modules, newModule]);
+  };
+
+  const handleUpdateModule = (moduleId: string, updates: Partial<Module>) => {
+    setModules(modules.map(m => m.id === moduleId ? { ...m, ...updates } : m));
+  };
+
+  const handleDeleteModule = (moduleId: string) => {
+    if (confirm('Tem certeza que deseja excluir este módulo e todas as suas aulas?')) {
+      setModules(modules.filter(m => m.id !== moduleId));
+    }
+  };
+
+  // --- CRUD Aulas ---
+  const handleAddLesson = (moduleId: string) => {
+    setModules(modules.map(m => {
+      if (m.id !== moduleId) return m;
+      const nextNum = m.lessons.length + 1;
+      const newLesson: Lesson = {
+        id: `aula-${Date.now()}-${nextNum}`,
+        number: String(nextNum).padStart(2, '0'),
+        title: `Aula ${String(nextNum).padStart(2, '0')}: Nova Aula`,
+        duration: '15:00',
+        completed: false,
+        active: nextNum === 1,
+        description: 'Descrição breve dos objetivos didáticos desta aula.'
+      };
+      return {
+        ...m,
+        lessons: [...m.lessons, newLesson]
+      };
+    }));
+  };
+
+  const handleUpdateLesson = (moduleId: string, lessonId: string, updates: Partial<Lesson>) => {
+    setModules(modules.map(m => {
+      if (m.id !== moduleId) return m;
+      return {
+        ...m,
+        lessons: m.lessons.map(l => l.id === lessonId ? { ...l, ...updates } : l)
+      };
+    }));
+  };
+
+  const handleDeleteLesson = (moduleId: string, lessonId: string) => {
+    if (confirm('Deseja excluir esta aula?')) {
+      setModules(modules.map(m => {
+        if (m.id !== moduleId) return m;
+        return {
+          ...m,
+          lessons: m.lessons.filter(l => l.id !== lessonId).map((l, idx) => ({
+            ...l,
+            number: String(idx + 1).padStart(2, '0')
+          }))
+        };
+      }));
+    }
+  };
+
+  // --- Drag & Drop UCs to Lessons ---
   const handleSidebarDragStart = (e: React.DragEvent, ucId: string) => {
     e.dataTransfer.setData('text/uc-id', ucId);
     e.dataTransfer.setData('text/source', 'panel');
@@ -126,65 +212,22 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
     setIsDraggingFromPanel(true);
   };
 
-  // ─── Drag from composition (reorder) ───
-  const handleSlotDragStart = (e: React.DragEvent, slotIndex: number) => {
-    e.dataTransfer.setData('text/slot-index', String(slotIndex));
+  const handleSlotDragStart = (e: React.DragEvent, slotId: string) => {
+    e.dataTransfer.setData('text/slot-id', slotId);
     e.dataTransfer.setData('text/source', 'composition');
     e.dataTransfer.effectAllowed = 'move';
-    setIsDraggingFromPanel(false);
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOverLesson = (e: React.DragEvent, lessonSeqNum: number) => {
     e.preventDefault();
     e.stopPropagation();
-    e.dataTransfer.dropEffect = isDraggingFromPanel ? 'copy' : 'move';
-    setDragOverIndex(index);
+    setDragOverLessonSeq(lessonSeqNum);
   };
 
-  const handleDragLeave = () => {
-    setDragOverIndex(null);
-  };
-
-  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+  const handleDropOnLesson = (e: React.DragEvent, lessonSeqNum: number) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragOverIndex(null);
-    setIsDraggingFromPanel(false);
-
-    const source = e.dataTransfer.getData('text/source');
-
-    if (source === 'panel') {
-      // Adding a new UC from the sidebar
-      const ucId = e.dataTransfer.getData('text/uc-id');
-      if (!ucId || usedUcIds.has(ucId)) return;
-
-      const newSlot: CourseUCSlot = {
-        id: `slot-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-        uc_id: ucId,
-        sequence_order: targetIndex,
-      };
-
-      const newSlots = [...slots];
-      newSlots.splice(targetIndex, 0, newSlot);
-      // Recalculate sequence_order
-      setSlots(newSlots.map((s, i) => ({ ...s, sequence_order: i })));
-    } else if (source === 'composition') {
-      // Reordering within composition
-      const fromIndex = parseInt(e.dataTransfer.getData('text/slot-index'), 10);
-      if (isNaN(fromIndex) || fromIndex === targetIndex) return;
-
-      const newSlots = [...slots];
-      const [moved] = newSlots.splice(fromIndex, 1);
-      newSlots.splice(targetIndex, 0, moved);
-      setSlots(newSlots.map((s, i) => ({ ...s, sequence_order: i })));
-    }
-  };
-
-  const handleDropOnZone = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOverIndex(null);
-    setIsDraggingFromPanel(false);
+    setDragOverLessonSeq(null);
 
     const source = e.dataTransfer.getData('text/source');
     if (source === 'panel') {
@@ -195,50 +238,70 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
         id: `slot-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
         uc_id: ucId,
         sequence_order: slots.length,
+        aula_group: lessonSeqNum,
+        is_split: false
       };
       setSlots([...slots, newSlot]);
     } else if (source === 'composition') {
-      const fromIndex = parseInt(e.dataTransfer.getData('text/slot-index'), 10);
-      if (isNaN(fromIndex)) return;
-      
-      const newSlots = [...slots];
-      const [moved] = newSlots.splice(fromIndex, 1);
-      newSlots.push(moved);
-      setSlots(newSlots.map((s, i) => ({ ...s, sequence_order: i })));
+      const slotId = e.dataTransfer.getData('text/slot-id');
+      if (!slotId) return;
+
+      // Move slot to this lesson group
+      setSlots(slots.map(s => s.id === slotId ? { ...s, aula_group: lessonSeqNum } : s));
     }
   };
 
   const handleRemoveSlot = (slotId: string) => {
-    setSlots(slots.filter(s => s.id !== slotId).map((s, i) => ({ ...s, sequence_order: i })));
+    setSlots(slots.filter(s => s.id !== slotId));
   };
 
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
-    const newSlots = [...slots];
-    [newSlots[index - 1], newSlots[index]] = [newSlots[index], newSlots[index - 1]];
-    setSlots(newSlots.map((s, i) => ({ ...s, sequence_order: i })));
-  };
-
-  const handleMoveDown = (index: number) => {
-    if (index >= slots.length - 1) return;
-    const newSlots = [...slots];
-    [newSlots[index], newSlots[index + 1]] = [newSlots[index + 1], newSlots[index]];
-    setSlots(newSlots.map((s, i) => ({ ...s, sequence_order: i })));
+  const handleToggleSplit = (slotId: string) => {
+    setSlots(slots.map(s => s.id === slotId ? { ...s, is_split: !s.is_split } : s));
   };
 
   const handleAddUcDirectly = (ucId: string) => {
     if (usedUcIds.has(ucId)) return;
+    
+    // Encontrar primeira aula disponível
+    let firstLessonSeq = 1;
+    
     const newSlot: CourseUCSlot = {
       id: `slot-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
       uc_id: ucId,
       sequence_order: slots.length,
+      aula_group: firstLessonSeq,
+      is_split: false
     };
     setSlots([...slots, newSlot]);
   };
 
+  // Reordenação de UC dentro da mesma aula
+  const handleMoveUcInLesson = (slotId: string, direction: 'up' | 'down') => {
+    const slotIdx = slots.findIndex(s => s.id === slotId);
+    if (slotIdx === -1) return;
+    
+    const seq = slots[slotIdx].aula_group;
+    const lessonSlots = slots.filter(s => s.aula_group === seq);
+    const inLessonIdx = lessonSlots.findIndex(s => s.id === slotId);
+    
+    if (direction === 'up' && inLessonIdx > 0) {
+      const targetSlot = lessonSlots[inLessonIdx - 1];
+      const targetIdx = slots.findIndex(s => s.id === targetSlot.id);
+      const newSlots = [...slots];
+      [newSlots[slotIdx], newSlots[targetIdx]] = [newSlots[targetIdx], newSlots[slotIdx]];
+      setSlots(newSlots);
+    } else if (direction === 'down' && inLessonIdx < lessonSlots.length - 1) {
+      const targetSlot = lessonSlots[inLessonIdx + 1];
+      const targetIdx = slots.findIndex(s => s.id === targetSlot.id);
+      const newSlots = [...slots];
+      [newSlots[slotIdx], newSlots[targetIdx]] = [newSlots[targetIdx], newSlots[slotIdx]];
+      setSlots(newSlots);
+    }
+  };
+
   const handleSave = async () => {
     try {
-      // Delete existing slots for this course first
+      // 1. Deletar associações antigas
       const { error: deleteError } = await supabase
         .from('course_knowledge_units')
         .delete()
@@ -246,13 +309,14 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
 
       if (deleteError) throw deleteError;
 
-      // Insert current slots
+      // 2. Inserir novas associações
       if (slots.length > 0) {
-        const payload = slots.map(s => ({
+        const payload = slots.map((s, idx) => ({
           course_id: course.id,
           uc_id: s.uc_id,
-          sequence_order: s.sequence_order,
-          aula_group: s.aula_group || null
+          sequence_order: idx,
+          aula_group: s.aula_group || 1,
+          is_split: s.is_split || false
         }));
 
         const { error: insertError } = await supabase
@@ -262,6 +326,17 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
         if (insertError) throw insertError;
       }
 
+      // 3. Atualizar módulos e aulas estruturais do curso
+      const { error: courseError } = await supabase
+        .from('courses')
+        .update({ modules })
+        .eq('id', course.id);
+
+      if (courseError) throw courseError;
+
+      // Sincronizar em memória local
+      course.modules = modules;
+
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
     } catch (err) {
@@ -270,7 +345,7 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
     }
   };
 
-  // Calculate totals
+  // Cálculo de estatísticas didáticas
   const totalMinutes = slots.reduce((sum, s) => {
     const uc = getUc(s.uc_id);
     return sum + (uc?.duracao_estimada_minutos || 0);
@@ -281,13 +356,15 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
     return sum + (uc?.layout_template.components.length || 0);
   }, 0);
 
+  // Computa a numeração sequencial das aulas de forma global
+  let runningLessonSeq = 0;
+
   return (
     <div className="pt-16 md:pt-18 px-3 md:px-5 pb-8 max-w-[1440px] mx-auto space-y-4 bg-[#f9f9ff] min-h-screen">
-      {/* Toast */}
       {savedSuccess && (
         <div className="fixed top-16 right-6 z-50 bg-slate-900 text-white font-bold px-3.5 py-2 rounded shadow-lg flex items-center gap-2 animate-bounce border border-emerald-400">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span className="text-xs">Composição salva com sucesso!</span>
+          <span className="text-xs">Composição e estrutura salvas com sucesso!</span>
         </div>
       )}
 
@@ -315,13 +392,12 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
               {course.title}
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Cadastre e organize as Unidades de Conhecimento que compõem este curso.
+              Crie a estrutura de módulos e aulas do curso, depois aloque as Unidades de Conhecimento.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          {/* Stats */}
           <div className="flex items-center gap-3 bg-slate-50 px-3 py-2 rounded-md border border-slate-200 text-xs">
             <div className="flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-[#1890ff]" />
@@ -335,7 +411,7 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
             <div className="w-px h-4 bg-slate-200" />
             <div className="flex items-center gap-1.5">
               <Package className="w-3.5 h-3.5 text-[#1890ff]" />
-              <span className="font-bold text-slate-700">{totalElements} elementos</span>
+              <span className="font-bold text-slate-700">{totalElements} elem.</span>
             </div>
           </div>
 
@@ -344,183 +420,230 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
             className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs"
           >
             <Save className="w-4 h-4" />
-            <span>Salvar Composição</span>
+            <span>Salvar Estrutura</span>
           </button>
         </div>
       </div>
 
-      {/* Main Layout: Center + Right Sidebar */}
-      <div className="flex gap-4" style={{ minHeight: 'calc(100vh - 220px)' }}>
-        {/* ─── CENTER: Drop Zone / Composition Area ─── */}
-        <div className="flex-1 space-y-3">
+      {/* Main Grid */}
+      <div className="flex flex-col lg:flex-row gap-4" style={{ minHeight: 'calc(100vh - 220px)' }}>
+        {/* CENTER: Modules / Lessons CRUD List */}
+        <div className="flex-1 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-[#1890ff]" />
-              Grade Curricular do Curso
+              Estrutura Curricular (Módulos & Aulas)
             </h3>
-            <span className="text-[10px] text-slate-400 font-medium">
-              Arraste UCs do painel lateral ou use o botão +
-            </span>
+            <button
+              onClick={handleAddModule}
+              className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded font-bold text-[10px] uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+            >
+              <FolderPlus className="w-3.5 h-3.5" />
+              <span>Adicionar Módulo</span>
+            </button>
           </div>
 
-          <div
-            ref={dropZoneRef}
-            onDragOver={(e) => {
-              e.preventDefault();
-              e.dataTransfer.dropEffect = 'copy';
-            }}
-            onDrop={handleDropOnZone}
-            className={`min-h-[400px] rounded-md border-2 border-dashed transition-all p-3 space-y-2 ${
-              isDraggingFromPanel
-                ? 'border-[#1890ff] bg-blue-50/50'
-                : slots.length === 0
-                ? 'border-slate-200 bg-white'
-                : 'border-transparent bg-transparent'
-            }`}
-          >
-            {slots.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-slate-400 space-y-3">
-                <div className="w-16 h-16 rounded-md bg-slate-100 flex items-center justify-center">
-                  <Layers className="w-8 h-8 text-slate-300" />
-                </div>
-                <div className="text-center space-y-1">
-                  <p className="text-sm font-bold text-slate-500">Nenhuma UC cadastrada neste curso</p>
-                  <p className="text-xs">
-                    Arraste Unidades de Conhecimento do painel lateral direito para compor a grade curricular.
-                  </p>
-                </div>
+          <div className="space-y-4">
+            {modules.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 bg-white rounded-md border border-slate-200 text-slate-400 space-y-3 shadow-2xs">
+                <Folder className="w-12 h-12 text-slate-300" />
+                <p className="text-sm font-bold text-slate-500">Nenhum módulo cadastrado neste treinamento</p>
+                <button
+                  onClick={handleAddModule}
+                  className="px-3.5 py-1.5 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded text-xs font-bold transition-all cursor-pointer"
+                >
+                  Criar Primeiro Módulo
+                </button>
               </div>
             ) : (
-              slots.map((slot, index) => {
-                const uc = getUc(slot.uc_id);
-                if (!uc) return null;
-
-                return (
-                  <div key={slot.id}>
-                    {/* Drop indicator line */}
-                    {dragOverIndex === index && (
-                      <div className="h-1 bg-[#1890ff] rounded-md mx-4 my-1 animate-pulse" />
-                    )}
-
-                    <div
-                      draggable
-                      onDragStart={(e) => handleSlotDragStart(e, index)}
-                      onDragOver={(e) => handleDragOver(e, index)}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, index)}
-                      className="bg-white border border-slate-200 rounded-md p-4 hover:border-[#1890ff] transition-all shadow-2xs group flex items-start gap-3 cursor-grab active:cursor-grabbing"
-                    >
-                      {/* Drag handle + Order */}
-                      <div className="flex flex-col items-center gap-1 pt-0.5 shrink-0">
-                        <GripVertical className="w-4 h-4 text-slate-300 group-hover:text-[#1890ff] transition-colors" />
-                        <span className="text-[10px] font-mono font-black text-slate-400">
-                          #{String(index + 1).padStart(2, '0')}
-                        </span>
-                        <div className="flex flex-col gap-0.5 mt-1">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleMoveUp(index); }}
-                            disabled={index === 0}
-                            className="p-0.5 rounded hover:bg-slate-100 disabled:opacity-20 cursor-pointer transition-colors"
-                          >
-                            <ChevronUp className="w-3 h-3 text-slate-500" />
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleMoveDown(index); }}
-                            disabled={index >= slots.length - 1}
-                            className="p-0.5 rounded hover:bg-slate-100 disabled:opacity-20 cursor-pointer transition-colors"
-                          >
-                            <ChevronDown className="w-3 h-3 text-slate-500" />
-                          </button>
-                        </div>
+              modules.map((mod, modIdx) => (
+                <div key={mod.id} className="bg-white border border-slate-200 rounded-md p-4 space-y-4 shadow-2xs">
+                  {/* Module header editor */}
+                  <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+                    <div className="space-y-1 flex-1 pr-4">
+                      <div className="flex items-center gap-2">
+                        <Folder className="w-4 h-4 text-[#1890ff] shrink-0" />
+                        <input
+                          type="text"
+                          value={mod.title}
+                          onChange={(e) => handleUpdateModule(mod.id, { title: e.target.value })}
+                          className="bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#1890ff] font-extrabold text-sm text-slate-800 px-2 py-1 rounded outline-none w-full max-w-md transition-colors"
+                        />
                       </div>
+                      <input
+                        type="text"
+                        value={mod.focus || ''}
+                        onChange={(e) => handleUpdateModule(mod.id, { focus: e.target.value })}
+                        placeholder="Escreva o foco pedagógico deste módulo..."
+                        className="bg-transparent border-b border-transparent hover:border-slate-300 focus:border-[#1890ff] text-xs text-slate-500 px-2 py-0.5 outline-none w-full transition-colors font-medium"
+                      />
+                    </div>
 
-                      {/* UC Info */}
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[9px] font-mono font-bold rounded">
-                            {uc.codigo}
-                          </span>
-                          <span className={`px-2 py-0.5 border text-[9px] font-bold rounded ${getBloomBadgeStyle(uc.meta_bloom)}`}>
-                            {getBloomLabel(uc.meta_bloom)}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {uc.duracao_estimada_minutos} min
-                          </span>
-                        </div>
-
-                        <h4 className="text-sm font-extrabold text-slate-900 truncate">
-                          {uc.titulo}
-                        </h4>
-
-                        <p className="text-xs text-slate-500 font-medium line-clamp-1">
-                          {uc.descricao_curta}
-                        </p>
-
-                        {/* Elements preview */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] text-slate-400 font-bold">
-                            {uc.layout_template.components.length} elementos:
-                          </span>
-                          {uc.layout_template.components.slice(0, 4).map((comp, ci) => (
-                            <span
-                              key={ci}
-                              className="text-[9px] px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100 text-slate-500 font-medium capitalize"
-                            >
-                              {comp.type === 'text' ? '📝 Texto' :
-                               comp.type === 'image' ? '🖼️ Imagem' :
-                               comp.type === 'video' ? '🎬 Vídeo' :
-                               comp.type === 'audio' ? '🔊 Áudio' :
-                               comp.type === 'question' ? '❓ Questão' :
-                               comp.type === 'simulation' ? '⚡ Simulação' :
-                               comp.type}
-                            </span>
-                          ))}
-                          {uc.layout_template.components.length > 4 && (
-                            <span className="text-[9px] text-slate-400 font-bold">
-                              +{uc.layout_template.components.length - 4}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenSlideEditor(course, [slot.uc_id]);
-                          }}
-                          className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-[#1890ff] border border-blue-200 rounded text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
-                        >
-                          <Presentation className="w-3.5 h-3.5" />
-                          <span>Editar Aula</span>
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleRemoveSlot(slot.id); }}
-                          className="p-1.5 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded transition-colors cursor-pointer"
-                          title="Remover UC do curso"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => handleAddLesson(mod.id)}
+                        className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[#1890ff] rounded text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Adicionar Aula</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteModule(mod.id)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors cursor-pointer"
+                        title="Excluir Módulo"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
-                );
-              })
-            )}
 
-            {/* Drop indicator at the end */}
-            {dragOverIndex !== null && dragOverIndex >= slots.length && (
-              <div className="h-1 bg-[#1890ff] rounded-md mx-4 my-1 animate-pulse" />
+                  {/* Lessons list inside Module */}
+                  <div className="space-y-3 pl-2">
+                    {mod.lessons.length === 0 ? (
+                      <p className="text-xs text-slate-400 italic">Nenhuma aula cadastrada neste módulo. Adicione uma aula para alocar as UCs.</p>
+                    ) : (
+                      mod.lessons.map((lesson) => {
+                        runningLessonSeq += 1;
+                        const lessonSeq = runningLessonSeq;
+                        const lessonSlots = slots.filter(s => s.aula_group === lessonSeq);
+                        const isDragOver = dragOverLessonSeq === lessonSeq;
+
+                        return (
+                          <div
+                            key={lesson.id}
+                            onDragOver={(e) => handleDragOverLesson(e, lessonSeq)}
+                            onDragLeave={() => setDragOverLessonSeq(null)}
+                            onDrop={(e) => handleDropOnLesson(e, lessonSeq)}
+                            className={`p-3.5 rounded-md border transition-all space-y-3 ${
+                              isDragOver
+                                ? 'border-[#1890ff] bg-blue-50/40 ring-2 ring-blue-100'
+                                : 'border-slate-200 bg-slate-50/50 hover:border-slate-300'
+                            }`}
+                          >
+                            {/* Lesson Title Editor */}
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-1 flex-1 pr-4">
+                                <div className="flex items-center gap-2">
+                                  <span className="px-2 py-0.5 bg-slate-200 text-slate-700 text-[9px] font-mono font-bold rounded shrink-0">
+                                    Aula {lesson.number}
+                                  </span>
+                                  <input
+                                    type="text"
+                                    value={lesson.title}
+                                    onChange={(e) => handleUpdateLesson(mod.id, lesson.id, { title: e.target.value })}
+                                    className="bg-slate-100 focus:bg-white border border-transparent focus:border-[#1890ff] font-bold text-xs text-slate-800 px-2 py-0.5 rounded outline-none w-full max-w-sm transition-colors"
+                                  />
+                                </div>
+                                <input
+                                  type="text"
+                                  value={lesson.description || ''}
+                                  onChange={(e) => handleUpdateLesson(mod.id, lesson.id, { description: e.target.value })}
+                                  placeholder="Escreva o objetivo pedagógico ou resumo da aula..."
+                                  className="bg-transparent border-b border-transparent hover:border-slate-300 focus:border-[#1890ff] text-[10px] text-slate-400 px-2 py-0.5 outline-none w-full transition-colors font-medium"
+                                />
+                              </div>
+
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <button
+                                  onClick={() => onOpenSlideEditor(course, [lesson.id])}
+                                  className="p-1 bg-white hover:bg-blue-50 text-[#1890ff] border border-slate-200 hover:border-blue-200 rounded transition-colors cursor-pointer"
+                                  title="Editar Aulas no Editor de Slides"
+                                >
+                                  <Presentation className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteLesson(mod.id, lesson.id)}
+                                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors cursor-pointer"
+                                  title="Excluir Aula"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* UCs alocadas na Aula */}
+                            <div className="space-y-1.5 pl-4 border-l-2 border-slate-200">
+                              {lessonSlots.length === 0 ? (
+                                <div className="text-[10px] text-slate-400 py-2 border border-dashed border-slate-300 rounded bg-white/50 text-center">
+                                  Arraste UCs aqui para alocá-las nesta Aula
+                                </div>
+                              ) : (
+                                lessonSlots.map((slot, sIdx) => {
+                                  const uc = getUc(slot.uc_id);
+                                  if (!uc) return null;
+
+                                  return (
+                                    <div
+                                      key={slot.id}
+                                      draggable
+                                      onDragStart={(e) => handleSlotDragStart(e, slot.id)}
+                                      className="bg-white border border-slate-200 hover:border-[#1890ff] rounded p-2.5 flex items-center justify-between gap-3 shadow-3xs cursor-grab active:cursor-grabbing transition-all group"
+                                    >
+                                      <div className="flex items-center gap-2 min-w-0">
+                                        <GripVertical className="w-3 h-3 text-slate-300 group-hover:text-[#1890ff] shrink-0" />
+                                        <span className="px-1.5 py-0.5 bg-slate-100 text-slate-600 text-[8px] font-mono font-bold rounded shrink-0">
+                                          {uc.codigo}
+                                        </span>
+                                        <span className="text-xs font-bold text-slate-700 truncate">
+                                          {uc.titulo}
+                                        </span>
+                                      </div>
+
+                                      <div className="flex items-center gap-2 shrink-0">
+                                        {/* Reordenar em lote */}
+                                        <div className="flex items-center">
+                                          <button
+                                            onClick={() => handleMoveUcInLesson(slot.id, 'up')}
+                                            disabled={sIdx === 0}
+                                            className="p-0.5 rounded hover:bg-slate-100 disabled:opacity-20 cursor-pointer"
+                                          >
+                                            <ChevronUp className="w-3 h-3 text-slate-500" />
+                                          </button>
+                                          <button
+                                            onClick={() => handleMoveUcInLesson(slot.id, 'down')}
+                                            disabled={sIdx === lessonSlots.length - 1}
+                                            className="p-0.5 rounded hover:bg-slate-100 disabled:opacity-20 cursor-pointer"
+                                          >
+                                            <ChevronDown className="w-3 h-3 text-slate-500" />
+                                          </button>
+                                        </div>
+
+                                        <label className="flex items-center gap-1 cursor-pointer" title="Prorrogar Objetos desta UC para a próxima Aula">
+                                          <input 
+                                            type="checkbox" 
+                                            className="w-3 h-3 rounded border-slate-300 text-[#1890ff] cursor-pointer"
+                                            checked={slot.is_split || false}
+                                            onChange={() => handleToggleSplit(slot.id)}
+                                          />
+                                          <span className="text-[9px] font-bold text-slate-400">SPLIT</span>
+                                        </label>
+
+                                        <button
+                                          onClick={() => handleRemoveSlot(slot.id)}
+                                          className="text-slate-300 hover:text-rose-600 p-0.5 transition-colors cursor-pointer"
+                                        >
+                                          <X className="w-3 h-3" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>
 
-        {/* ─── RIGHT SIDEBAR: Available UCs ─── */}
-        <div className="w-[320px] shrink-0 space-y-3">
+        {/* RIGHT SIDEBAR: Available UCs */}
+        <div className="w-full lg:w-[320px] shrink-0 space-y-3">
           <div className="bg-white border border-slate-200 rounded-md shadow-2xs overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-            {/* Sidebar header */}
             <div className="p-3 border-b border-slate-100 space-y-2.5 shrink-0">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-2">
@@ -544,7 +667,6 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
               </div>
             </div>
 
-            {/* Sidebar list */}
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
               {availableUcs.length === 0 ? (
                 <div className="text-center py-8 text-slate-400 text-xs font-medium">
@@ -558,15 +680,22 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
                     key={uc.id}
                     draggable
                     onDragStart={(e) => handleSidebarDragStart(e, uc.id)}
-                    onDragEnd={() => setIsDraggingFromPanel(false)}
                     className="bg-slate-50 border border-slate-200 rounded-md p-3 cursor-grab active:cursor-grabbing hover:border-[#1890ff] hover:bg-blue-50/30 transition-all group space-y-2"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <GripVertical className="w-3 h-3 text-slate-300 group-hover:text-[#1890ff] shrink-0" />
-                        <span className="px-1.5 py-0.5 bg-white border border-slate-200 text-slate-600 text-[9px] font-mono font-bold rounded">
-                          {uc.codigo}
-                        </span>
+                        {uc.signatures && uc.signatures.length > 0 ? (
+                          uc.signatures.map((sig: any, sIdx: number) => (
+                            <span key={sIdx} className="px-1.5 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[9px] font-mono font-bold rounded shadow-2xs">
+                              {sig.code}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="px-1.5 py-0.5 bg-white border border-slate-200 text-slate-600 text-[9px] font-mono font-bold rounded">
+                            {uc.codigo}
+                          </span>
+                        )}
                       </div>
                       <button
                         onClick={() => handleAddUcDirectly(uc.id)}
@@ -589,21 +718,17 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
                         <Clock className="w-2.5 h-2.5" />
                         {uc.duracao_estimada_minutos}min
                       </span>
-                      <span className="text-[9px] text-slate-400 font-medium">
-                        {uc.layout_template.components.length} elem.
-                      </span>
                     </div>
                   </div>
                 ))
               )}
             </div>
 
-            {/* Sidebar footer hint */}
             <div className="p-2.5 border-t border-slate-100 bg-blue-50/50 shrink-0">
               <div className="flex items-start gap-2 text-[10px] text-blue-700">
                 <Sparkles className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#1890ff]" />
                 <span className="font-medium leading-relaxed">
-                  Arraste os cards para a área central ou clique no botão <strong>+</strong> para adicionar ao final da grade.
+                  Arraste as UCs para uma das Aulas criadas no painel central para vincular os objetos de aprendizagem.
                 </span>
               </div>
             </div>

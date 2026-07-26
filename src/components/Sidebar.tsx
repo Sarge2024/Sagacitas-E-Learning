@@ -27,12 +27,14 @@ import {
   Sliders,
   Lock,
   FileText,
+  Building2,
 } from 'lucide-react';
 
 interface SidebarProps {
   currentView: ViewMode;
   managerActiveTab?: string;
   expertActiveTab?: string;
+  reportsActiveTab?: string | null;
   onSelectView: (view: ViewMode, subTab?: string) => void;
   onOpenProModal: () => void;
   isCollapsed?: boolean;
@@ -44,6 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentView,
   managerActiveTab = 'students',
   expertActiveTab = 'ucs',
+  reportsActiveTab = null,
   onSelectView,
   onOpenProModal,
   isCollapsed = false,
@@ -52,6 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [isAlunosMenuOpen, setIsAlunosMenuOpen] = useState(true);
   const [isExpertMenuOpen, setIsExpertMenuOpen] = useState(true);
+  const [isReportsMenuOpen, setIsReportsMenuOpen] = useState(true);
   const { checkViewPermission } = useAuthStore();
 
   return (
@@ -107,22 +111,98 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         {/* Reports */}
-        {(checkViewPermission('rep-performance') || checkViewPermission('rep-completion') || checkViewPermission('rep-ia') || checkViewPermission('rep-finance')) && (
-          <button
-            id="nav-reports-btn"
-            onClick={() => onSelectView('reports')}
-            title={isCollapsed ? 'Relatórios' : undefined}
-            className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md transition-all duration-200 cursor-pointer ${
-              isCollapsed ? 'justify-center' : 'text-left'
-            } ${
-              currentView === 'reports'
-                ? 'text-[#1890ff] bg-white border border-[#1890ff]/30 font-bold shadow-xs'
-                : 'text-slate-700 hover:text-slate-900 hover:bg-white/80 font-medium'
-            }`}
-          >
-            <FileText className="w-4.5 h-4.5 shrink-0 text-emerald-500" />
-            {!isCollapsed && <span className="text-sm truncate">Relatórios</span>}
-          </button>
+        {checkViewPermission('reports') && (
+          <div className="space-y-1">
+            <button
+              id="nav-reports-btn"
+              onClick={() => {
+                onSelectView('reports');
+                setIsReportsMenuOpen(!isReportsMenuOpen);
+              }}
+              title={isCollapsed ? 'Relatórios' : undefined}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-md transition-all duration-200 cursor-pointer ${
+                currentView === 'reports'
+                  ? 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-white/80 font-medium'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <FileText className={`w-4.5 h-4.5 shrink-0 ${currentView === 'reports' ? 'text-emerald-600' : 'text-emerald-500'}`} />
+                {!isCollapsed && <span className="text-sm truncate">Relatórios</span>}
+              </div>
+              {!isCollapsed && (
+                <ChevronDown
+                  className={`w-4 h-4 text-slate-400 transition-transform ${
+                    isReportsMenuOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              )}
+            </button>
+
+            {!isCollapsed && isReportsMenuOpen && (
+              <div className="pl-3 space-y-1 py-1 border-l-2 border-emerald-500/30 ml-4 animate-fadeIn">
+                {checkViewPermission('rep-performance') && (
+                <button
+                  id="nav-reports-sub-performance"
+                  onClick={() => onSelectView('reports', 'rep-performance')}
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${
+                    currentView === 'reports' && reportsActiveTab === 'rep-performance'
+                      ? 'bg-white text-emerald-700 border border-emerald-200 shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                  }`}
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  <span>Desempenho de Alunos</span>
+                </button>
+                )}
+
+                {checkViewPermission('rep-completion') && (
+                <button
+                  id="nav-reports-sub-completion"
+                  onClick={() => onSelectView('reports', 'rep-completion')}
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${
+                    currentView === 'reports' && reportsActiveTab === 'rep-completion'
+                      ? 'bg-white text-emerald-700 border border-emerald-200 shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                  }`}
+                >
+                  <Award className="w-3.5 h-3.5" />
+                  <span>Conclusão de Treinamentos</span>
+                </button>
+                )}
+
+                {checkViewPermission('rep-ia') && (
+                <button
+                  id="nav-reports-sub-ia"
+                  onClick={() => onSelectView('reports', 'rep-ia')}
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${
+                    currentView === 'reports' && reportsActiveTab === 'rep-ia'
+                      ? 'bg-white text-emerald-700 border border-emerald-200 shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Engajamento & Tutor de IA</span>
+                </button>
+                )}
+
+                {checkViewPermission('rep-finance') && (
+                <button
+                  id="nav-reports-sub-finance"
+                  onClick={() => onSelectView('reports', 'rep-finance')}
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${
+                    currentView === 'reports' && reportsActiveTab === 'rep-finance'
+                      ? 'bg-white text-emerald-700 border border-emerald-200 shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                  }`}
+                >
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>Financeiro & Faturamento</span>
+                </button>
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         {/* Courses */}
@@ -163,16 +243,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         )}
 
-        {/* Assignments (Exercícios & Trabalhos DRE) */}
-        {checkViewPermission('dre-simulator') && (
+        {checkViewPermission('assignments') && (
           <button
             id="nav-assignments-btn"
-            onClick={() => onSelectView('dre-simulator')}
+            onClick={() => onSelectView('assignments')}
             title={isCollapsed ? 'Assignments' : undefined}
             className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md transition-all duration-200 cursor-pointer ${
               isCollapsed ? 'justify-center' : 'text-left'
             } ${
-              currentView === 'dre-simulator'
+              currentView === 'assignments'
                 ? 'text-[#1890ff] bg-white border border-[#1890ff]/30 font-bold shadow-xs'
                 : 'text-slate-700 hover:text-slate-900 hover:bg-white/80 font-medium'
             }`}
@@ -183,15 +262,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* Calendar */}
-        {checkViewPermission('matrix') && (
+        {checkViewPermission('calendar') && (
           <button
             id="nav-calendar-btn"
-            onClick={() => onSelectView('matrix')}
+            onClick={() => onSelectView('calendar')}
             title={isCollapsed ? 'Calendar' : undefined}
             className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md transition-all duration-200 cursor-pointer ${
               isCollapsed ? 'justify-center' : 'text-left'
             } ${
-              currentView === 'matrix'
+              currentView === 'calendar'
                 ? 'text-[#1890ff] bg-white border border-[#1890ff]/30 font-bold shadow-xs'
                 : 'text-slate-700 hover:text-slate-900 hover:bg-white/80 font-medium'
             }`}
@@ -236,6 +315,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {!isCollapsed && isExpertMenuOpen && (
               <div className="pl-3 space-y-1 py-1 border-l-2 border-[#0a6ed1]/30 ml-4 animate-fadeIn">
+                {checkViewPermission('expert-ucs') && (
                 <button
                   id="nav-expert-sub-ucs"
                   onClick={() => onSelectView('expert', 'ucs')}
@@ -248,7 +328,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Layers className="w-3.5 h-3.5" />
                   <span>Unidades Atômicas</span>
                 </button>
+                )}
 
+                {checkViewPermission('expert-bloom') && (
                 <button
                   id="nav-expert-sub-bloom"
                   onClick={() => onSelectView('expert', 'bloom')}
@@ -261,7 +343,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <BrainCircuit className="w-3.5 h-3.5" />
                   <span>Taxonomia de Bloom</span>
                 </button>
+                )}
 
+                {checkViewPermission('expert-reverse') && (
                 <button
                   id="nav-expert-sub-reverse"
                   onClick={() => onSelectView('expert', 'reverse')}
@@ -274,7 +358,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Wand2 className="w-3.5 h-3.5 text-emerald-500" />
                   <span>Engenharia Reversa</span>
                 </button>
+                )}
 
+                {checkViewPermission('expert-dnt') && (
                 <button
                   id="nav-expert-sub-dnt"
                   onClick={() => onSelectView('expert', 'dnt')}
@@ -287,7 +373,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Target className="w-3.5 h-3.5" />
                   <span>Diagnóstico DNT</span>
                 </button>
+                )}
 
+                {checkViewPermission('expert-synthesis') && (
                 <button
                   id="nav-expert-sub-synthesis"
                   onClick={() => onSelectView('expert', 'synthesis')}
@@ -300,7 +388,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Award className="w-3.5 h-3.5 text-rose-500" />
                   <span>Projetos de Síntese</span>
                 </button>
+                )}
 
+                {checkViewPermission('expert-multitenant') && (
                 <button
                   id="nav-expert-sub-multitenant"
                   onClick={() => onSelectView('expert', 'multitenant')}
@@ -313,7 +403,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Key className="w-3.5 h-3.5" />
                   <span>API Headless</span>
                 </button>
+                )}
 
+                {checkViewPermission('expert-settings') && (
                 <button
                   id="nav-expert-sub-settings"
                   onClick={() => onSelectView('expert', 'settings')}
@@ -326,7 +418,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Sliders className="w-3.5 h-3.5 text-amber-500" />
                   <span>Configurações Globais</span>
                 </button>
+                )}
 
+                {checkViewPermission('expert-users') && (
                 <button
                   id="nav-expert-sub-users"
                   onClick={() => onSelectView('expert', 'users')}
@@ -339,6 +433,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Lock className="w-3.5 h-3.5 text-purple-500" />
                   <span>Controle de Acessos</span>
                 </button>
+                )}
               </div>
             )}
           </div>
@@ -371,7 +466,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* Gestão de Cursos */}
-        {checkViewPermission('courses') && (
+        {checkViewPermission('manager-trainings') && (
           <button
             id="nav-manager-trainings-btn"
             onClick={() => onSelectView('manager', 'trainings')}
@@ -392,12 +487,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* Menu Alunos (Dropdown) */}
-        {checkViewPermission('courses') && (
+        {checkViewPermission('manager-students-menu') && (
           <div className="space-y-1">
             <button
               id="nav-alunos-dropdown-btn"
               onClick={() => {
-                if (currentView !== 'manager' || (managerActiveTab !== 'students' && managerActiveTab !== 'certificates')) {
+                if (currentView !== 'manager' || (managerActiveTab !== 'students' && managerActiveTab !== 'certificates' && managerActiveTab !== 'companies')) {
                   onSelectView('manager', 'students');
                 }
                 setIsAlunosMenuOpen(!isAlunosMenuOpen);
@@ -406,7 +501,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={`w-full flex items-center justify-between px-2.5 py-2 rounded-md transition-all duration-200 cursor-pointer ${
                 isCollapsed ? 'justify-center' : 'text-left'
               } ${
-                currentView === 'manager' && (managerActiveTab === 'students' || managerActiveTab === 'certificates')
+                currentView === 'manager' && (managerActiveTab === 'students' || managerActiveTab === 'certificates' || managerActiveTab === 'companies')
                   ? 'text-[#1890ff] bg-white border border-[#1890ff]/30 font-bold shadow-xs'
                   : 'text-slate-700 hover:text-slate-900 hover:bg-white/80 font-medium'
               }`}
@@ -427,6 +522,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* Submenus under Alunos */}
             {!isCollapsed && isAlunosMenuOpen && (
               <div className="pl-3 space-y-1 py-1 border-l-2 border-[#1890ff]/30 ml-4 animate-fadeIn">
+                {checkViewPermission('manager-students') && (
                 <button
                   id="nav-alunos-sub-alunos"
                   onClick={() => onSelectView('manager', 'students')}
@@ -439,7 +535,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Users className="w-3.5 h-3.5 shrink-0 text-[#1890ff]" />
                   <span className="truncate">Alunos</span>
                 </button>
+                )}
 
+                {checkViewPermission('manager-certificates') && (
                 <button
                   id="nav-alunos-sub-certs"
                   onClick={() => onSelectView('manager', 'certificates')}
@@ -452,6 +550,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Award className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
                   <span className="truncate">Certificados</span>
                 </button>
+                )}
+
+                {checkViewPermission('manager-companies') && (
+                <button
+                  id="nav-alunos-sub-empresas"
+                  onClick={() => onSelectView('manager', 'companies')}
+                  className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer ${
+                    currentView === 'manager' && managerActiveTab === 'companies'
+                      ? 'text-[#1890ff] bg-white border border-[#1890ff]/30 font-bold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  }`}
+                >
+                  <Building2 className="w-3.5 h-3.5 shrink-0 text-[#F15A24]" />
+                  <span className="truncate">Empresas</span>
+                </button>
+                )}
               </div>
             )}
           </div>

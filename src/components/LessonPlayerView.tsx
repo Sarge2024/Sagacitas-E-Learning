@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { Slide, Course, Lesson, Comment } from '../types';
+import React, { useState, useRef, useEffect } from 'react';
+import { Slide, Course, Lesson, Comment, LessonAttachment } from '../types';
+import { Slide as PresentationSlide } from '../types/presentation';
 import { INITIAL_COMMENTS } from '../data/coursesData';
 import { LessonSlideDeckViewer } from './LessonSlideDeckViewer';
 import { getSlidesForLesson } from '../data/lessonSlidesData';
@@ -23,6 +24,7 @@ import {
   Download,
   Send,
   User,
+  Folder,
   PanelLeftClose,
   PanelLeftOpen,
   Presentation,
@@ -74,6 +76,15 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
       }
   );
 
+  useEffect(() => {
+    if (course.modules && course.modules.length > 0) {
+      const active = course.modules.flatMap(m => m.lessons || []).find(l => l.active) || course.modules[0].lessons?.[0];
+      if (active) {
+        setActiveLesson(active);
+      }
+    }
+  }, [course]);
+
   const [mediaMode, setMediaMode] = useState<'video' | 'slides' | 'split'>('slides');
   const [expandedModuleIds, setExpandedModuleIds] = useState<Record<string, boolean>>({
     'mod-0': true,
@@ -105,7 +116,14 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
   const [newCommentText, setNewCommentText] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const activeSlides = activeLesson.slides || getSlidesForLesson(activeLesson.id, activeLesson.title, activeLesson.description);
+  const allLessons = course.modules?.flatMap(m => m.lessons || []) || [];
+  const activeLessonIndex = allLessons.findIndex(l => l.id === activeLesson.id);
+  const activeLessonSeq = activeLessonIndex !== -1 ? activeLessonIndex + 1 : 1;
+
+  const dbSlides = course.presentation?.slides?.filter((s: PresentationSlide) => s.aula_group === activeLessonSeq) ?? [];
+  const activeSlides = dbSlides.length > 0
+    ? dbSlides
+    : activeLesson.slides || getSlidesForLesson(activeLesson.id, activeLesson.title, activeLesson.description);
 
   const videoContainerRef = useRef<HTMLDivElement>(null);
 
@@ -278,7 +296,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
           {/* Media Player / Slides Content Area */}
           {mediaMode === 'slides' && (
             <LessonSlideDeckViewer
-              slides={activeSlides}
+              slides={activeSlides as unknown as Slide[]}
               lessonTitle={activeLesson.title}
               lessonNumber={activeLesson.number}
               onOpenAITutor={onOpenAITutor}
@@ -410,7 +428,7 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
 
               {/* Slides Frame */}
               <LessonSlideDeckViewer
-                slides={activeSlides}
+                slides={activeSlides as unknown as Slide[]}
                 lessonTitle={activeLesson.title}
                 lessonNumber={activeLesson.number}
                 onOpenAITutor={onOpenAITutor}
@@ -694,14 +712,14 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
           id="right-panel-course-content"
           className="w-full lg:w-[380px] bg-white border-l border-slate-200 flex flex-col h-full lg:h-[calc(100vh-64px)] shadow-2xs"
         >
-          <div className="p-4 border-b border-slate-200 bg-slate-50">
+          <div className="p-4 border-b border-slate-200 bg-slate-50 bg-radial">
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-[#1890ff]" />
                 <span>Conteúdo do Curso</span>
               </h3>
               <span className="text-[10px] bg-blue-50 text-[#1890ff] px-2 py-0.5 rounded font-bold border border-blue-200">
-                4 Módulos
+                {modules.length} Módulos
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium">
@@ -710,61 +728,59 @@ export const LessonPlayerView: React.FC<LessonPlayerViewProps> = ({
           </div>
 
           <div className="flex-1 overflow-y-auto p-3 space-y-3">
-            {[
-              { id: 'mod-1', name: 'Módulo 1', title: 'Fundamentos & DRE do Restaurante', status: 'Concluído', badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200', icon: CheckCircle2 },
-              { id: 'mod-2', name: 'Módulo 2', title: 'Custos Operacionais & Margem de Contribuição', status: 'Concluído', badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200', icon: CheckCircle2 },
-              { id: 'mod-3', name: 'Módulo 3', title: 'Análise de Desempenho & EBITDA na Prática', status: '(Active)', badgeColor: 'bg-blue-50 text-[#1890ff] border-blue-200', active: true, icon: Play },
-              { id: 'mod-4', name: 'Módulo 4', title: 'Ações de Mitigação & Ritual da DRE', status: '(Locked)', badgeColor: 'bg-slate-100 text-slate-600 border-slate-200', locked: true, icon: Lock },
-            ].map((mod) => (
-              <div
-                key={mod.id}
-                className={`p-3 rounded-md border transition-all ${
-                  mod.active
-                    ? 'bg-blue-50/50 border-[#1890ff] shadow-xs'
-                    : mod.locked
-                    ? 'bg-slate-50/60 border-slate-200 opacity-75'
-                    : 'bg-white border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <mod.icon className={`w-3.5 h-3.5 ${mod.active ? 'text-[#1890ff]' : mod.locked ? 'text-slate-400' : 'text-emerald-600'}`} />
-                    {mod.name}
-                  </span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-extrabold border ${mod.badgeColor}`}>
-                    {mod.status}
-                  </span>
-                </div>
-                <p className="text-xs font-semibold text-slate-800 mt-1">
-                  {mod.title}
-                </p>
-                <div className="flex items-center justify-between text-[10px] text-slate-500 mt-2 font-medium">
-                  <span>5 aulas</span>
-                  <span>{mod.locked ? '0%' : mod.active ? '60%' : '100%'} concluído</span>
-                </div>
-              </div>
-            ))}
+            {modules.length === 0 ? (
+              <p className="text-xs text-slate-400 italic text-center py-8">Nenhum conteúdo curricular estruturado.</p>
+            ) : (
+              modules.map((mod, index) => {
+                const isSelectedModule = mod.lessons?.some((l) => l.id === activeLesson.id);
+                return (
+                  <div
+                    key={mod.id}
+                    className={`p-3 rounded-md border transition-all ${
+                      isSelectedModule
+                        ? 'bg-blue-50/30 border-[#1890ff]/60 shadow-2xs'
+                        : 'bg-white border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                        <Folder className="w-3.5 h-3.5 text-[#1890ff]" />
+                        Módulo {index + 1}
+                      </span>
+                    </div>
+                    <p className="text-xs font-black text-slate-800 mt-1">
+                      {mod.title}
+                    </p>
+                    <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1 italic">
+                      {mod.focus}
+                    </p>
+                    <div className="flex items-center justify-between text-[10px] text-slate-500 mt-2 font-medium">
+                      <span>{mod.lessons?.length || 0} aulas</span>
+                    </div>
 
-            {/* Expanded Detailed Module Lessons Accordion */}
-            <div className="mt-4 pt-3 border-t border-slate-200 space-y-2">
-              <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                Aulas do Módulo 3 (Ativo)
-              </h4>
-              {currentModule.lessons?.map((lesson) => (
-                <button
-                  key={lesson.id}
-                  onClick={() => setActiveLesson(lesson)}
-                  className={`w-full text-left p-2 rounded-md border text-xs transition-all cursor-pointer flex items-center justify-between ${
-                    lesson.id === activeLesson.id
-                      ? 'bg-[#1890ff] text-white border-[#1890ff] font-bold shadow-xs'
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200'
-                  }`}
-                >
-                  <span className="truncate pr-2">{lesson.title}</span>
-                  <span className="text-[10px] shrink-0 opacity-80">{lesson.duration}</span>
-                </button>
-              ))}
-            </div>
+                    {/* List of lessons of this module */}
+                    {mod.lessons && mod.lessons.length > 0 && (
+                      <div className="mt-3 pt-2 border-t border-slate-100 space-y-1.5">
+                        {mod.lessons.map((lesson) => (
+                          <button
+                            key={lesson.id}
+                            onClick={() => setActiveLesson(lesson)}
+                            className={`w-full text-left p-2 rounded text-xs transition-all cursor-pointer flex items-center justify-between ${
+                              lesson.id === activeLesson.id
+                                ? 'bg-[#1890ff] text-white font-bold'
+                                : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200'
+                            }`}
+                          >
+                            <span className="truncate pr-2">{lesson.title}</span>
+                            <span className="text-[9px] shrink-0 opacity-80">{lesson.duration}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
         </aside>
       </main>

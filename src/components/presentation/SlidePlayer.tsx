@@ -257,7 +257,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
           </div>
         );
 
-      case 'quiz':
+      case 'question':
         const quiz = content.quizData;
         if (!quiz) return null;
 
@@ -341,7 +341,7 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
           </div>
         );
 
-      case 'custom-widget':
+      case 'simulation':
         return (
           <div className="w-full h-full bg-[#1c222b]/95 border border-[#0a6ed1]/40 rounded-md p-4 shadow-2xs flex flex-col justify-between overflow-y-auto">
             <div className="flex items-center justify-between border-b border-white/10 pb-2">

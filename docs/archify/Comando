@@ -4,6 +4,11 @@ Utilize o modo de fluxo de trabalho do Archify para explicar este ciclo de chama
 
 Utilize o modo de sequência do Archify para ilustrar o fluxo, desde a solicitação do chamador até a resposta final. Inclua autenticação, ocorrência ou não de *cache hit*, *fallback* de persistência, mensagens de retorno e rastreamento assíncrono ou emissão de eventos. Mantenha os rótulos das mensagens concisos e a ordem inequívoca.
 
-Utilize o modo de fluxo de dados do Archify para desenhar esta topologia de fluxo de eventos. Nomeie produtores, eventos, tópicos, processadores ordenados, grupos de consumidores, armazenamentos de estado, caminhos de reexecução e a DLQ. Indique a propriedade e a semântica de entrega apenas quando houver evidências que as sustentem.
+Utilize o modo de fluxo de dados do Archify para desenhar esta topologia de fluxo de eventos. 
+Nomeie produtores, eventos, tópicos, processadores ordenados, grupos de consumidores, armazenamentos de estado, caminhos de reexecução e a DLQ. Indique a propriedade e a semântica de entrega apenas quando houver evidências que as sustentem.
 
 Use Archify lifecycle mode to model this object. Separate main progress, waiting or interruption states, and terminal outcomes. Label transitions with events, include retry, cancellation, timeout, success, and failure where real, and never hide an ending.
+
+Utilize o modo de fluxo de dados do Archify para desenhar a topologia de fluxo de eventos contidos no "Núcleo Expert: Unidades Atômicas & DNT. 
+Nomeie produtores, eventos, tópicos, processadores ordenados, grupos de consumidores, armazenamentos de estado, caminhos de reexecução e a DLQ. 
+Indique a propriedade e a semântica de entrega apenas quando houver evidências que as sustentem.

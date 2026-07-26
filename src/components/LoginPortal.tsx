@@ -531,7 +531,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
           </span>
 
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-            Educação Corporativa e <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2fd9f4] to-[#8083ff]">Gestão de Resultados</span>
+            Educação Corporativa e <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1890ff] to-emerald-400">Gestão de Resultados</span>
           </h1>
 
           <p className="text-sm text-[#c7c4d7] leading-relaxed font-medium">
@@ -543,7 +543,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-left max-w-md mx-auto lg:mx-0 pt-2 font-semibold">
             <div className="flex items-center gap-3 p-3 bg-white/3 border border-white/5 rounded-md">
-              <div className="w-8 h-8 rounded-md bg-[#2fd9f4]/15 flex items-center justify-center text-[#2fd9f4]">
+              <div className="w-8 h-8 rounded-md bg-[#1890ff]/15 flex items-center justify-center text-[#1890ff]">
                 <Globe className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -565,13 +565,13 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
         </div>
 
         {/* Right Side: Login / Register Card */}
-        <div className="w-full max-w-md bg-[#131929]/50 backdrop-blur-md border border-white/10 p-6 sm:p-8 rounded-md shadow-2xs relative">
+        <div className="w-full max-w-md bg-[#131929]/50 backdrop-blur-md border border-white/10 p-6 sm:p-8 rounded-md shadow-lg relative">
 
           <div className="text-center space-y-2 mb-6">
             <div className={`w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-white mx-auto shadow-2xs transition-all duration-300 ${isRegisterMode ? 'border-emerald-500/30' : ''}`}>
               {isRegisterMode
                 ? <UserPlus className="w-5 h-5 text-emerald-400" />
-                : <Lock className="w-5 h-5 text-[#2fd9f4]" />
+                : <Lock className="w-5 h-5 text-[#1890ff]" />
               }
             </div>
             <h2 className="text-lg font-black text-white">
@@ -768,7 +768,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
                   id="register-submit-btn"
                   onClick={handleRegister}
                   disabled={loadingProvider !== null || !isFormValid}
-                  className="w-full py-3.5 px-4 rounded-md bg-gradient-to-r from-emerald-500 to-[#2fd9f4] hover:from-emerald-400 hover:to-[#2fd9f4] text-[#030914] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 transition-all active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-emerald-500/15"
+                  className="w-full py-3.5 px-4 rounded-md bg-[#1890ff] hover:bg-blue-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 transition-all active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-[#1890ff]/20"
                 >
                   <UserPlus className="w-4.5 h-4.5" />
                   <span>
@@ -789,7 +789,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
                     onClick={() => switchMode(false)}
                     className="text-xs text-[#94a3b8] hover:text-white font-semibold transition-colors cursor-pointer"
                   >
-                    Já tem uma conta? <span className="text-[#2fd9f4] font-black">Entrar</span>
+                    Já tem uma conta? <span className="text-[#1890ff] font-black">Entrar</span>
                   </button>
                 </div>
               </>
@@ -805,7 +805,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
                     placeholder="Seu e-mail"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-black/40 border border-white/10 rounded-md px-4 py-3 text-white text-sm outline-none focus:border-[#ffcb2b] transition-colors"
+                    className="w-full bg-black/40 border border-white/10 rounded-md px-4 py-3 text-white text-sm outline-none focus:border-[#1890ff] transition-colors"
                   />
                   <div className="relative">
                     <input
@@ -814,7 +814,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
                       placeholder="Sua senha"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-black/40 border border-white/10 rounded-md px-4 py-3 pr-10 text-white text-sm outline-none focus:border-[#ffcb2b] transition-colors"
+                      className="w-full bg-black/40 border border-white/10 rounded-md px-4 py-3 pr-10 text-white text-sm outline-none focus:border-[#1890ff] transition-colors"
                       onKeyDown={(e) => e.key === 'Enter' && handleConnectOAuth('firebase')}
                     />
                     <button
@@ -833,7 +833,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
                   id="login-submit-btn"
                   onClick={() => handleConnectOAuth('firebase')}
                   disabled={loadingProvider !== null}
-                  className="w-full py-3.5 px-4 rounded-md bg-[#ffcb2b] hover:bg-[#f5b800] text-[#030914] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 transition-all active:scale-98 disabled:opacity-50 cursor-pointer shadow-lg shadow-[#ffcb2b]/10"
+                  className="w-full py-3.5 px-4 rounded-md bg-[#1890ff] hover:bg-blue-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-3 transition-all active:scale-98 disabled:opacity-50 cursor-pointer shadow-lg shadow-[#1890ff]/20"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 32 32" fill="none">
                     <path d="M5.8 24.6l9.6-18c.3-.6 1.2-.6 1.5 0l2.3 4.3L5.8 24.6z" fill="#FFC24C" />
@@ -882,8 +882,8 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
 
                 {/* Info box */}
                 <div className="mt-5 p-3.5 bg-slate-950/40 rounded-md border border-white/5 text-[10px] text-[#cbd5e1] leading-relaxed">
-                  <span className="text-[#ffcb2b] font-black uppercase tracking-wider block mb-1">💡 Integração Firebase Auth:</span>
-                  O botão Firebase redireciona para a tela de login integrado. Utilize o e-mail cadastrado <code className="text-[#2fd9f4] font-bold">sagacitas.assessoria@gmail.com</code> para sincronizar suas permissões de administrador.
+                  <span className="text-[#1890ff] font-black uppercase tracking-wider block mb-1">💡 Integração Firebase Auth:</span>
+                  O botão Firebase redireciona para a tela de login integrado. Utilize o e-mail cadastrado <code className="text-[#1890ff] font-bold">sagacitas.assessoria@gmail.com</code> para sincronizar suas permissões de administrador.
                 </div>
 
                 {/* Switch to Register */}

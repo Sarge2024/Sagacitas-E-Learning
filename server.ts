@@ -125,6 +125,67 @@ Responda de forma direta e estruturada (2 a 4 parágrafos) focando em aplicaçã
     res.json({ bootId: SERVER_BOOT_ID });
   });
 
+  // SOC Context Resolver (Polimorfismo e Subgrupos)
+  app.get("/api/soc/resolve", asyncHandler(async (req, res) => {
+    const { uc, pmest, energy, max_allowed } = req.query;
+    
+    if (!uc || !pmest) {
+      return res.status(400).json({ error: "Parâmetros 'uc' e 'pmest' são obrigatórios." });
+    }
+
+    if (!supabase) {
+      return res.status(500).json({ error: "Supabase client not configured in backend." });
+    }
+
+    // 1. Validar a assinatura PMEST da UC
+    const { data: signatures, error: sigError } = await supabase
+      .from('uc_pmest_signatures')
+      .select('*')
+      .eq('uc_id', uc as string)
+      .eq('code', pmest as string);
+
+    if (sigError || !signatures || signatures.length === 0) {
+      return res.status(404).json({ 
+        error: "Unidade de Conhecimento não possui vínculo com a assinatura solicitada." 
+      });
+    }
+
+    // 2. Determinar o nível de energia autorizado (Bloom Level)
+    let authorizedEnergyLevel = parseInt((energy as string) || "2", 10);
+    if (isNaN(authorizedEnergyLevel)) authorizedEnergyLevel = 2;
+
+    let warningFallback = false;
+    let actualEnergyLevel = authorizedEnergyLevel;
+    
+    // Regra de Falha Suave Simulada (Token Engine Router)
+    const maxAllowed = parseInt((max_allowed as string) || "6", 10);
+    if (authorizedEnergyLevel > maxAllowed) {
+       actualEnergyLevel = maxAllowed;
+       warningFallback = true;
+    }
+
+    // 3. Buscar os Subgrupos autorizados (bloom_level_required <= actualEnergyLevel)
+    const { data: subgroups, error: subError } = await supabase
+      .from('uc_subgroups')
+      .select('*')
+      .eq('uc_id', uc as string)
+      .lte('bloom_level_required', actualEnergyLevel)
+      .order('bloom_level_required', { ascending: true });
+
+    if (subError) {
+      return res.status(500).json({ error: "Erro ao buscar subgrupos.", details: subError });
+    }
+
+    return res.json({
+      uc_id: uc,
+      signature_matched: pmest,
+      requested_energy: authorizedEnergyLevel,
+      resolved_energy: actualEnergyLevel,
+      warning_fallback: warningFallback,
+      subgroups: subgroups || []
+    });
+  }));
+
   // OAuth Authentication Endpoints
   app.get("/api/auth/url", (req, res) => {
     const provider = (req.query.provider as string) || "google";

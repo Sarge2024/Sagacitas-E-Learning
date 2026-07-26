@@ -4498,10 +4498,10 @@
         <div class="pulse-dot"></div>
         <h1>Sagacitas E-Learning Architecture</h1>
       </div>
-      <p class="subtitle">High-level component interactions and trust boundaries</p>
+      <p class="subtitle">High-level component interactions, SOC Polymorphism, and trust boundaries</p>
     </div>
 
-    <script id="archify-guided-views-data" type="application/json">[{"id":"full-flow","label":"Full System Architecture","focus":["student","spa","api_gateway","tutor_service","supabase_db","gemini_api","oauth_provider"],"note":"Main request paths from the student interface to backend microservices and external AI/Auth providers."}]</script>
+    <script id="archify-guided-views-data" type="application/json">[{"id":"full-flow","label":"Full System Architecture","focus":["student","spa_player","api_gateway","soc_resolver","tutor_service","supabase_db","gemini_api","oauth_provider"],"note":"Main request paths for the Polymorphic SOC structure and AI Tutor."}]</script>
 
     <div class="guided-views no-print" id="guided-views" hidden aria-label="Guided diagram views">
       <button id="guided-view-prev" type="button" aria-label="Previous guided view" title="Previous guided view ([)">&#8592;</button>
@@ -4544,9 +4544,9 @@
 
     <!-- Main Diagram -->
     <div class="diagram-container" data-detail-level="map">
-      <svg viewBox="0 0 1210 552" role="img" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="standard">
+      <svg viewBox="0 0 1400 700" role="img" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="standard">
         <title id="archify-diagram-title">Sagacitas E-Learning Architecture</title>
-        <desc id="archify-diagram-description">High-level component interactions and trust boundaries</desc>
+        <desc id="archify-diagram-description">High-level component interactions, SOC Polymorphism, and trust boundaries</desc>
         <!-- Definitions -->
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -4570,206 +4570,194 @@
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         <!-- Boundaries (behind everything) -->
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" x="220" y="220" width="200" height="264" rx="12" class="c-region" stroke-width="1"/>
-        <text x="228" y="238" class="t-cloud" font-size="9" font-weight="600">Client Trust Boundary</text>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" x="220" y="120" width="200" height="414" rx="12" class="c-region" stroke-width="1"/>
+        <text x="228" y="138" class="t-cloud" font-size="9" font-weight="600">Client Trust Boundary</text>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="1" x="470" y="70" width="450" height="414" rx="12" class="c-region" stroke-width="1"/>
-        <text x="478" y="88" class="t-cloud" font-size="9" font-weight="600">Sagacitas Internal Domain</text>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="1" x="520" y="120" width="500" height="414" rx="12" class="c-region" stroke-width="1"/>
+        <text x="528" y="138" class="t-cloud" font-size="9" font-weight="600">Sagacitas Internal Domain</text>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="2" x="720" y="70" width="450" height="264" rx="12" class="c-region" stroke-width="1"/>
-        <text x="728" y="88" class="t-cloud" font-size="9" font-weight="600">External Cloud Dependencies</text>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="2" x="520" y="20" width="800" height="214" rx="12" class="c-region" stroke-width="1"/>
+        <text x="528" y="38" class="t-cloud" font-size="9" font-weight="600">External Cloud Dependencies</text>
 
         <!-- Connection paths (before components for correct z-order) -->
-        <path data-edge-from="student" data-edge-to="spa" data-edge-label="Interact" data-edge-key="0" data-edge-id="user-spa" data-composition-points="170,282;250,282" d="M 170 282 L 250 282" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="spa" data-edge-to="browser_storage" data-edge-label="Tokens" data-edge-key="1" data-edge-id="spa-storage" data-composition-points="320,314;320,400" d="M 320 314 L 320 400" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="spa" data-edge-to="static_server" data-edge-label="Fetch Assets" data-edge-key="2" data-edge-id="spa-static" data-composition-points="390,298;445,298;445,432;500,432" d="M 390 298 L 437 298 Q 445 298 445 306 L 445 424 Q 445 432 453 432 L 500 432" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="spa" data-edge-to="api_gateway" data-edge-label="REST API" data-edge-key="3" data-edge-id="spa-api" data-composition-points="390,287.3333333333333;445,287.3333333333333;445,282;500,282" d="M 390 287.3333333333333 L 442.33333333333337 287.3333333333333 Q 445 287.3333333333333 445 284.66666666666663 L 445 284.66666666666663 Q 445 282 447.66666666666663 282 L 500 282" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="spa" data-edge-to="supabase_db" data-edge-label="Realtime / Direct DB" data-edge-key="4" data-edge-id="spa-db" data-composition-points="390,266;445,266;445,132;500,132" d="M 390 266 L 437 266 Q 445 266 445 258 L 445 140 Q 445 132 453 132 L 500 132" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="env_config" data-edge-to="api_gateway" data-edge-key="5" data-edge-id="config-api" data-composition-points="750,432;700,432;700,289;650,289" d="M 750 432 L 708 432 Q 700 432 700 424 L 700 297 Q 700 289 692 289 L 650 289" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="spa" data-edge-to="oauth_provider" data-edge-label="Auth Request" data-edge-key="6" data-edge-id="spa-oauth" data-composition-points="390,276.6666666666667;390,207.83333333333334;750,207.83333333333334;750,139" d="M 390 276.6666666666667 L 390 215.83333333333334 Q 390 207.83333333333334 398 207.83333333333334 L 742 207.83333333333334 Q 750 207.83333333333334 750 199.83333333333334 L 750 139" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="oauth_provider" data-edge-to="supabase_db" data-edge-label="Sync Role" data-edge-key="7" data-edge-id="oauth-db" data-composition-points="750,125;695,125;695,132;640,132" d="M 750 125 L 698.5 125 Q 695 125 695 128.5 L 695 128.5 Q 695 132 691.5 132 L 640 132" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="api_gateway" data-edge-to="tutor_service" data-edge-label="/api/tutor" data-edge-key="8" data-edge-id="api-tutor" data-composition-points="650,275;700,275;700,282;750,282" d="M 650 275 L 696.5 275 Q 700 275 700 278.5 L 700 278.5 Q 700 282 703.5 282 L 750 282" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="tutor_service" data-edge-to="gemini_api" data-edge-label="Prompt" data-edge-key="9" data-edge-id="tutor-gemini" data-composition-points="890,282;1000,282" d="M 890 282 L 1000 282" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="student" data-edge-to="spa_player" data-edge-label="Learn" data-edge-key="0" data-edge-id="user-spa" data-composition-points="170,182;250,182" d="M 170 182 L 250 182" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="spa_expert" data-edge-to="supabase_db" data-edge-label="Authoring" data-edge-key="1" data-edge-id="expert-db" data-composition-points="390,482;620,482;620,496;850,496" d="M 390 482 L 613 482 Q 620 482 620 489 L 620 489 Q 620 496 627 496 L 850 496" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="spa_player" data-edge-to="api_gateway" data-edge-label="REST API" data-edge-key="2" data-edge-id="spa-api" data-composition-points="390,182;550,182" d="M 390 182 L 550 182" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="spa_player" data-edge-to="soc_resolver" data-edge-label="Fetch UCs" data-edge-key="3" data-edge-id="spa-resolver" data-composition-points="390,196;470,196;470,332;550,332" d="M 390 196 L 462 196 Q 470 196 470 204 L 470 324 Q 470 332 478 332 L 550 332" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="soc_resolver" data-edge-to="supabase_db" data-edge-label="Fetch Subgroups" data-edge-key="4" data-edge-id="resolver-db" data-composition-points="710,332;780,332;780,482;850,482" d="M 710 332 L 772 332 Q 780 332 780 340 L 780 474 Q 780 482 788 482 L 850 482" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="spa_player" data-edge-to="oauth_provider" data-edge-label="Login" data-edge-key="5" data-edge-id="spa-oauth" data-composition-points="390,168;470,168;470,82;550,82" d="M 390 168 L 462 168 Q 470 168 470 160 L 470 90 Q 470 82 478 82 L 550 82" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-from="oauth_provider" data-edge-to="supabase_db" data-edge-label="Sync Identity" data-edge-key="6" data-edge-id="oauth-db" data-composition-points="690,82;770,82;770,468;850,468" d="M 690 82 L 762 82 Q 770 82 770 90 L 770 460 Q 770 468 778 468 L 850 468" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-from="api_gateway" data-edge-to="tutor_service" data-edge-label="/api/tutor" data-edge-key="7" data-edge-id="api-tutor" data-composition-points="700,182;850,182" d="M 700 182 L 850 182" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="tutor_service" data-edge-to="gemini_api" data-edge-label="Inference" data-edge-key="8" data-edge-id="tutor-gemini" data-composition-points="990,182;1150,182" d="M 990 182 L 1150 182" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
 
         <!-- Components -->
         <g id="node-student" data-node-id="student" data-node-label="Student" tabindex="0" role="button" aria-label="Focus Student, End User, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="End User" data-node-context="Architecture component">
           <title>Student · End User · Architecture component</title>
-          <rect x="50" y="250" width="120" height="64" rx="6" class="c-mask"/>
-          <rect x="50" y="250" width="120" height="64" rx="6" class="c-external" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(56 256) scale(0.6875)">
+          <rect x="50" y="150" width="120" height="64" rx="6" class="c-mask"/>
+          <rect x="50" y="150" width="120" height="64" rx="6" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(56 156) scale(0.6875)">
             <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-detail-anchor x="110" y="280" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Student</text>
-        <text data-detail="context" x="110" y="296" class="t-muted" font-size="9" text-anchor="middle">End User</text>
+          <text data-detail-anchor x="110" y="180" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Student</text>
+        <text data-detail="context" x="110" y="196" class="t-muted" font-size="9" text-anchor="middle">End User</text>
         </g>
 
-        <g id="node-spa" data-node-id="spa" data-node-label="React SPA" tabindex="0" role="button" aria-label="Focus React SPA, Vite Application, Client Trust Boundary" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="Vite Application" data-node-context="Client Trust Boundary">
-          <title>React SPA · Vite Application · Client Trust Boundary</title>
-          <rect x="250" y="250" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="250" y="250" width="140" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(256 256) scale(0.6875)">
+        <g id="node-spa_player" data-node-id="spa_player" data-node-label="Student SPA" tabindex="0" role="button" aria-label="Focus Student SPA, Learning Player, Client Trust Boundary" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="Learning Player" data-node-context="Client Trust Boundary">
+          <title>Student SPA · Learning Player · Client Trust Boundary</title>
+          <rect x="250" y="150" width="140" height="64" rx="6" class="c-mask"/>
+          <rect x="250" y="150" width="140" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(256 156) scale(0.6875)">
             <rect x="2" y="3" width="12" height="10" rx="2"/>
             <path d="M2 6.5h12"/>
             <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
             <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
           </g>
-          <text data-detail-anchor x="320" y="280" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">React SPA</text>
-        <text data-detail="context" x="320" y="296" class="t-muted" font-size="9" text-anchor="middle">Vite Application</text>
+          <text data-detail-anchor x="320" y="180" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Student SPA</text>
+        <text data-detail="context" x="320" y="196" class="t-muted" font-size="9" text-anchor="middle">Learning Player</text>
         </g>
 
-        <g id="node-browser_storage" data-node-id="browser_storage" data-node-label="Local Storage" tabindex="0" role="button" aria-label="Focus Local Storage, Session Data, Client Trust Boundary" aria-pressed="false" data-node-kind="database" data-node-sublabel="Session Data" data-node-context="Client Trust Boundary">
-          <title>Local Storage · Session Data · Client Trust Boundary</title>
-          <rect x="250" y="400" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="250" y="400" width="140" height="64" rx="6" class="c-database" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(256 406) scale(0.6875)">
-            <ellipse cx="8" cy="4" rx="5" ry="2"/>
-            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+        <g id="node-spa_expert" data-node-id="spa_expert" data-node-label="Expert SPA" tabindex="0" role="button" aria-label="Focus Expert SPA, Authoring Tool, Client Trust Boundary" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="Authoring Tool" data-node-context="Client Trust Boundary">
+          <title>Expert SPA · Authoring Tool · Client Trust Boundary</title>
+          <rect x="250" y="450" width="140" height="64" rx="6" class="c-mask"/>
+          <rect x="250" y="450" width="140" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(256 456) scale(0.6875)">
+            <rect x="2" y="3" width="12" height="10" rx="2"/>
+            <path d="M2 6.5h12"/>
+            <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
+            <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
           </g>
-          <text data-detail-anchor x="320" y="430" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Local Storage</text>
-        <text data-detail="context" x="320" y="446" class="t-muted" font-size="9" text-anchor="middle">Session Data</text>
+          <text data-detail-anchor x="320" y="480" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Expert SPA</text>
+        <text data-detail="context" x="320" y="496" class="t-muted" font-size="9" text-anchor="middle">Authoring Tool</text>
         </g>
 
-        <g id="node-supabase_db" data-node-id="supabase_db" data-node-label="Supabase Postgres" tabindex="0" role="button" aria-label="Focus Supabase Postgres, Relational Data, Sagacitas Internal Domain" aria-pressed="false" data-node-kind="database" data-node-sublabel="Relational Data" data-node-context="Sagacitas Internal Domain">
-          <title>Supabase Postgres · Relational Data · Sagacitas Internal Domain</title>
-          <rect x="500" y="100" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="500" y="100" width="140" height="64" rx="6" class="c-database" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(506 106) scale(0.6875)">
-            <ellipse cx="8" cy="4" rx="5" ry="2"/>
-            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+        <g id="node-oauth_provider" data-node-id="oauth_provider" data-node-label="Firebase Auth" tabindex="0" role="button" aria-label="Focus Firebase Auth, Identity, External Cloud Dependencies" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="Identity" data-node-context="External Cloud Dependencies">
+          <title>Firebase Auth · Identity · External Cloud Dependencies</title>
+          <rect x="550" y="50" width="140" height="64" rx="6" class="c-mask"/>
+          <rect x="550" y="50" width="140" height="64" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(556 56) scale(0.6875)">
+            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
           </g>
-          <text data-detail-anchor x="570" y="130" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Supabase Postgres</text>
-        <text data-detail="context" x="570" y="146" class="t-muted" font-size="9" text-anchor="middle">Relational Data</text>
+          <text data-detail-anchor x="620" y="80" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Firebase Auth</text>
+        <text data-detail="context" x="620" y="96" class="t-muted" font-size="9" text-anchor="middle">Identity</text>
         </g>
 
         <g id="node-api_gateway" data-node-id="api_gateway" data-node-label="Express Server" tabindex="0" role="button" aria-label="Focus Express Server, API Router, Sagacitas Internal Domain" aria-pressed="false" data-node-kind="backend" data-node-sublabel="API Router" data-node-context="Sagacitas Internal Domain">
           <title>Express Server · API Router · Sagacitas Internal Domain</title>
-          <rect x="500" y="250" width="150" height="64" rx="6" class="c-mask"/>
-          <rect x="500" y="250" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(506 256) scale(0.6875)">
+          <rect x="550" y="150" width="150" height="64" rx="6" class="c-mask"/>
+          <rect x="550" y="150" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(556 156) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-detail-anchor x="575" y="280" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Express Server</text>
-        <text data-detail="context" x="575" y="296" class="t-muted" font-size="9" text-anchor="middle">API Router</text>
+          <text data-detail-anchor x="625" y="180" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Express Server</text>
+        <text data-detail="context" x="625" y="196" class="t-muted" font-size="9" text-anchor="middle">API Router</text>
         </g>
 
-        <g id="node-static_server" data-node-id="static_server" data-node-label="Static Assets" tabindex="0" role="button" aria-label="Focus Static Assets, Dist Server, Sagacitas Internal Domain" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Dist Server" data-node-context="Sagacitas Internal Domain">
-          <title>Static Assets · Dist Server · Sagacitas Internal Domain</title>
-          <rect x="500" y="400" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="500" y="400" width="140" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(506 406) scale(0.6875)">
+        <g id="node-soc_resolver" data-node-id="soc_resolver" data-node-label="SOC Context Resolver" tabindex="0" role="button" aria-label="Focus SOC Context Resolver, /api/soc/resolve, Sagacitas Internal Domain" aria-pressed="false" data-node-kind="backend" data-node-sublabel="/api/soc/resolve" data-node-context="Sagacitas Internal Domain">
+          <title>SOC Context Resolver · /api/soc/resolve · Sagacitas Internal Domain</title>
+          <rect x="550" y="300" width="160" height="64" rx="6" class="c-mask"/>
+          <rect x="550" y="300" width="160" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(556 306) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-detail-anchor x="570" y="430" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Static Assets</text>
-        <text data-detail="context" x="570" y="446" class="t-muted" font-size="9" text-anchor="middle">Dist Server</text>
-        </g>
-
-        <g id="node-oauth_provider" data-node-id="oauth_provider" data-node-label="Firebase Auth" tabindex="0" role="button" aria-label="Focus Firebase Auth, Google/OAuth, External Cloud Dependencies" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="Google/OAuth" data-node-context="External Cloud Dependencies">
-          <title>Firebase Auth · Google/OAuth · External Cloud Dependencies</title>
-          <rect x="750" y="100" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="750" y="100" width="140" height="64" rx="6" class="c-cloud" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(756 106) scale(0.6875)">
-            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
-          </g>
-          <text data-detail-anchor x="820" y="130" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Firebase Auth</text>
-        <text data-detail="context" x="820" y="146" class="t-muted" font-size="9" text-anchor="middle">Google/OAuth</text>
+          <text data-detail-anchor x="630" y="330" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">SOC Context Resolver</text>
+        <text data-detail="context" x="630" y="346" class="t-muted" font-size="9" text-anchor="middle">/api/soc/resolve</text>
         </g>
 
         <g id="node-tutor_service" data-node-id="tutor_service" data-node-label="AI Tutor API" tabindex="0" role="button" aria-label="Focus AI Tutor API, Prompt Logic, Sagacitas Internal Domain" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Prompt Logic" data-node-context="Sagacitas Internal Domain">
           <title>AI Tutor API · Prompt Logic · Sagacitas Internal Domain</title>
-          <rect x="750" y="250" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="750" y="250" width="140" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(756 256) scale(0.6875)">
+          <rect x="850" y="150" width="140" height="64" rx="6" class="c-mask"/>
+          <rect x="850" y="150" width="140" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(856 156) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-detail-anchor x="820" y="280" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">AI Tutor API</text>
-        <text data-detail="context" x="820" y="296" class="t-muted" font-size="9" text-anchor="middle">Prompt Logic</text>
+          <text data-detail-anchor x="920" y="180" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">AI Tutor API</text>
+        <text data-detail="context" x="920" y="196" class="t-muted" font-size="9" text-anchor="middle">Prompt Logic</text>
         </g>
 
-        <g id="node-env_config" data-node-id="env_config" data-node-label="Env Secrets" tabindex="0" role="button" aria-label="Focus Env Secrets, .env Config, Sagacitas Internal Domain" aria-pressed="false" data-node-kind="database" data-node-sublabel=".env Config" data-node-context="Sagacitas Internal Domain">
-          <title>Env Secrets · .env Config · Sagacitas Internal Domain</title>
-          <rect x="750" y="400" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="750" y="400" width="140" height="64" rx="6" class="c-database" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(756 406) scale(0.6875)">
+        <g id="node-supabase_db" data-node-id="supabase_db" data-node-label="Supabase Postgres" tabindex="0" role="button" aria-label="Focus Supabase Postgres, RLS Policies, Sagacitas Internal Domain" aria-pressed="false" data-node-kind="database" data-node-sublabel="RLS Policies" data-node-context="Sagacitas Internal Domain">
+          <title>Supabase Postgres · RLS Policies · Sagacitas Internal Domain</title>
+          <rect x="850" y="450" width="140" height="64" rx="6" class="c-mask"/>
+          <rect x="850" y="450" width="140" height="64" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(856 456) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-detail-anchor x="820" y="430" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Env Secrets</text>
-        <text data-detail="context" x="820" y="446" class="t-muted" font-size="9" text-anchor="middle">.env Config</text>
+          <text data-detail-anchor x="920" y="480" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Supabase Postgres</text>
+        <text data-detail="context" x="920" y="496" class="t-muted" font-size="9" text-anchor="middle">RLS Policies</text>
         </g>
 
         <g id="node-gemini_api" data-node-id="gemini_api" data-node-label="Gemini AI" tabindex="0" role="button" aria-label="Focus Gemini AI, Google GenAI, External Cloud Dependencies" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="Google GenAI" data-node-context="External Cloud Dependencies">
           <title>Gemini AI · Google GenAI · External Cloud Dependencies</title>
-          <rect x="1000" y="250" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="1000" y="250" width="140" height="64" rx="6" class="c-cloud" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(1006 256) scale(0.6875)">
+          <rect x="1150" y="150" width="140" height="64" rx="6" class="c-mask"/>
+          <rect x="1150" y="150" width="140" height="64" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(1156 156) scale(0.6875)">
             <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
           </g>
-          <text data-detail-anchor x="1070" y="280" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Gemini AI</text>
-        <text data-detail="context" x="1070" y="296" class="t-muted" font-size="9" text-anchor="middle">Google GenAI</text>
+          <text data-detail-anchor x="1220" y="180" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Gemini AI</text>
+        <text data-detail="context" x="1220" y="196" class="t-muted" font-size="9" text-anchor="middle">Google GenAI</text>
         </g>
 
         <!-- Connection labels -->
-        <g data-detail="context" data-edge-from="student" data-edge-to="spa" data-edge-label="Interact" data-edge-key="0" data-edge-id="user-spa">
-          <rect x="185.8" y="262" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="210" y="272" class="t-muted" font-size="8" text-anchor="middle">Interact</text>
+        <g data-detail="context" data-edge-from="student" data-edge-to="spa_player" data-edge-label="Learn" data-edge-key="0" data-edge-id="user-spa">
+          <rect x="193" y="162" width="34" height="14" rx="3" class="c-mask"/>
+          <text x="210" y="172" class="t-muted" font-size="8" text-anchor="middle">Learn</text>
         </g>
-        <g data-detail="context" data-edge-from="spa" data-edge-to="browser_storage" data-edge-label="Tokens" data-edge-key="1" data-edge-id="spa-storage">
-          <rect x="300.6" y="318" width="38.8" height="14" rx="3" class="c-mask"/>
-          <text x="320" y="328" class="t-messagebus" font-size="8" text-anchor="middle">Tokens</text>
+        <g data-detail="context" data-edge-from="spa_expert" data-edge-to="supabase_db" data-edge-label="Authoring" data-edge-key="1" data-edge-id="expert-db">
+          <rect x="593.4" y="449" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="620" y="459" class="t-backend" font-size="8" text-anchor="middle">Authoring</text>
         </g>
-        <g data-detail="context" data-edge-from="spa" data-edge-to="static_server" data-edge-label="Fetch Assets" data-edge-key="2" data-edge-id="spa-static">
-          <rect x="411.2" y="345" width="67.6" height="14" rx="3" class="c-mask"/>
-          <text x="445" y="355" class="t-muted" font-size="8" text-anchor="middle">Fetch Assets</text>
+        <g data-detail="context" data-edge-from="spa_player" data-edge-to="api_gateway" data-edge-label="REST API" data-edge-key="2" data-edge-id="spa-api">
+          <rect x="445.8" y="142" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="470" y="152" class="t-backend" font-size="8" text-anchor="middle">REST API</text>
         </g>
-        <g data-detail="context" data-edge-from="spa" data-edge-to="api_gateway" data-edge-label="REST API" data-edge-key="3" data-edge-id="spa-api">
-          <rect x="420.8" y="264.66666666666663" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="445" y="274.66666666666663" class="t-backend" font-size="8" text-anchor="middle">REST API</text>
+        <g data-detail="context" data-edge-from="spa_player" data-edge-to="soc_resolver" data-edge-label="Fetch UCs" data-edge-key="3" data-edge-id="spa-resolver">
+          <rect x="443.4" y="244" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="470" y="254" class="t-backend" font-size="8" text-anchor="middle">Fetch UCs</text>
         </g>
-        <g data-detail="context" data-edge-from="spa" data-edge-to="supabase_db" data-edge-label="Realtime / Direct DB" data-edge-key="4" data-edge-id="spa-db">
-          <rect x="392" y="179" width="106" height="14" rx="3" class="c-mask"/>
-          <text x="445" y="189" class="t-backend" font-size="8" text-anchor="middle">Realtime / Direct DB</text>
+        <g data-detail="context" data-edge-from="soc_resolver" data-edge-to="supabase_db" data-edge-label="Fetch Subgroups" data-edge-key="4" data-edge-id="resolver-db">
+          <rect x="739" y="387" width="82" height="14" rx="3" class="c-mask"/>
+          <text x="780" y="397" class="t-messagebus" font-size="8" text-anchor="middle">Fetch Subgroups</text>
         </g>
-
-        <g data-detail="context" data-edge-from="spa" data-edge-to="oauth_provider" data-edge-label="Auth Request" data-edge-key="6" data-edge-id="spa-oauth">
-          <rect x="536.2" y="187.83333333333334" width="67.6" height="14" rx="3" class="c-mask"/>
-          <text x="570" y="197.83333333333334" class="t-security" font-size="8" text-anchor="middle">Auth Request</text>
+        <g data-detail="context" data-edge-from="spa_player" data-edge-to="oauth_provider" data-edge-label="Login" data-edge-key="5" data-edge-id="spa-oauth">
+          <rect x="453" y="105" width="34" height="14" rx="3" class="c-mask"/>
+          <text x="470" y="115" class="t-security" font-size="8" text-anchor="middle">Login</text>
         </g>
-        <g data-detail="context" data-edge-from="oauth_provider" data-edge-to="supabase_db" data-edge-label="Sync Role" data-edge-key="7" data-edge-id="oauth-db">
-          <rect x="668.4" y="108.5" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
-          <text x="695" y="118.5" class="t-security" font-size="8" text-anchor="middle">Sync Role</text>
+        <g data-detail="context" data-edge-from="oauth_provider" data-edge-to="supabase_db" data-edge-label="Sync Identity" data-edge-key="6" data-edge-id="oauth-db">
+          <rect x="733.8" y="255" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="770" y="265" class="t-security" font-size="8" text-anchor="middle">Sync Identity</text>
         </g>
-        <g data-detail="context" data-edge-from="api_gateway" data-edge-to="tutor_service" data-edge-label="/api/tutor" data-edge-key="8" data-edge-id="api-tutor">
-          <rect x="671" y="258.5" width="58" height="14" rx="3" class="c-mask"/>
-          <text x="700" y="268.5" class="t-backend" font-size="8" text-anchor="middle">/api/tutor</text>
+        <g data-detail="context" data-edge-from="api_gateway" data-edge-to="tutor_service" data-edge-label="/api/tutor" data-edge-key="7" data-edge-id="api-tutor">
+          <rect x="746" y="142" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="775" y="152" class="t-backend" font-size="8" text-anchor="middle">/api/tutor</text>
         </g>
-        <g data-detail="context" data-edge-from="tutor_service" data-edge-to="gemini_api" data-edge-label="Prompt" data-edge-key="9" data-edge-id="tutor-gemini">
-          <rect x="925.6" y="262" width="38.8" height="14" rx="3" class="c-mask"/>
-          <text x="945" y="272" class="t-backend" font-size="8" text-anchor="middle">Prompt</text>
+        <g data-detail="context" data-edge-from="tutor_service" data-edge-to="gemini_api" data-edge-label="Inference" data-edge-key="8" data-edge-id="tutor-gemini">
+          <rect x="1043.4" y="142" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="1070" y="152" class="t-backend" font-size="8" text-anchor="middle">Inference</text>
         </g>
 
         <!-- Legend -->
         <g data-legend-bridge>
-          <text x="40" y="523" class="t-primary" font-size="9" font-weight="600">Legend</text>
+          <text x="40" y="671" class="t-primary" font-size="9" font-weight="600">Legend</text>
           <g data-legend-kind="external">
-            <rect x="40" y="528" width="14" height="9" rx="2" class="c-external" stroke-width="1"/>
-            <text x="60" y="536" class="t-muted" font-size="8">External</text>
+            <rect x="40" y="676" width="14" height="9" rx="2" class="c-external" stroke-width="1"/>
+            <text x="60" y="684" class="t-muted" font-size="8">External</text>
           </g>
           <g data-legend-kind="frontend">
-            <rect x="144" y="528" width="14" height="9" rx="2" class="c-frontend" stroke-width="1"/>
-            <text x="164" y="536" class="t-muted" font-size="8">Frontend</text>
-          </g>
-          <g data-legend-kind="database">
-            <rect x="248" y="528" width="14" height="9" rx="2" class="c-database" stroke-width="1"/>
-            <text x="268" y="536" class="t-muted" font-size="8">Database</text>
-          </g>
-          <g data-legend-kind="backend">
-            <rect x="352" y="528" width="14" height="9" rx="2" class="c-backend" stroke-width="1"/>
-            <text x="372" y="536" class="t-muted" font-size="8">Backend</text>
+            <rect x="144" y="676" width="14" height="9" rx="2" class="c-frontend" stroke-width="1"/>
+            <text x="164" y="684" class="t-muted" font-size="8">Frontend</text>
           </g>
           <g data-legend-kind="cloud">
-            <rect x="451" y="528" width="14" height="9" rx="2" class="c-cloud" stroke-width="1"/>
-            <text x="471" y="536" class="t-muted" font-size="8">Cloud</text>
+            <rect x="248" y="676" width="14" height="9" rx="2" class="c-cloud" stroke-width="1"/>
+            <text x="268" y="684" class="t-muted" font-size="8">Cloud</text>
+          </g>
+          <g data-legend-kind="backend">
+            <rect x="337" y="676" width="14" height="9" rx="2" class="c-backend" stroke-width="1"/>
+            <text x="357" y="684" class="t-muted" font-size="8">Backend</text>
+          </g>
+          <g data-legend-kind="database">
+            <rect x="436" y="676" width="14" height="9" rx="2" class="c-database" stroke-width="1"/>
+            <text x="456" y="684" class="t-muted" font-size="8">Database</text>
           </g>
         </g>
       </svg>
@@ -4958,12 +4946,12 @@
       <div class="card">
         <div class="card-header">
           <div class="card-dot cyan"></div>
-          <h3>Authentication &amp; Database Flow</h3>
+          <h3>Polymorphic SOC System</h3>
         </div>
         <ul>
-          <li>&bull; React SPA authenticates directly with Firebase Auth (Google/GitHub).</li>
-          <li>&bull; Tokens and user profile data are synchronized with Local Storage.</li>
-          <li>&bull; Users are inserted into Supabase PostgreSQL, where triggers categorize them as Aluno or Instrutor.</li>
+          <li>&bull; The SOC Context Resolver computes the appropriate Bloom level for the user based on PMEST signatures.</li>
+          <li>&bull; It queries uc_pmest_signatures and uc_subgroups from Supabase to construct customized payloads.</li>
+          <li>&bull; Soft Failures are enforced to serve lower energy states if the user is unauthenticated or lacks clearance.</li>
         </ul>
       </div>
 
@@ -4974,8 +4962,8 @@
         </div>
         <ul>
           <li>&bull; The SPA calls the Express /api/tutor endpoint.</li>
-          <li>&bull; The Express backend securely communicates with Gemini 3.6 Flash.</li>
-          <li>&bull; System instructions guide the model to act as a specialized DRE business tutor.</li>
+          <li>&bull; The Express backend securely communicates with Gemini Flash.</li>
+          <li>&bull; System instructions guide the model to act as a specialized business tutor.</li>
         </ul>
       </div>
     </div>

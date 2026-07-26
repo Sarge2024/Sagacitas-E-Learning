@@ -1,4 +1,6 @@
-export type ViewMode = 'dashboard' | 'lesson' | 'courses' | 'profile' | 'dre-simulator' | 'matrix' | 'instructor-portfolio' | 'manager' | 'expert' | 'reports';
+import type { Presentation } from './types/presentation';
+
+export type ViewMode = 'dashboard' | 'lesson' | 'courses' | 'profile' | 'assignments' | 'calendar' | 'instructor-portfolio' | 'manager' | 'expert' | 'reports';
 
 export interface InstructorQuestion {
   id: string;
@@ -60,13 +62,20 @@ export interface Slide {
   speakerNotes?: string;
 }
 
+/**
+ * Payload tipado para conteúdo de Objetos de Aprendizagem.
+ * Usa Record<string, unknown> para flexibilidade de schema JSONB
+ * sem sacrificar a segurança de tipos — o consumidor deve fazer type narrowing.
+ */
+export type LearningObjectContentPayload = Record<string, unknown>;
+
 export interface LearningObject {
   id: string;
   knowledge_unit_id: string;
   title: string;
   bloom_level: 1 | 2 | 3 | 4 | 5 | 6;
   object_type: 'video' | 'reading' | 'quiz' | 'dre_simulation' | 'case_study' | 'interactive';
-  content_payload: Record<string, any>;
+  content_payload: LearningObjectContentPayload;
   sequence_order?: number;
 }
 
@@ -89,6 +98,9 @@ export interface Lesson {
   locked?: boolean;
   description?: string;
   learning_objects?: LearningObject[];
+  slides?: unknown[];         // Slides dinâmicos carregados do editor
+  videoPoster?: string;       // URL do poster de vídeo da aula
+  attachments?: LessonAttachment[];  // Materiais complementares da aula
 }
 
 export interface Module {
@@ -110,10 +122,12 @@ export interface Course {
   completedLessons?: number;
   totalLessons?: number;
   totalHours?: string;
+  duration?: string;           // Duração legível do curso (ex: "40 horas")
   level?: 'Iniciante' | 'Intermediário' | 'Avançado';
   modules?: Module[];
   course_code?: string;
   status?: 'active' | 'blocked' | 'cancelled';
+  presentation?: Presentation; // Tipagem forte — referencia o tipo do editor de slides
 }
 
 export interface Certificate {
@@ -188,6 +202,7 @@ export interface OAuthUser {
   permissions?: SystemPermission[]; // Legacy
   permissionsHash?: PermissionHash;
   status?: 'active' | 'blocked';
+  company_id?: string;
 }
 
 // Database Entities (Supabase Schema Alignment)
@@ -201,6 +216,16 @@ export interface DBCompany {
   updated_at: string;
 }
 
+export interface CompanyRecord {
+  id: string;
+  name: string;
+  cnpj?: string;
+  domain?: string;
+  active: boolean;
+  tenant_id?: string;
+  created_at?: string;
+}
+
 export interface DBCourseCategory {
   id: string;
   code: string; // 3-digit code format
@@ -208,6 +233,23 @@ export interface DBCourseCategory {
   description?: string;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * Schema da tabela `courses` no Supabase.
+ * Campos JSONB (`modules`, `presentation`) são tipados com interfaces concretas.
+ */
+export interface DBModuleLesson {
+  id: string;
+  title: string;
+  objectives?: string;
+}
+
+export interface DBModule {
+  id: string;
+  title: string;
+  focus?: string;
+  lessons: DBModuleLesson[];
 }
 
 export interface DBCourse {
@@ -221,41 +263,19 @@ export interface DBCourse {
   status: 'active' | 'blocked' | 'cancelled';
   created_at: string;
   updated_at: string;
+  modules?: DBModule[];
+  presentation?: Presentation;
+  category?: string;
 }
 
-export interface DBDiscipline {
-  id: string;
-  course_id: string;
-  title: string;
-  sequence_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface DBLesson {
-  id: string;
-  title: string;
-  content?: string;
-  video_url?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface DBDisciplineLesson {
-  id: string;
-  discipline_id: string;
-  lesson_id: string;
-  sequence_order: number;
-  created_at: string;
-}
 
 export interface DBQuestion {
   id: string;
   lesson_id: string;
   question_type: 'multiple_choice' | 'true_false' | 'association' | 'fill_blanks' | 'discursive' | 'case_study';
   statement: string;
-  metadata: Record<string, any>;
-  correct_answer?: any;
+  metadata: Record<string, unknown>;
+  correct_answer?: string | string[];
   created_at: string;
   updated_at: string;
 }
@@ -270,25 +290,6 @@ export interface DBInstructor {
   updated_at: string;
 }
 
-export interface DBClass {
-  id: string;
-  discipline_id: string;
-  instructor_id: string;
-  title: string;
-  start_date: string;
-  end_date: string;
-  max_students: number;
-  status: 'planned' | 'active' | 'completed' | 'cancelled';
-  created_at: string;
-  updated_at: string;
-}
 
-export interface DBClassEnrollment {
-  id: string;
-  class_id: string;
-  student_id: string;
-  enrollment_date: string;
-  enrollment_number?: string;
-}
 
 
