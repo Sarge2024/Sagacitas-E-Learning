@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Course, Certificate, OAuthUser, Module } from '../types';
 import { dbService } from '../services/dbService';
+import { uploadService } from '../services/uploadService';
 import {
   ShieldCheck,
   Users,
@@ -40,6 +41,10 @@ import {
   Presentation,
   FolderPlus,
   Building2,
+  Tags,
+  Image,
+  UploadCloud,
+  X
 } from 'lucide-react';
 import { RegisterCertificateModal } from './RegisterCertificateModal';
 import { CourseSlideEditorModal } from './presentation/CourseSlideEditorModal';
@@ -260,6 +265,13 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   const [trainingLevel, setTrainingLevel] = useState<'Iniciante' | 'Intermediário' | 'Avançado'>('Intermediário');
   const [trainingWorkload, setTrainingWorkload] = useState('20h');
   const [trainingDescription, setTrainingDescription] = useState('');
+  const [trainingImageUrl, setTrainingImageUrl] = useState('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  
+  const [trainingType, setTrainingType] = useState<'avulso' | 'sistema' | 'formador' | 'empresarial'>('avulso');
+  const [trainingCompanyId, setTrainingCompanyId] = useState('');
+  const [trainingSystemName, setTrainingSystemName] = useState('');
+  const [companiesList, setCompaniesList] = useState<any[]>([]);
 
   // Register Cert Modal
   const [isRegisterCertModalOpen, setIsRegisterCertModalOpen] = useState(false);
@@ -278,7 +290,8 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
     'Finanças & DRE',
     'Engenharia de Cardápio',
     'Gestão de Custos & CMV',
-    'Gestão de Equipes'
+    'Gestão de Equipes',
+    'Treinamentos'
   ]);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -293,6 +306,18 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
       });
     }
   }, [courses]);
+
+  useEffect(() => {
+    async function loadCompanies() {
+      try {
+        const data = await dbService.getCompanies();
+        setCompaniesList(data);
+      } catch (err) {
+        console.error('Erro ao carregar empresas', err);
+      }
+    }
+    loadCompanies();
+  }, []);
 
   // Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -466,6 +491,10 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
     setTrainingLevel('Intermediário');
     setTrainingWorkload('20h');
     setTrainingDescription('');
+    setTrainingType('avulso');
+    setTrainingCompanyId('');
+    setTrainingSystemName('');
+    setTrainingImageUrl('');
     setIsTrainingModalOpen(true);
   };
 
@@ -476,12 +505,25 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
     setTrainingLevel((course.level as any) || 'Intermediário');
     setTrainingWorkload('24h');
     setTrainingDescription(course.description || '');
+    setTrainingType(course.course_type || 'avulso');
+    setTrainingCompanyId(course.company_id || '');
+    setTrainingSystemName(course.system_name || '');
+    setTrainingImageUrl(course.image || '');
     setIsTrainingModalOpen(true);
   };
 
   const handleSaveTrainingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!trainingTitle.trim()) return;
+
+    if ((trainingType === 'empresarial' || trainingType === 'sistema') && !trainingCompanyId) {
+      showToast('A seleção de uma empresa é obrigatória para este tipo de curso.');
+      return;
+    }
+    if (trainingType === 'sistema' && !trainingSystemName.trim()) {
+      showToast('O nome do sistema é obrigatório para cursos do tipo Sistemas.');
+      return;
+    }
 
     try {
       if (editingCourse && onUpdateCourses) {
@@ -491,18 +533,26 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           level: trainingLevel,
           category: trainingCategory,
           status: editingCourse.status || 'active',
+          course_type: trainingType,
+          company_id: (trainingType === 'empresarial' || trainingType === 'sistema') ? trainingCompanyId : null,
+          system_name: trainingType === 'sistema' ? trainingSystemName : null,
+          image_url: trainingImageUrl
         });
 
+        const updatedCourse = {
+          ...editingCourse,
+          title: dbUpdated.title,
+          description: dbUpdated.description || '',
+          level: dbUpdated.level as any,
+          category: dbUpdated.category || trainingCategory,
+          course_type: dbUpdated.course_type,
+          company_id: dbUpdated.company_id,
+          system_name: dbUpdated.system_name,
+          image: dbUpdated.image_url || editingCourse.image
+        };
+
         const updated = courses.map((c) =>
-          c.id === editingCourse.id
-            ? {
-                ...c,
-                title: dbUpdated.title,
-                category: dbUpdated.category || trainingCategory,
-                level: dbUpdated.level as any,
-                description: dbUpdated.description,
-              }
-            : c
+          c.id === editingCourse.id ? updatedCourse : c
         );
         onUpdateCourses(updated);
         showToast(`Treinamento "${trainingTitle}" atualizado!`);
@@ -551,6 +601,10 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           level: trainingLevel,
           status: 'active',
           category: trainingCategory,
+          course_type: trainingType,
+          company_id: (trainingType === 'empresarial' || trainingType === 'sistema') ? trainingCompanyId : null,
+          system_name: trainingType === 'sistema' ? trainingSystemName : null,
+          image_url: trainingImageUrl || undefined,
           modules: initialModules as any,
           presentation: undefined
         });
@@ -560,11 +614,14 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           title: dbCreated.title,
           category: dbCreated.category || trainingCategory,
           description: dbCreated.description || '',
+          course_type: dbCreated.course_type,
+          company_id: dbCreated.company_id,
+          system_name: dbCreated.system_name,
           progress: 0,
           completedLessons: 0,
           totalLessons: 1,
           level: dbCreated.level as any,
-          image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800',
+          image: dbCreated.image_url || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800',
           modules: dbCreated.modules ? mapDBModulesToModules(dbCreated.modules) : initialModules,
           presentation: dbCreated.presentation || undefined,
         };
@@ -578,6 +635,41 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
     }
 
     setIsTrainingModalOpen(false);
+  };
+
+  const handleCourseImageUpload = async (file: File) => {
+    try {
+      setIsUploadingImage(true);
+      const url = await uploadService.uploadFile(file, 'course-covers');
+      setTrainingImageUrl(url);
+    } catch (err) {
+      console.error('Erro ao enviar imagem de capa:', err);
+      alert('Erro ao enviar imagem para o servidor: ' + (err as Error).message);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleCourseImagePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          e.preventDefault();
+          handleCourseImageUpload(file);
+          break;
+        }
+      }
+    }
+  };
+
+  const handleCourseImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleCourseImageUpload(e.target.files[0]);
+    }
   };
 
   // Filtered Lists
@@ -598,6 +690,38 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
     const matchesCat = trainingCategoryFilter === 'Todas' || c.category === trainingCategoryFilter;
     return matchesSearch && matchesCat;
   });
+
+  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
+
+  const handleDeleteCourseConfirm = async () => {
+    if (!courseToDelete) return;
+    try {
+      await dbService.deleteCourse(courseToDelete.id);
+      const newCourses = courses.filter((c) => c.id !== courseToDelete.id);
+      useCourseStore.setState({ courses: newCourses });
+      setCourseToDelete(null);
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao excluir curso.');
+    }
+  };
+
+  const handleToggleCourseStatus = async (course: Course) => {
+    const newStatus = course.status === 'blocked' ? 'active' : 'blocked';
+    
+    // Optimistic update
+    const newCourses = courses.map(c => c.id === course.id ? { ...c, status: newStatus as Course['status'] } : c);
+    useCourseStore.setState({ courses: newCourses });
+
+    try {
+      await dbService.updateCourse(course.id, { status: newStatus as any });
+    } catch (err) {
+      console.error(err);
+      // Revert on error
+      useCourseStore.setState({ courses });
+      alert('Erro ao atualizar status do curso.');
+    }
+  };
 
   const filteredCertificates = certificates.filter(
     (c) =>
@@ -988,9 +1112,17 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                     <span className="px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-[#1890ff] text-[10px] font-black uppercase font-mono">
                       {course.category || 'Treinamento Corporativo'}
                     </span>
-                    <span className="text-[10px] text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      Ativo
-                    </span>
+                    <button
+                      onClick={() => handleToggleCourseStatus(course)}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded border transition-colors cursor-pointer ${
+                        course.status !== 'blocked'
+                          ? 'text-emerald-800 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                          : 'text-slate-600 bg-slate-100 border-slate-300 hover:bg-slate-200'
+                      }`}
+                      title="Clique para alternar o status do curso"
+                    >
+                      {course.status !== 'blocked' ? 'Ativo' : 'Inativo'}
+                    </button>
                   </div>
 
                   <h3 className="font-black text-slate-900 text-sm group-hover:text-[#1890ff] transition-colors line-clamp-2">
@@ -1028,7 +1160,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                     className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
                   >
                     <Layers className="w-3.5 h-3.5" />
-                    <span>Cadastrar UCs</span>
+                    <span>Estruturar Módulos & UCs</span>
                   </button>
 
                   <button
@@ -1048,6 +1180,14 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     <span>Editar</span>
+                  </button>
+
+                  <button
+                    onClick={() => setCourseToDelete(course)}
+                    className="px-2 py-1.5 ml-auto bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded transition-all cursor-pointer flex items-center justify-center"
+                    title="Excluir Curso"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -1417,6 +1557,40 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
         </div>
       )}
 
+      {/* MODAL 1.7: Confirmar Exclusão de Curso */}
+      {courseToDelete && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-md p-6 max-w-sm w-full space-y-4 shadow-lg">
+            <div className="flex items-center gap-3 text-rose-600">
+              <AlertTriangle className="w-6 h-6 shrink-0" />
+              <h3 className="font-black text-slate-900 text-base">Excluir Treinamento</h3>
+            </div>
+            
+            <p className="text-xs text-slate-600 font-medium">
+              Tem certeza que deseja excluir o treinamento <strong className="text-slate-900">{courseToDelete.title}</strong>? 
+              Apenas a estrutura do curso será removida (suas UCs continuarão disponíveis). Esta ação não poderá ser desfeita.
+            </p>
+
+            <div className="pt-2 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setCourseToDelete(null)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-bold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteCourseConfirm}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold uppercase tracking-wider shadow-xs cursor-pointer"
+              >
+                Excluir Permanentemente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL 2: Criar / Editar Treinamento */}
       {isTrainingModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
@@ -1445,6 +1619,61 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                   required
                   className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#1890ff] font-medium"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-black text-slate-700 mb-1">Tipo de Treinamento</label>
+                  <select
+                    value={trainingType}
+                    onChange={(e: any) => {
+                      setTrainingType(e.target.value);
+                      if (e.target.value !== 'sistema' && e.target.value !== 'empresarial') {
+                        setTrainingCompanyId('');
+                        setTrainingSystemName('');
+                      } else if (e.target.value === 'empresarial') {
+                        setTrainingSystemName('');
+                      }
+                    }}
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
+                  >
+                    <option value="avulso">Avulso (Público)</option>
+                    <option value="formador">Formador (Público)</option>
+                    <option value="empresarial">Empresarial (Restrito)</option>
+                    <option value="sistema">Sistema (Restrito)</option>
+                  </select>
+                </div>
+
+                {(trainingType === 'empresarial' || trainingType === 'sistema') && (
+                  <div>
+                    <label className="block text-xs font-black text-slate-700 mb-1">Empresa Titular</label>
+                    <select
+                      value={trainingCompanyId}
+                      onChange={(e) => setTrainingCompanyId(e.target.value)}
+                      required
+                      className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
+                    >
+                      <option value="">Selecione uma empresa...</option>
+                      {companiesList.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                
+                {trainingType === 'sistema' && trainingCompanyId && (
+                  <div className="col-span-2">
+                    <label className="block text-xs font-black text-slate-700 mb-1">Nome do Sistema</label>
+                    <input
+                      type="text"
+                      value={trainingSystemName}
+                      onChange={(e) => setTrainingSystemName(e.target.value)}
+                      placeholder="Ex: ERP Alchymist, PDV FrontPad..."
+                      required
+                      className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#1890ff] font-medium"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -1484,6 +1713,52 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                   rows={3}
                   className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#1890ff] font-medium"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-700 mb-1">Imagem de Capa (Opcional)</label>
+                <div 
+                  className="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/50 hover:border-blue-300 transition-colors relative"
+                  onPaste={handleCourseImagePaste}
+                  tabIndex={0}
+                >
+                  {isUploadingImage ? (
+                    <div className="flex flex-col items-center gap-2 py-4">
+                      <div className="w-6 h-6 border-2 border-[#1890ff] border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-[10px] font-bold text-[#1890ff]">Enviando imagem...</span>
+                    </div>
+                  ) : trainingImageUrl ? (
+                    <div className="relative w-full">
+                      <img src={trainingImageUrl} alt="Capa" className="w-full max-h-[160px] object-cover rounded shadow-sm border border-slate-200" />
+                      <button
+                        type="button"
+                        onClick={() => setTrainingImageUrl('')}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded hover:bg-red-600 shadow cursor-pointer"
+                        title="Remover Imagem"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                        <Image className="w-5 h-5" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-slate-600 font-medium">Clique, arraste ou <strong className="text-[#1890ff]">Ctrl+V</strong> para colar a capa</p>
+                        <p className="text-[10px] text-slate-400 mt-1">Recomendado: 800x600px (JPG, PNG)</p>
+                      </div>
+                      <label className="absolute inset-0 w-full h-full cursor-pointer opacity-0">
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleCourseImageFileChange}
+                        />
+                      </label>
+                    </>
+                  )}
+                </div>
               </div>
 
               <div className="pt-2 flex items-center justify-end gap-2">

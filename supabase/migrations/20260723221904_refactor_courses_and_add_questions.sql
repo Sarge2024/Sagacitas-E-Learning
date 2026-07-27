@@ -34,7 +34,10 @@ CREATE TABLE IF NOT EXISTS public.questions (
 ALTER TABLE public.lesson_group_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.questions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Authenticated users can view lesson group items" ON public.lesson_group_items;
 CREATE POLICY "Authenticated users can view lesson group items" ON public.lesson_group_items FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Authenticated users can view questions" ON public.questions;
 CREATE POLICY "Authenticated users can view questions" ON public.questions FOR SELECT TO authenticated USING (true);
 
 -- 6. Block DELETE on Lessons

@@ -48,10 +48,14 @@ async function seed() {
 
   if (tenantErr || !tenant) {
     console.log('Tenant not found, creating demo tenant...');
-    await supabase.from('tenants').insert({
+    const { error: insertErr } = await supabase.from('tenants').insert({
       id: DEFAULT_TENANT_ID,
-      name: 'Sagacitas Demo Tenant'
+      slug: 'sagacitas-demo',
+      nome_fantasia: 'Sagacitas Demo Tenant'
     });
+    if (insertErr) {
+      console.error('Error inserting tenant:', insertErr);
+    }
   }
 
   // 2. Insert Categories

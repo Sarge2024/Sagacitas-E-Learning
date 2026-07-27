@@ -126,6 +126,9 @@ export interface Course {
   level?: 'Iniciante' | 'Intermediário' | 'Avançado';
   modules?: Module[];
   course_code?: string;
+  course_type?: 'avulso' | 'sistema' | 'formador' | 'empresarial';
+  company_id?: string;
+  system_name?: string;
   status?: 'active' | 'blocked' | 'cancelled';
   presentation?: Presentation; // Tipagem forte — referencia o tipo do editor de slides
 }
@@ -256,6 +259,9 @@ export interface DBCourse {
   id: string;
   title: string;
   course_code?: string;
+  course_type?: 'avulso' | 'sistema' | 'formador' | 'empresarial';
+  company_id?: string;
+  system_name?: string;
   category_id?: string;
   level?: string;
   description?: string;
@@ -266,6 +272,7 @@ export interface DBCourse {
   modules?: DBModule[];
   presentation?: Presentation;
   category?: string;
+  image_url?: string;
 }
 
 

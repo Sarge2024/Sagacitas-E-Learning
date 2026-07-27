@@ -28,7 +28,7 @@ export const RESOURCES = [
   { id: 'manager-companies', name: '↳ Empresas', type: 'ui' as const },
 ];
 
-export type UserRole = 'Visitante' | 'Aluno' | 'Instrutor' | 'Gestor' | 'Administrador';
+export type UserRole = 'Visitante' | 'Aluno' | 'Instrutor' | 'Gestor' | 'Admin Master';
 
 export const getPermissionsForRole = (role: string): SystemPermission[] => {
   const hash = getPermissionsHashForRole(role);
@@ -79,7 +79,7 @@ export const getPermissionsHashForRole = (role: string): PermissionHash => {
         }
         break;
 
-      case 'Administrador':
+      case 'Admin Master':
         c = true; r = true; u = true; d = true;
         break;
     }

@@ -12,7 +12,7 @@ import { Request, Response, NextFunction } from 'express';
  */
 
 // Tipos de role do RBAC do Sagacitas
-type UserRole = 'Visitante' | 'Aluno' | 'Instrutor' | 'Gestor' | 'Administrador';
+type UserRole = 'Visitante' | 'Aluno' | 'Instrutor' | 'Gestor' | 'Admin Master';
 
 // Interface para dados extraídos do token
 export interface AuthenticatedRequest extends Request {
@@ -53,7 +53,7 @@ function decodeFirebaseJWT(token: string): { uid: string; email: string; exp: nu
  *   app.post('/api/protected', authGuard, handler);
  * 
  * Ou com restrição de role:
- *   app.post('/api/admin-only', authGuard, requireRole('Administrador'), handler);
+ *   app.post('/api/admin-only', authGuard, requireRole('Admin Master'), handler);
  */
 export function authGuard(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
@@ -102,7 +102,7 @@ export function authGuard(req: AuthenticatedRequest, res: Response, next: NextFu
  * requireRole — Middleware de autorização por role (RBAC).
  * 
  * Uso:
- *   app.post('/api/admin', authGuard, requireRole('Administrador', 'Gestor'), handler);
+ *   app.post('/api/admin', authGuard, requireRole('Admin Master', 'Gestor'), handler);
  */
 export function requireRole(...allowedRoles: UserRole[]) {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {

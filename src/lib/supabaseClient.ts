@@ -45,14 +45,47 @@ export function getCurrentTenantId(): string {
   return DEFAULT_TENANT_ID;
 }
 
+export function getCurrentCompanyId(): string | null {
+  try {
+    const authStorage = localStorage.getItem('sagacitas-auth-store');
+    if (authStorage) {
+      const parsed = JSON.parse(authStorage);
+      return parsed.state?.oauthUser?.company_id || null;
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+export function getCurrentUserRole(): string | null {
+  try {
+    const authStorage = localStorage.getItem('sagacitas-auth-store');
+    if (authStorage) {
+      const parsed = JSON.parse(authStorage);
+      return parsed.state?.oauthUser?.role || null;
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
 // Create a single supabase client with tenant context injection
 export const supabase: SupabaseClient = createClient(finalUrl, finalKey, {
   global: {
-    headers: {
-      // Injetar o tenant_id no header para que as políticas RLS 
-      // consigam resolver current_setting('app.current_tenant_id')
-      'x-tenant-id': getCurrentTenantId(),
-    },
+    fetch: (url, options) => {
+      const headers = new Headers(options?.headers);
+      headers.set('x-tenant-id', getCurrentTenantId());
+      
+      const companyId = getCurrentCompanyId();
+      if (companyId) headers.set('x-company-id', companyId);
+      
+      const role = getCurrentUserRole();
+      if (role) headers.set('x-user-role', role);
+
+      return fetch(url, { ...options, headers });
+    }
   },
   db: {
     schema: 'public',

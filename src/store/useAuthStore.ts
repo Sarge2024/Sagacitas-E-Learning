@@ -39,10 +39,10 @@ export const useAuthStore = create<AuthState>()(
           lowerEmail === 'gabriel.mendes@sagacitas.edu.br' || 
           lowerEmail === 'sergio.stulzer@sagacitas.com.br';
           
-        if (isMasterAdmin || processedUser.role === 'Administrador') {
-          processedUser.role = 'Administrador';
-          processedUser.permissionsHash = getPermissionsHashForRole('Administrador');
-          processedUser.permissions = getPermissionsForRole('Administrador'); // keep legacy
+        if (isMasterAdmin || processedUser.role === 'Admin Master' || processedUser.role === 'Administrador') {
+          processedUser.role = 'Admin Master';
+          processedUser.permissionsHash = getPermissionsHashForRole('Admin Master');
+          processedUser.permissions = getPermissionsForRole('Admin Master'); // keep legacy
         } else if (processedUser.role && (!processedUser.permissionsHash || Object.keys(processedUser.permissionsHash).length === 0)) {
           processedUser.permissionsHash = getPermissionsHashForRole(processedUser.role);
           processedUser.permissions = getPermissionsForRole(processedUser.role); // keep legacy
@@ -60,7 +60,7 @@ export const useAuthStore = create<AuthState>()(
       checkViewPermission: (viewId) => {
         const activeUser = get().getActiveUser();
         if (!activeUser) return true;
-        if (activeUser.role === 'Administrador') return true;
+        if (activeUser.role === 'Admin Master' || activeUser.role === 'Administrador') return true;
         
         const publicViews = ['profile'];
         if (publicViews.includes(viewId)) return true;

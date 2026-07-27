@@ -45,11 +45,17 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [dragOverLessonSeq, setDragOverLessonSeq] = useState<number | null>(null);
   const [isDraggingFromPanel, setIsDraggingFromPanel] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasLoadError, setHasLoadError] = useState(false);
+  const [loadErrorMessage, setLoadErrorMessage] = useState('');
 
   // Load modules & slots from Supabase on mount
   useEffect(() => {
     const loadData = async () => {
       try {
+        setIsLoading(true);
+        setHasLoadError(false);
+
         // Load Course info to get modules
         const { data: courseData, error: courseError } = await supabase
           .from('courses')
@@ -57,7 +63,11 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
           .eq('id', course.id)
           .single();
 
-        if (!courseError && courseData) {
+        if (courseError) {
+          throw new Error(`Erro ao carregar módulos: ${courseError.message}`);
+        }
+
+        if (courseData) {
           setModules(courseData.modules || course.modules || []);
         } else {
           setModules(course.modules || []);
@@ -80,12 +90,16 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
             is_split: item.is_split || false
           })));
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to load course composition from Supabase:', err);
+        setHasLoadError(true);
+        setLoadErrorMessage(err.message || 'Falha ao carregar os dados. O salvamento foi bloqueado por segurança.');
+      } finally {
+        setIsLoading(false);
       }
     };
     loadData();
-  }, [course.id, course.modules]);
+  }, [course.id]);
 
   // Bloom level helper
   const getBloomLabel = (level: string) => {
@@ -300,6 +314,11 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
   };
 
   const handleSave = async () => {
+    if (hasLoadError) {
+      alert("Operação bloqueada: Os dados originais não puderam ser carregados corretamente. Salvar agora poderia apagar registros existentes.");
+      return;
+    }
+
     try {
       // 1. Deletar associações antigas
       const { error: deleteError } = await supabase
@@ -396,7 +415,6 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
             </p>
           </div>
         </div>
-
         <div className="flex items-center gap-2 shrink-0">
           <div className="flex items-center gap-3 bg-slate-50 px-3 py-2 rounded-md border border-slate-200 text-xs">
             <div className="flex items-center gap-1.5">
@@ -417,13 +435,25 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
 
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+            disabled={hasLoadError}
+            className={`px-4 py-2 ${hasLoadError ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#1890ff] hover:bg-[#096dd9] cursor-pointer'} text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-xs`}
           >
             <Save className="w-4 h-4" />
             <span>Salvar Estrutura</span>
           </button>
         </div>
       </div>
+
+      {hasLoadError && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 flex flex-col gap-2 shadow-sm">
+          <div className="flex items-center gap-2 font-bold">
+            <X className="w-5 h-5" />
+            Erro Crítico de Carregamento
+          </div>
+          <p className="text-sm">{loadErrorMessage}</p>
+          <p className="text-sm font-medium">A edição e o salvamento foram bloqueados para evitar a perda de dados. Atualize a página e tente novamente.</p>
+        </div>
+      )}
 
       {/* Main Grid */}
       <div className="flex flex-col lg:flex-row gap-4" style={{ minHeight: 'calc(100vh - 220px)' }}>
@@ -436,7 +466,8 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
             </h3>
             <button
               onClick={handleAddModule}
-              className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded font-bold text-[10px] uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer"
+              disabled={hasLoadError}
+              className={`px-3 py-1 ${hasLoadError ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-900 hover:bg-slate-800 cursor-pointer'} text-white rounded font-bold text-[10px] uppercase tracking-wider transition-all flex items-center gap-1`}
             >
               <FolderPlus className="w-3.5 h-3.5" />
               <span>Adicionar Módulo</span>
@@ -482,7 +513,8 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         onClick={() => handleAddLesson(mod.id)}
-                        className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[#1890ff] rounded text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                        disabled={hasLoadError}
+                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 ${hasLoadError ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200 cursor-pointer'} rounded transition-colors flex items-center gap-1`}
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Adicionar Aula</span>

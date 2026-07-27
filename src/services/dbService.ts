@@ -185,7 +185,8 @@ export const dbService = {
    */
   async createCourse(courseData: Omit<DBCourse, 'id' | 'created_at' | 'updated_at'>): Promise<DBCourse> {
     const tenantId = getCurrentTenantId();
-    const payload = { ...courseData, tenant_id: tenantId };
+    const { category, ...rest } = courseData as any;
+    const payload = { ...rest, tenant_id: tenantId };
     
     const { data, error } = await supabase
       .from('courses')
@@ -206,9 +207,10 @@ export const dbService = {
    * @param updates Objeto contendo as colunas a serem atualizadas
    */
   async updateCourse(courseId: string, updates: Partial<DBCourse>): Promise<DBCourse> {
+    const { category, ...payload } = updates as any;
     const { data, error } = await supabase
       .from('courses')
-      .update(updates)
+      .update(payload)
       .eq('id', courseId)
       .select('*')
       .single();

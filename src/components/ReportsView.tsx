@@ -33,7 +33,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ currentUser }) => {
   // Helper to check user permission
   const checkPermission = (resourceId: string, action: 'c' | 'r' | 'u' | 'd'): boolean => {
     if (!currentUser) return false;
-    if (currentUser.role === 'Administrador') return true;
+    if (currentUser.role === 'Admin Master') return true;
     
     if (currentUser.permissionsHash) {
       const perm = currentUser.permissionsHash[resourceId];

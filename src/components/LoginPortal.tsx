@@ -186,7 +186,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
       // 3. Create user document in Firestore with permissions
       const lowerEmail = userEmail.toLowerCase();
       const isMasterAdmin = lowerEmail === 'admin.master@sagacitas.com.br' || lowerEmail === 'sagacitas.assessoria@gmail.com' || lowerEmail === 'gabriel.mendes@sagacitas.edu.br' || lowerEmail === 'sergio.stulzer@sagacitas.com.br';
-      const userRole = isMasterAdmin ? 'Administrador' : 'Visitante';
+      const userRole = isMasterAdmin ? 'Admin Master' : 'Visitante';
       const userPermissions = getPermissionsForRole(userRole);
 
       const firestoreData = {
@@ -247,7 +247,7 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
         
         // Development bypass for master admin to avoid Google API/bot-protection network hangs in automated tests
         if (lowerEmailInput === 'admin.master@sagacitas.com.br' && password === 'Admin12345') {
-          console.log("⚡ [Dev Bypass] Autenticando Administrador Master localmente para automação.");
+          console.log("⚡ [Dev Bypass] Autenticando Admin Master Master localmente para automação.");
           result = {
             user: {
               uid: 'admin000-0000-0000-0000-000000000000',
@@ -295,8 +295,8 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
           const isMasterAdmin = lowerEmail === 'admin.master@sagacitas.com.br' || lowerEmail === 'sagacitas.assessoria@gmail.com' || lowerEmail === 'gabriel.mendes@sagacitas.edu.br' || lowerEmail === 'sergio.stulzer@sagacitas.com.br';
           
           if (isMasterAdmin) {
-            role = 'Administrador';
-            permissions = getPermissionsForRole('Administrador');
+            role = 'Admin Master';
+            permissions = getPermissionsForRole('Admin Master');
           } else {
             permissions = getPermissionsForRole('Gestor');
           }
@@ -316,18 +316,18 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
 
             if (userSnap.exists()) {
               const userData = userSnap.data();
-              role = isMasterAdmin ? 'Administrador' : (userData.role || role);
+              role = isMasterAdmin ? 'Admin Master' : (userData.role || role);
               status = userData.status || status;
               company_name = userData.company_name || company_name;
               enrollment_type = userData.enrollment_type || enrollment_type;
-              permissions = (isMasterAdmin || role === 'Administrador') ? getPermissionsForRole('Administrador') : (userData.permissions && userData.permissions.length > 0 ? userData.permissions : getPermissionsForRole(role));
+              permissions = (isMasterAdmin || role === 'Admin Master') ? getPermissionsForRole('Admin Master') : (userData.permissions && userData.permissions.length > 0 ? userData.permissions : getPermissionsForRole(role));
 
               // Optionally update last login
               try {
                 await withTimeout(setDoc(userRef, { ...userData, role, permissions, authenticatedAt: new Date().toISOString() }, { merge: true }));
               } catch (_) { /* best-effort */ }
             } else {
-              role = isMasterAdmin ? 'Administrador' : 'Visitante';
+              role = isMasterAdmin ? 'Admin Master' : 'Visitante';
               permissions = getPermissionsForRole(role);
 
               // Save to Firestore (best-effort)
@@ -391,8 +391,8 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
           const lowerEmail = userEmail.toLowerCase();
           const isMasterAdmin = lowerEmail === 'admin.master@sagacitas.com.br' || lowerEmail === 'sagacitas.assessoria@gmail.com' || lowerEmail === 'gabriel.mendes@sagacitas.edu.br' || lowerEmail === 'sergio.stulzer@sagacitas.com.br';
           if (isMasterAdmin) {
-            role = 'Administrador';
-            permissions = getPermissionsForRole('Administrador');
+            role = 'Admin Master';
+            permissions = getPermissionsForRole('Admin Master');
           }
 
           try {
@@ -401,17 +401,17 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({ onLoginSuccess }) => {
 
             if (userSnap.exists()) {
               const userData = userSnap.data();
-              role = isMasterAdmin ? 'Administrador' : (userData.role || role);
+              role = isMasterAdmin ? 'Admin Master' : (userData.role || role);
               status = userData.status || status;
               company_name = userData.company_name || company_name;
               enrollment_type = userData.enrollment_type || enrollment_type;
-              permissions = (isMasterAdmin || role === 'Administrador') ? getPermissionsForRole('Administrador') : (userData.permissions && userData.permissions.length > 0 ? userData.permissions : getPermissionsForRole(role));
+              permissions = (isMasterAdmin || role === 'Admin Master') ? getPermissionsForRole('Admin Master') : (userData.permissions && userData.permissions.length > 0 ? userData.permissions : getPermissionsForRole(role));
 
               try {
                 await setDoc(userRef, { ...userData, role, permissions, authenticatedAt: new Date().toISOString() }, { merge: true });
               } catch (_) { }
             } else {
-              role = isMasterAdmin ? 'Administrador' : 'Visitante';
+              role = isMasterAdmin ? 'Admin Master' : 'Visitante';
               permissions = getPermissionsForRole(role);
 
               try {

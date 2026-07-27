@@ -103,21 +103,21 @@ export default function App() {
       if (docSnap.exists()) {
         const userData = docSnap.data() as Partial<OAuthUser>;
         
-        // Se for um e-mail admin de semente ou tiver role Administrador no Firestore
+        // Se for um e-mail admin de semente ou tiver role Admin Master no Firestore
         const lowerEmail = (oauthUser.email || '').toLowerCase();
         const isSeedAdmin = lowerEmail === 'admin.master@sagacitas.com.br' || 
                             lowerEmail === 'sagacitas.assessoria@gmail.com' || 
                             lowerEmail === 'gabriel.mendes@sagacitas.edu.br' || 
                             lowerEmail === 'sergio.stulzer@sagacitas.com.br';
         
-        if (isSeedAdmin || userData.role === 'Administrador') {
-          userData.role = 'Administrador';
-          userData.permissions = getPermissionsForRole('Administrador');
+        if (isSeedAdmin || userData.role === 'Admin Master') {
+          userData.role = 'Admin Master';
+          userData.permissions = getPermissionsForRole('Admin Master');
           
           // Corrige no Firestore em segundo plano se necessário
           const userRef = doc(db, 'users', oauthUser.id);
-          setDoc(userRef, { role: 'Administrador', permissions: userData.permissions }, { merge: true }).catch(err => {
-            console.warn('⚠️ Erro ao forçar Administrador no Firestore:', err.message);
+          setDoc(userRef, { role: 'Admin Master', permissions: userData.permissions }, { merge: true }).catch(err => {
+            console.warn('⚠️ Erro ao forçar Admin Master no Firestore:', err.message);
           });
         }
 
@@ -130,7 +130,7 @@ export default function App() {
                             lowerEmail === 'sagacitas.assessoria@gmail.com' || 
                             lowerEmail === 'gabriel.mendes@sagacitas.edu.br' || 
                             lowerEmail === 'sergio.stulzer@sagacitas.com.br';
-        const initialRole = isSeedAdmin ? 'Administrador' : 'Visitante';
+        const initialRole = isSeedAdmin ? 'Admin Master' : 'Visitante';
         const initialPermissions = getPermissionsForRole(initialRole);
 
         const userRef = doc(db, 'users', oauthUser.id);

@@ -83,30 +83,8 @@ export const CompaniesManagerView: React.FC = () => {
       setEditingCompany(null);
       setFormData({ name: '', cnpj: '', domain: '', active: true });
     } catch (err: any) {
-      console.warn("Falha ao salvar no banco, utilizando mock local", err);
-      const errorMsg = err.message || JSON.stringify(err);
-      
-      // Mostrar na tela para capturar o erro exato do Supabase
-      window.alert(`🚨 Erro real do banco ao salvar empresa:\n${errorMsg}\n\nO sistema tentará usar mock local.`);
-
-      const mockId = editingCompany ? editingCompany.id : `mock-company-${Date.now()}`;
-      const savedCompany: CompanyRecord = {
-        id: mockId,
-        tenant_id: 'default-tenant',
-        ...formData,
-        created_at: editingCompany?.created_at || new Date().toISOString()
-      };
-      
-      if (editingCompany) {
-        setCompanies(prev => prev.map(c => c.id === mockId ? savedCompany : c));
-        if (selectedCompany?.id === mockId) setSelectedCompany(savedCompany);
-      } else {
-        setCompanies(prev => [...prev, savedCompany]);
-      }
-      
-      setIsCompanyModalOpen(false);
-      setEditingCompany(null);
-      setFormData({ name: '', cnpj: '', domain: '', active: true });
+      console.error("Erro ao salvar empresa no banco:", err);
+      window.alert(`🚨 Erro ao salvar empresa no banco de dados:\n${err.message || JSON.stringify(err)}`);
     }
   };
 
@@ -119,11 +97,8 @@ export const CompaniesManagerView: React.FC = () => {
         setSelectedCompany(null);
       }
     } catch (err: any) {
-      console.warn("Falha ao excluir no banco, aplicando exclusão local", err);
-      setCompanies(prev => prev.filter(c => c.id !== id));
-      if (selectedCompany?.id === id) {
-        setSelectedCompany(null);
-      }
+      console.error("Erro ao excluir empresa no banco:", err);
+      window.alert(`🚨 Erro ao excluir empresa no banco de dados:\n${err.message || JSON.stringify(err)}`);
     }
   };
 
@@ -138,12 +113,8 @@ export const CompaniesManagerView: React.FC = () => {
         setCompanyUsers(prev => [...prev, { ...userToMove, company_id: selectedCompany.id }]);
       }
     } catch (err: any) {
-      console.warn("Falha ao associar no banco, aplicando localmente", err);
-      const userToMove = independentUsers.find(u => u.id === userId);
-      if (userToMove) {
-        setIndependentUsers(prev => prev.filter(u => u.id !== userId));
-        setCompanyUsers(prev => [...prev, { ...userToMove, company_id: selectedCompany.id }]);
-      }
+      console.error("Erro ao associar usuário no banco:", err);
+      window.alert(`🚨 Erro ao associar usuário no banco de dados:\n${err.message || JSON.stringify(err)}`);
     }
   };
 
@@ -154,8 +125,8 @@ export const CompaniesManagerView: React.FC = () => {
       setCompanyUsers(prev => prev.filter(u => u.id !== userId));
       // Optionally refresh independent users if modal is open, or just leave it
     } catch (err: any) {
-      console.warn("Falha ao desassociar no banco, aplicando localmente", err);
-      setCompanyUsers(prev => prev.filter(u => u.id !== userId));
+      console.error("Erro ao desassociar usuário no banco:", err);
+      window.alert(`🚨 Erro ao desassociar usuário no banco de dados:\n${err.message || JSON.stringify(err)}`);
     }
   };
 

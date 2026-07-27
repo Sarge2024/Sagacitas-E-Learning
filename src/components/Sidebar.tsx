@@ -145,10 +145,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   id="nav-reports-sub-performance"
                   onClick={() => onSelectView('reports', 'rep-performance')}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${
+                  className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer ${
                     currentView === 'reports' && reportsActiveTab === 'rep-performance'
-                      ? 'bg-white text-emerald-700 border border-emerald-200 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                      ? 'text-emerald-700 bg-white border border-emerald-500/30 font-bold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
                   }`}
                 >
                   <Users className="w-3.5 h-3.5" />
@@ -160,10 +160,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   id="nav-reports-sub-completion"
                   onClick={() => onSelectView('reports', 'rep-completion')}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${
+                  className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer ${
                     currentView === 'reports' && reportsActiveTab === 'rep-completion'
-                      ? 'bg-white text-emerald-700 border border-emerald-200 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                      ? 'text-emerald-700 bg-white border border-emerald-500/30 font-bold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
                   }`}
                 >
                   <Award className="w-3.5 h-3.5" />
@@ -175,10 +175,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   id="nav-reports-sub-ia"
                   onClick={() => onSelectView('reports', 'rep-ia')}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${
+                  className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer ${
                     currentView === 'reports' && reportsActiveTab === 'rep-ia'
-                      ? 'bg-white text-emerald-700 border border-emerald-200 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                      ? 'text-emerald-700 bg-white border border-emerald-500/30 font-bold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
                   }`}
                 >
                   <Sparkles className="w-3.5 h-3.5" />
@@ -190,10 +190,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   id="nav-reports-sub-finance"
                   onClick={() => onSelectView('reports', 'rep-finance')}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-semibold cursor-pointer ${
+                  className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer ${
                     currentView === 'reports' && reportsActiveTab === 'rep-finance'
-                      ? 'bg-white text-emerald-700 border border-emerald-200 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                      ? 'text-emerald-700 bg-white border border-emerald-500/30 font-bold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
                   }`}
                 >
                   <Building2 className="w-3.5 h-3.5" />

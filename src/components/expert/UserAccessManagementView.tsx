@@ -47,8 +47,8 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
     const defaultFallbackUsers: OAuthUser[] = currentUser ? [
       {
         ...currentUser,
-        role: currentUser.role || 'Administrador',
-        permissions: currentUser.permissions || getPermissionsForRole('Administrador')
+        role: currentUser.role || 'Admin Master',
+        permissions: currentUser.permissions || getPermissionsForRole('Admin Master')
       }
     ] : [];
 
@@ -82,7 +82,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
       }
     });
 
-    const defaultRoles = ['Administrador', 'Gestor', 'Instrutor', 'Visitante', 'Aluno'].map(r => ({
+    const defaultRoles = ['Admin Master', 'Gestor', 'Instrutor', 'Visitante', 'Aluno'].map(r => ({
       id: r,
       name: r,
       permissionsHash: getPermissionsHashForRole(r)
@@ -221,7 +221,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
           {
             timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             action: `Usuário ${formName} atualizado (Perfil: ${formRole}, Status: ${formStatus})`,
-            operator: currentUser?.name || 'Administrador'
+            operator: currentUser?.name || 'Admin Master'
           },
           ...prev
         ]);
@@ -261,7 +261,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
           {
             timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             action: `Criado novo usuário ${formName} com perfil ${formRole}`,
-            operator: currentUser?.name || 'Administrador'
+            operator: currentUser?.name || 'Admin Master'
           },
           ...prev
         ]);
@@ -325,7 +325,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
         {
           timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           action: `Usuário ${pendingUserSaveData.name} requalificado (Perfil: ${pendingUserSaveData.role}). Ação de permissões: ${action}`,
-          operator: currentUser?.name || 'Administrador'
+          operator: currentUser?.name || 'Admin Master'
         },
         ...prev
       ]);
@@ -367,7 +367,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
   };
 
   const handleDeleteUser = async (user: OAuthUser) => {
-    if (user.role === 'Administrador' && users.filter(u => u.role === 'Administrador').length === 1) {
+    if (user.role === 'Admin Master' && users.filter(u => u.role === 'Admin Master').length === 1) {
       showToast('Não é possível remover o único administrador.');
       return;
     }
@@ -381,7 +381,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
         {
           timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           action: `Excluído usuário ${user.name}`,
-          operator: currentUser?.name || 'Administrador'
+          operator: currentUser?.name || 'Admin Master'
         },
         ...prev
       ]);
@@ -409,7 +409,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
         {
           timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           action: `Permissão ${action.toUpperCase()} para módulo ${resourceId} alterada no Perfil Padrão ${roleObj.name}`,
-          operator: currentUser?.name || 'Administrador'
+          operator: currentUser?.name || 'Admin Master'
         },
         ...prev
       ]);
@@ -434,7 +434,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
         {
           timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           action: `Permissão ${action.toUpperCase()} para ${resource?.name} alterada para ${selectedUser.name}`,
-          operator: currentUser?.name || 'Administrador'
+          operator: currentUser?.name || 'Admin Master'
         },
         ...prev
       ]);
@@ -601,7 +601,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                   className="bg-white border border-slate-200 rounded px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
                 >
                   <option value="Todos">Todos os Perfis</option>
-                  <option value="Administrador">Administrador</option>
+                  <option value="Admin Master">Admin Master</option>
                   <option value="Instrutor">Instrutor</option>
                   <option value="Gestor">Gestor</option>
                 </select>
@@ -655,7 +655,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
 
                     <div className="flex items-center gap-2 shrink-0">
                       <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${
-                        user.role === 'Administrador' 
+                        user.role === 'Admin Master' 
                           ? 'bg-purple-50 text-purple-800 border-purple-200' 
                           : user.role === 'Instrutor'
                             ? 'bg-blue-50 text-blue-800 border-blue-200'
@@ -743,7 +743,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                     <option value="Visitante">Visitante</option>
                     <option value="Instrutor">Instrutor</option>
                     <option value="Gestor">Gestor</option>
-                    <option value="Administrador">Administrador</option>
+                    <option value="Admin Master">Admin Master</option>
                   </select>
                 </div>
               )}
@@ -889,10 +889,10 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
             </div>
             )}
 
-            {selectedUser?.role === 'Administrador' && (
+            {selectedUser?.role === 'Admin Master' && (
               <div className="p-3 bg-purple-50 border border-purple-200 rounded text-purple-900 text-xs font-semibold flex items-center gap-2">
                 <Shield className="w-4 h-4 text-purple-600 shrink-0" />
-                <span>O Administrador Geral do sistema possui privilégios de acesso completos e permanentes para todos os recursos (algumas verificações ignoram as restrições abaixo dependendo da regra).</span>
+                <span>O Admin Master Geral do sistema possui privilégios de acesso completos e permanentes para todos os recursos (algumas verificações ignoram as restrições abaixo dependendo da regra).</span>
               </div>
             )}
 
@@ -957,7 +957,7 @@ export const UserAccessManagementView: React.FC<UserAccessManagementViewProps> =
                     <option value="Aluno">Aluno</option>
                     <option value="Instrutor">Instrutor</option>
                     <option value="Gestor">Gestor</option>
-                    <option value="Administrador">Administrador</option>
+                    <option value="Admin Master">Admin Master</option>
                   </select>
                 </div>
 
