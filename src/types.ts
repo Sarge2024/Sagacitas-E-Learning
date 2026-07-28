@@ -54,6 +54,7 @@ export interface Slide {
   quizActionRequired?: string;
 
   // General slide fields
+  content?: string;
   bulletPoints?: string[];
   keyFormula?: string;
   takeaway?: string;

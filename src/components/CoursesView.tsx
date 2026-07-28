@@ -25,9 +25,10 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
   const filteredCourses = courses.filter((c) => {
     const matchesCategory =
       selectedCategory === 'Todos' || c.category === selectedCategory;
+    const safeSearchQuery = searchQuery || '';
     const matchesSearch =
-      c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      c.title.toLowerCase().includes(safeSearchQuery.toLowerCase()) ||
+      c.description?.toLowerCase().includes(safeSearchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -74,7 +75,7 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
           >
             <div className="relative h-44 overflow-hidden bg-slate-100">
               <img
-                src={course.image}
+                src={course.image || 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600'}
                 alt={course.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />

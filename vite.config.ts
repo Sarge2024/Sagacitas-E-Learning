@@ -1,7 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import { defineConfig } from 'vitest/config';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig(() => {
@@ -21,6 +21,12 @@ export default defineConfig(() => {
       // Provide explicit URL for GitHub Codespaces if needed
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
+    },
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './src/setupTests.ts',
+      css: true,
     },
   };
 });

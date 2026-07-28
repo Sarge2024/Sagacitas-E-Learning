@@ -56,7 +56,9 @@ export function useCoursesFromDB() {
                 id: dbCourse.id,
                 title: dbCourse.title,
                 description: dbCourse.description || staticMatch.description,
-                image: dbCourse.image_url || staticMatch.image,
+                image: dbCourse.image_url !== undefined && dbCourse.image_url !== null 
+                  ? dbCourse.image_url 
+                  : staticMatch.image,
                 level: (dbCourse.level as Course['level']) || staticMatch.level,
                 status: dbCourse.status,
                 course_code: dbCourse.course_code,
@@ -74,7 +76,9 @@ export function useCoursesFromDB() {
               title: dbCourse.title,
               category: dbCourse.category || 'Curso',
               progress: 0,
-              image: dbCourse.image_url || 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600',
+              image: dbCourse.image_url !== undefined && dbCourse.image_url !== null 
+                ? dbCourse.image_url 
+                : 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600',
               description: dbCourse.description || '',
               level: (dbCourse.level as Course['level']) || 'Iniciante',
               status: dbCourse.status,

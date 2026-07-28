@@ -1,5 +1,5 @@
 // Tipos do Núcleo EdTech Expert: Multi-Tenancy, Taxonomia de Bloom & DNT
-
+import { Slide } from '../types';
 export type BloomLevel = 
   | 'CONHECIMENTO' 
   | 'COMPREENSAO' 
@@ -87,7 +87,10 @@ export interface UnidadeConhecimento {
   subgroups?: UCSubgroup[];
   titulo: string;
   descricao_curta?: string;
+  objetivo?: string;
+  pre_requisitos?: string[];
   layout_template: LayoutTemplateAST; // Mantido para retrocompatibilidade ou design global da UC
+  slides?: Slide[]; // Array de slides dinâmicos associados à UC
   meta_bloom: BloomLevel;
   duracao_estimada_minutos: number;
   status: 'ativo' | 'rascunho' | 'arquivado';

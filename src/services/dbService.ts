@@ -238,6 +238,217 @@ export const dbService = {
     }
   },
 
+  /**
+   * Importa um curso inteiro a partir de um payload JSON.
+   */
+  async importCourseFromJSON(payload: any, companyId?: string): Promise<string> {
+    const tenantId = getCurrentTenantId() || 'public';
+    
+    // 1. Tentar achar Curso existente
+    const { data: existingCourse } = await supabase
+      .from('courses')
+      .select('id, modules, presentation')
+      .eq('title', payload.curso.titulo)
+      .eq('tenant_id', tenantId)
+      .limit(1)
+      .maybeSingle();
+    
+    let courseId = existingCourse?.id;
+    let existingModules: any[] = [];
+    let existingPresModules: any[] = [];
+    let maxAulaGroup = 0;
+
+    if (!courseId) {
+      const newCourse = {
+        tenant_id: tenantId,
+        title: payload.curso.titulo,
+        description: payload.curso.descricao,
+        company_id: companyId || null,
+        course_type: 'empresarial',
+        status: 'active',
+        image_url: ''
+      };
+
+      const { data: course, error: courseError } = await supabase
+        .from('courses')
+        .insert(newCourse)
+        .select('id')
+        .single();
+
+      if (courseError || !course) {
+        throw new Error(`Falha ao criar curso: ${courseError?.message}`);
+      }
+      courseId = course.id;
+    } else {
+      // Se já existe, apenas preparamos para fazer append nos módulos em vez de deletar
+      existingModules = (existingCourse?.modules as any[]) || [];
+      existingPresModules = (existingCourse?.presentation as any)?.modules || [];
+      
+      const { data: existingSlots } = await supabase
+        .from('course_knowledge_units')
+        .select('aula_group')
+        .eq('course_id', courseId);
+        
+      if (existingSlots && existingSlots.length > 0) {
+        maxAulaGroup = Math.max(...existingSlots.map(s => s.aula_group || 0));
+      }
+    }
+
+    // 2. Montar Módulos e Aulas para a Presentation do Course
+    const moduleObj = {
+      id: `mod-${payload.modulo?.modulo_num || 1}`,
+      title: payload.modulo?.titulo || 'Módulo Único',
+      focus: payload.modulo?.objetivo || '',
+      duration: '5h',
+      lessons: [] as any[]
+    };
+
+    let lessonIndex = maxAulaGroup + 1;
+    const ucSlotsToInsert: any[] = [];
+
+    for (const aula of payload.aulas) {
+      const lessonObj = {
+        id: `aula-${lessonIndex}`,
+        number: String(lessonIndex).padStart(2, '0'),
+        title: aula.titulo,
+        description: aula.resumo || '',
+        duration: '60m',
+        completed: false,
+        active: true
+      };
+      moduleObj.lessons.push(lessonObj);
+
+      if (aula.ucs && Array.isArray(aula.ucs)) {
+        for (let i = 0; i < aula.ucs.length; i++) {
+          const ucData = aula.ucs[i];
+          
+          let bloom_level = 1;
+          const bl = (ucData.nivel_bloom || '').toLowerCase();
+          if (bl.includes('compreender')) bloom_level = 2;
+          else if (bl.includes('aplicar')) bloom_level = 3;
+          else if (bl.includes('analisar')) bloom_level = 4;
+          else if (bl.includes('avaliar')) bloom_level = 5;
+          else if (bl.includes('criar') || bl.includes('sintetizar')) bloom_level = 6;
+
+          // Tenta encontrar se a UC já existe por três critérios para evitar duplicidade:
+          // 1. Título combinado "CÓDIGO: TÍTULO"
+          let { data: existingUc } = await supabase
+            .from('knowledge_units')
+            .select('id')
+            .eq('title', `${ucData.uc_codigo || ''}: ${ucData.uc_titulo || ''}`)
+            .eq('tenant_id', tenantId)
+            .limit(1)
+            .maybeSingle();
+
+          let ucId = existingUc?.id;
+
+          // 2. Título exato apenas "TÍTULO"
+          if (!ucId) {
+            const { data: ucByTitle } = await supabase
+              .from('knowledge_units')
+              .select('id')
+              .eq('title', ucData.uc_titulo || '')
+              .eq('tenant_id', tenantId)
+              .limit(1)
+              .maybeSingle();
+            ucId = ucByTitle?.id;
+          }
+
+          // 3. Assinatura do código PMEST
+          if (!ucId && ucData.uc_codigo) {
+            const { data: sigMatch } = await supabase
+              .from('uc_pmest_signatures')
+              .select('uc_id')
+              .eq('code', ucData.uc_codigo)
+              .eq('tenant_id', tenantId)
+              .limit(1)
+              .maybeSingle();
+            ucId = sigMatch?.uc_id;
+          }
+
+          if (!ucId) {
+            const { data: uc, error: ucError } = await supabase
+              .from('knowledge_units')
+              .insert({
+                tenant_id: tenantId,
+                title: `${ucData.uc_codigo || ''}: ${ucData.uc_titulo || ''}`,
+                description: ucData.objetivo || '',
+                objetivo: ucData.objetivo || '',
+                pre_requisitos: ucData.pre_requisitos || [],
+                bloom_level: bloom_level,
+                estimated_duration_minutes: 30,
+                status: 'ativo',
+                layout_template: { 
+                  version: "1.0", 
+                  components: (ucData.slides || []).map((s: any, idx: number) => ({
+                    type: "text",
+                    title: s.title || '',
+                    body: s.content || '',
+                    metadata: {
+                      speakerNotes: s.speakerNotes || '',
+                      slideNumber: idx + 1
+                    }
+                  })) 
+                }
+              })
+              .select('id')
+              .single();
+
+            if (ucError) {
+              console.error(`Falha ao criar UC ${ucData.uc_codigo}:`, ucError);
+              continue;
+            }
+            ucId = uc.id;
+
+            // Cria a assinatura correspondente no PMEST para indexações futuras
+            if (ucData.uc_codigo) {
+              await supabase.from('uc_pmest_signatures').insert({
+                uc_id: ucId,
+                code: ucData.uc_codigo,
+                tenant_id: tenantId
+              });
+            }
+          }
+
+          if (ucId) {
+            ucSlotsToInsert.push({
+              course_id: courseId,
+              uc_id: ucId,
+              aula_group: lessonIndex,
+              sequence_order: i + 1
+            });
+          }
+        }
+      }
+
+      lessonIndex++;
+    }
+
+    const newPresModules = [...existingPresModules, moduleObj];
+    const newDbModules = [...existingModules, moduleObj];
+
+    const presentationPayload = {
+      id: `pres-${courseId}`,
+      theme: 'default',
+      modules: newPresModules
+    };
+
+    await supabase
+      .from('courses')
+      .update({ 
+        presentation: presentationPayload,
+        modules: newDbModules as any
+      })
+      .eq('id', courseId);
+
+    if (ucSlotsToInsert.length > 0) {
+      await supabase
+        .from('course_knowledge_units')
+        .insert(ucSlotsToInsert);
+    }
+
+    return courseId;
+  },
 
 
   // --- Companies (B2B — filtradas por tenant via RLS) ---

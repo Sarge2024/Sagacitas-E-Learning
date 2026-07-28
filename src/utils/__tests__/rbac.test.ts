@@ -56,9 +56,9 @@ describe('RBAC System - getPermissionsForRole', () => {
     expect(performanceRepPerm?.u).toBe(true);
   });
 
-  it('should return full access for Administrador', () => {
-    const permissions = getPermissionsForRole('Administrador');
-    
+  it('should return full access for Admin Master', () => {
+    const permissions = getPermissionsForRole('Admin Master');
+
     expect(permissions.every(p => p.r && p.c && p.u && p.d)).toBe(true);
   });
 });

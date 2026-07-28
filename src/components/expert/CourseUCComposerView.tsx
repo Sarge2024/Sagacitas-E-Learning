@@ -80,6 +80,12 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
           .eq('course_id', course.id)
           .order('sequence_order', { ascending: true });
 
+        console.log('>>> [CourseUCComposerView] Fetch slots for course:', course.id, {
+          dataLength: data?.length,
+          error: error?.message,
+          firstSlot: data?.[0]
+        });
+
         if (error) throw error;
         if (data) {
           setSlots(data.map((item: any) => ({
@@ -131,6 +137,12 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
   };
 
   const usedUcIds = new Set(slots.map(s => s.uc_id));
+  console.log('CourseUCComposerView Render:', {
+    unidadesLength: unidades.length,
+    slotsLength: slots.length,
+    slots: slots.map(s => ({ id: s.id, uc_id: s.uc_id, aula_group: s.aula_group })),
+    unidades: unidades.map(u => ({ id: u.id, codigo: u.codigo, titulo: u.titulo })),
+  });
 
   // Filter available UCs
   const availableUcs = unidades.filter(uc => {
@@ -238,7 +250,7 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
     setDragOverLessonSeq(lessonSeqNum);
   };
 
-  const handleDropOnLesson = (e: React.DragEvent, lessonSeqNum: number) => {
+  const handleDropOnLesson = (e: React.DragEvent, lessonSeqNum: number, targetModuleId?: string, targetLessonId?: string) => {
     e.preventDefault();
     e.stopPropagation();
     setDragOverLessonSeq(null);
@@ -262,7 +274,80 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
 
       // Move slot to this lesson group
       setSlots(slots.map(s => s.id === slotId ? { ...s, aula_group: lessonSeqNum } : s));
+    } else if (source === 'lesson' && targetModuleId && targetLessonId) {
+      const sourceModuleId = e.dataTransfer.getData('text/module-id');
+      const sourceLessonId = e.dataTransfer.getData('text/lesson-id');
+      
+      if (sourceLessonId === targetLessonId) return;
+
+      const sourceModule = modules.find(m => m.id === sourceModuleId);
+      if (!sourceModule) return;
+      const sourceLesson = sourceModule.lessons.find(l => l.id === sourceLessonId);
+      if (!sourceLesson) return;
+
+      setModules(prev => {
+        // Snapshot old sequence
+        const oldSequence = prev.flatMap(m => m.lessons.map(l => l.id));
+        let newModules = [...prev];
+        
+        // Remove from source module
+        newModules = newModules.map(m => {
+          if (m.id === sourceModuleId) {
+            return { ...m, lessons: m.lessons.filter(l => l.id !== sourceLessonId) };
+          }
+          return m;
+        });
+
+        // Insert at target module
+        newModules = newModules.map(m => {
+          if (m.id === targetModuleId) {
+            const targetIdx = m.lessons.findIndex(l => l.id === targetLessonId);
+            const newLessons = [...m.lessons];
+            newLessons.splice(targetIdx, 0, sourceLesson);
+            return { ...m, lessons: newLessons };
+          }
+          return m;
+        });
+
+        // Re-number lessons
+        newModules = newModules.map(m => ({
+          ...m,
+          lessons: m.lessons.map((l, idx) => ({
+            ...l,
+            number: String(idx + 1).padStart(2, '0')
+          }))
+        }));
+        
+        // Snapshot new sequence
+        const newSequence = newModules.flatMap(m => m.lessons.map(l => l.id));
+
+        // Build mapping
+        const seqMapping: Record<number, number> = {};
+        oldSequence.forEach((lId, oldIdx) => {
+           const newIdx = newSequence.indexOf(lId);
+           if (newIdx !== -1) {
+              seqMapping[oldIdx + 1] = newIdx + 1;
+           }
+        });
+
+        // Update slots
+        setSlots(prevSlots => prevSlots.map(slot => {
+           if (slot.aula_group && seqMapping[slot.aula_group]) {
+              return { ...slot, aula_group: seqMapping[slot.aula_group] };
+           }
+           return slot;
+        }));
+        
+        return newModules;
+      });
     }
+  };
+
+  const handleLessonDragStart = (e: React.DragEvent, moduleId: string, lessonId: string) => {
+    e.dataTransfer.setData('text/source', 'lesson');
+    e.dataTransfer.setData('text/lesson-id', lessonId);
+    e.dataTransfer.setData('text/module-id', moduleId);
+    e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleRemoveSlot = (slotId: string) => {
@@ -537,16 +622,26 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
                       mod.lessons.map((lesson) => {
                         runningLessonSeq += 1;
                         const lessonSeq = runningLessonSeq;
-                        const lessonSlots = slots.filter(s => s.aula_group === lessonSeq);
+                        const lessonSlots = slots.filter(s => Number(s.aula_group) === lessonSeq);
                         const isDragOver = dragOverLessonSeq === lessonSeq;
+                        
+                        console.log(`Render Lesson ${lessonSeq}:`, {
+                          lessonId: lesson.id,
+                          slotsFound: lessonSlots.length,
+                          allSlotsGroups: slots.map(s => s.aula_group),
+                          unidadesIds: unidades.map(u => u.id),
+                          lessonSlotsMapped: lessonSlots.map(s => ({ uc_id: s.uc_id, found_uc: !!getUc(s.uc_id) }))
+                        });
 
                         return (
                           <div
                             key={lesson.id}
+                            draggable
+                            onDragStart={(e) => handleLessonDragStart(e, mod.id, lesson.id)}
                             onDragOver={(e) => handleDragOverLesson(e, lessonSeq)}
                             onDragLeave={() => setDragOverLessonSeq(null)}
-                            onDrop={(e) => handleDropOnLesson(e, lessonSeq)}
-                            className={`p-3.5 rounded-md border transition-all space-y-3 ${
+                            onDrop={(e) => handleDropOnLesson(e, lessonSeq, mod.id, lesson.id)}
+                            className={`p-3.5 rounded-md border transition-all space-y-3 cursor-grab active:cursor-grabbing ${
                               isDragOver
                                 ? 'border-[#1890ff] bg-blue-50/40 ring-2 ring-blue-100'
                                 : 'border-slate-200 bg-slate-50/50 hover:border-slate-300'
@@ -556,6 +651,7 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
                             <div className="flex items-start justify-between">
                               <div className="space-y-1 flex-1 pr-4">
                                 <div className="flex items-center gap-2">
+                                  <GripVertical className="w-4 h-4 text-slate-400 cursor-grab active:cursor-grabbing" />
                                   <span className="px-2 py-0.5 bg-slate-200 text-slate-700 text-[9px] font-mono font-bold rounded shrink-0">
                                     Aula {lesson.number}
                                   </span>

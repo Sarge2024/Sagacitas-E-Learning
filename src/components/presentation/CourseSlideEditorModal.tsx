@@ -57,7 +57,19 @@ export const CourseSlideEditorModal: React.FC<CourseSlideEditorModalProps> = ({
   React.useEffect(() => {
     if (isOpen) {
       if (course.presentation) {
-        setPresentation(course.presentation);
+        // Garantir que a apresentação tenha a propriedade slides, inicializando com 1 slide vazio se necessário
+        const safePresentation = {
+          ...course.presentation,
+          slides: course.presentation.slides && course.presentation.slides.length > 0 
+            ? course.presentation.slides 
+            : [{
+                id: `slide-${Date.now()}`,
+                title: 'Novo Slide',
+                background: { type: 'color', value: '#12171c' },
+                elements: []
+              }]
+        };
+        setPresentation(safePresentation as any);
       } else {
         setPresentation(SAMPLE_PRESENTATION);
       }

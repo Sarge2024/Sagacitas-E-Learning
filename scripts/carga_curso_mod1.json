@@ -1,0 +1,257 @@
+{
+  "curso": {
+    "titulo": "Gestão Financeira Estratégica para Pequenas Empresas",
+    "descricao": "Curso prático e focado na transição do controle artesanal para a gestão estratégica de caixa, precificação rentável e planejamento de crescimento."
+  },
+  "modulo": {
+    "modulo_num": 1,
+    "titulo": "Módulo 1: Primeiros Passos, Organização e Instrumentos de Registro",
+    "objetivo": "Organizar a estrutura conceitual do aluno, alinhar a linguagem financeira, estabelecer a divisão de contas (PF x PJ) e dominar as ferramentas de registro diário."
+  },
+  "aulas": [
+    {
+      "aula_num": "Aula 01",
+      "titulo": "Aula 01: Visão Sistêmica e Linguagem Financeira",
+      "resumo": "Compreensão do funcionamento da empresa como organismo vivo e domínio do vocabulário financeiro básico.",
+      "ucs": [
+        {
+          "uc_codigo": "UC 1.1A",
+          "uc_titulo": "Fundamentos da Gestão Organizacional e Visão Sistêmica",
+          "nivel_bloom": "Compreender",
+          "pre_requisitos": [],
+          "objetivo": "Entender a empresa como um organismo integrado de recursos, processos, entradas, saídas e resultados.",
+          "slides": [
+            {
+              "title": "A Empresa como um Organismo Integrado",
+              "content": "* **Entradas:** Capital, insumos, tempo da equipe e informações de mercado.\n* **Processos:** Operação diária, atendimento, produção e entregas.\n* **Saídas:** Produtos/serviços prestados, pagamentos a fornecedores e **Resultados**.\n\n> **Regra de Ouro:** Faturamento é vaidade, lucro é sanidade e caixa é sobrevivência.",
+              "speakerNotes": "Reforce que o dinheiro em caixa não é o objetivo final isolado, mas a energia que mantém os processos vivos. Use a metáfora de uma engrenagem."
+            },
+            {
+              "title": "A Armadilha do Crescimento Sem Estrutura",
+              "content": "* Acelerar vendas em uma operação desorganizada amplia o prejuízo.\n* Toda decisão comercial reflete imediatamente na necessidade de caixa.\n* **Foco da Gestão:** Identificar gargalos operacionais antes de investir em expansão.",
+              "speakerNotes": "Pergunte à turma quem já viu uma empresa vender muito e mesmo assim passar por aperto no final do mês."
+            },
+            {
+              "title": "Estudo de Caso Prático",
+              "content": "1. Identifique as **3 maiores entradas de custo** do seu negócio hoje.\n2. Mapeie qual etapa do seu processo consome mais tempo útil.\n3. Defina qual é o seu principal gargalo financeiro atual.",
+              "speakerNotes": "Reserve 3 minutos para anotações individuais e peça para 2 alunos compartilharem os diagnósticos."
+            }
+          ]
+        },
+        {
+          "uc_codigo": "UC 1.1B",
+          "uc_titulo": "Terminologia e Conceitos Financeiros Fundamentais",
+          "nivel_bloom": "Lembrar",
+          "pre_requisitos": ["UC 1.1A"],
+          "objetivo": "Identificar e diferenciar os principais termos e métricas financeiras essenciais para o controle gerencial.",
+          "slides": [
+            {
+              "title": "Desmistificando o 'Financês'",
+              "content": "* **Faturamento (Receita Bruta):** Todo o valor bruto acordado nas vendas.\n* **Custos:** Gastos diretamente ligados à produção ou aquisição da oferta.\n* **Despesas:** Gastos para manter a estrutura e administração funcionando.\n* **Lucro Líquido:** O que de fato sobra após subtrair custos e despesas.",
+              "speakerNotes": "Enfatize a diferença clássica entre Custo (variável/direto) e Despesa (estrutura/fixo) com exemplos cotidianos."
+            },
+            {
+              "title": "Entrada de Caixa vs. Ganho de Lucro",
+              "content": "* **Recebimento:** O dinheiro entrando na conta bancária hoje.\n* **Faturamento:** O valor total da nota ou contrato emitido.\n* **Margem:** A porcentagem de sobra contida em cada venda realizada.",
+              "speakerNotes": "Ilustre que parcelar uma venda em 10x gera faturamento hoje, mas recebimento diluído ao longo de 10 meses."
+            },
+            {
+              "title": "Quiz de Fixação de Termos",
+              "content": "* O aluguel da sede é **Custo** ou **Despesa**?\n* O tecido usado na fabricação de uma camisa é **Custo** ou **Despesa**?\n* A taxa da maquininha de cartão é **Custo** ou **Despesa**?",
+              "speakerNotes": "Respostas: Aluguel = Despesa Fixa; Tecido = Custo Direto; Taxa Maquininha = Custo Variável."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "aula_num": "Aula 02",
+      "titulo": "Aula 02: Governança do Capital e Plano de Contas",
+      "resumo": "Organização das saídas de capital através do Plano de Contas Gerencial e fixação da separação patrimonial (PF x PJ).",
+      "ucs": [
+        {
+          "uc_codigo": "UC 1.2A",
+          "uc_titulo": "Plano de Contas Gerencial Simplificado",
+          "nivel_bloom": "Aplicar",
+          "pre_requisitos": ["UC 1.1B"],
+          "objetivo": "Estruturar e categorizar as entradas e saídas do negócio em um Plano de Contas Gerencial focado na tomada de decisão.",
+          "slides": [
+            {
+              "title": "O que é o Plano de Contas Gerencial?",
+              "content": "* Uma árvore de 'caixas' ou 'gavetas' para organizar cada centavo.\n* Diferente da contabilidade fiscal: focado na realidade prática do gestor.\n* Permite enxergar claramente para onde o dinheiro está vazando.",
+              "speakerNotes": "Diferencie o plano de contas gerencial do fiscal. O fiscal atende à lei; o gerencial atende à tomada de decisão."
+            },
+            {
+              "title": "Estrutura Básica de 4 Nivéis",
+              "content": "1. **Receitas Operacionais:** Vendas à vista, cartão, boletos.\n2. **Custos Variáveis:** Matéria-prima, mercadorias, impostos diretos.\n3. **Despesas Operacionais Fixas:** Aluguel, salários, energia, sistemas.\n4. **Retiradas e Investimentos:** Pró-labore e compra de equipamentos.",
+              "speakerNotes": "Mostre como uma categoria genérica como 'Gastos Diversos' destrói o controle e deve ser banida."
+            },
+            {
+              "title": "Exercício de Classificação",
+              "content": "Crie 3 subcategorias de despesas fixas prioritárias para o seu negócio dentro do seu Plano de Contas Gerencial.",
+              "speakerNotes": "Guie os alunos na criação do primeiro rascunho da estrutura de categorias da empresa."
+            }
+          ]
+        },
+        {
+          "uc_codigo": "UC 1.2B",
+          "uc_titulo": "Separação Patrimonial (PF x PJ) e Política de Pró-labore",
+          "nivel_bloom": "Analisar",
+          "pre_requisitos": ["UC 1.2A"],
+          "objetivo": "Estabelecer a separação rígida das contas pessoais e empresariais, definindo o Pró-labore com base no valor de mercado da função operacional do sócio.",
+          "slides": [
+            {
+              "title": "O Perigo de Misturar as Contas",
+              "content": "* Pagar contas da casa com o caixa da empresa mascara o resultado real.\n* Impede saber se a empresa é lucrativa ou se o sócio gasta demais.\n* Destrói o capital de giro necessário para manter a operação.",
+              "speakerNotes": "Aborde com empatia, mas com firmeza: misturar contas é a causa nº 1 de cegueira financeira na pequena empresa."
+            },
+            {
+              "title": "Como Valorar o Pró-labore Corretamente",
+              "content": "* **Regra do Substituto:** Quanto você pagaria para um funcionário fazer o que você faz hoje?\n* O Pró-labore é um **Custo/Despesa Operacional Fixo** da empresa.\n* **Distribuição de Lucros:** Ocorre apenas quando há resultado positivo apurado.",
+              "speakerNotes": "Explique que se o dono trabalha na operação sem se remunerar a valor de mercado, o lucro apurado é uma ilusão."
+            },
+            {
+              "title": "Plano de Ação de Separação",
+              "content": "1. Defina uma data fixa no mês para a transferência do Pró-labore.\n2. Cancele cartões corporativos vinculados a despesas pessoais.\n3. Ajuste a meta de faturamento para cobrir o Pró-labore justo.",
+              "speakerNotes": "Desafie os alunos a estabelecerem a data da 'independência financeira' das contas da empresa."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "aula_num": "Aula 03",
+      "titulo": "Aula 03: Fundamentos e Aplicação do Custeio",
+      "resumo": "Mapeamento dos componentes de custo da oferta e aplicação prática por segmento operacional.",
+      "ucs": [
+        {
+          "uc_codigo": "UC 1.3A",
+          "uc_titulo": "Fundamentos de Custeio de Produtos e Serviços",
+          "nivel_bloom": "Compreender",
+          "pre_requisitos": ["UC 1.1B"],
+          "objetivo": "Identificar os componentes que formam os gastos do negócio, diferenciando Custos Diretos, Custos Indiretos, Despesas e Investimentos.",
+          "slides": [
+            {
+              "title": "A Anatomia dos Gastos",
+              "content": "* **Custos Diretos:** Variam em proporção exata com o volume vendido.\n* **Custos Indiretos:** Necessários para produzir, mas exigem rateio.\n* **Margem de Contribuição Unitária:** Preço de Venda - Custos Variáveis.",
+              "speakerNotes": "Mostre que a Margem de Contribuição é a fatia de cada venda que sobra para pagar o aluguel e gerar lucro."
+            },
+            {
+              "title": "Diferença Crítica: Custo vs. Investimento",
+              "content": "* **Custo:** Consumido no processo de entrega da venda atual.\n* **Investimento:** Gasto focado em gerar benefícios e caixa em ciclos futuros.",
+              "speakerNotes": "Deixe claro que comprar estoque em excesso não é custo imediato, mas imobilização de capital de giro."
+            }
+          ]
+        },
+        {
+          "uc_codigo": "UC 1.3B",
+          "uc_titulo": "Custeio Operacional Aplicado",
+          "nivel_bloom": "Aplicar",
+          "pre_requisitos": ["UC 1.3A"],
+          "objetivo": "Calcular o custo unitário real da oferta segundo as especificidades do modelo de negócio (Comércio, Serviços ou Produção).",
+          "slides": [
+            {
+              "title": "Custeio no Comércio (CAM)",
+              "content": "* **CAM (Custo de Aquisição de Mercadoria):** Preço do Fornecedor + Frete + Impostos Não Recuperáveis - Descontos Obtidos.",
+              "speakerNotes": "Demonstre como o frete de compra muitas vezes reduz a margem prevista se não for embutido no custo inicial."
+            },
+            {
+              "title": "Custeio em Serviços (Custo/Hora)",
+              "content": "* **Capacidade Produtiva:** Horas vendáveis reais no mês.\n* **Custo/Hora:** (Custo Fixo Profissional + Ferramentas) / Horas Efetivas.",
+              "speakerNotes": "Alerte que ninguém trabalha 160 horas faturáveis no mês; considere ociosidade e tempo administrativo."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "aula_num": "Aula 04",
+      "titulo": "Aula 04: A Dimensão do Tempo e Prazos Financeiros",
+      "resumo": "Compreensão do descasamento entre momentos de venda e momentos de caixa e controle de prazos.",
+      "ucs": [
+        {
+          "uc_codigo": "UC 1.4A",
+          "uc_titulo": "A Dimensão do Tempo: Momento da Venda vs. Momento do Caixa",
+          "nivel_bloom": "Compreender",
+          "pre_requisitos": ["UC 1.1B"],
+          "objetivo": "Diferenciar o momento da ocorrência da venda do momento da entrada e saída efetiva do dinheiro do caixa.",
+          "slides": [
+            {
+              "title": "A Ilusão do Momento da Venda",
+              "content": "* **Momento do Combinado (Fato Gerador):** O cliente assina ou compra.\n* **Momento do Caixa (Liquidez):** O dinheiro cai disponível na conta.\n* O descasamento entre esses dois momentos quebra empresas saudáveis.",
+              "speakerNotes": "Use o exemplo clássico de vender em 6x e ter que pagar o fornecedor à vista em 30 dias."
+            },
+            {
+              "title": "O Impacto do Descasamento no Caixa",
+              "content": "* Prazos médios concedidos a clientes > Prazos obtidos com fornecedores.\n* Necessidade de Capital de Giro para financiar a operação no tempo.",
+              "speakerNotes": "Mostre como negociar prazos maiores de pagamento pode ser mais valioso do que pedir pequenos descontos."
+            }
+          ]
+        },
+        {
+          "uc_codigo": "UC 1.4B",
+          "uc_titulo": "Mapeamento e Controle de Contas a Receber e Prazos",
+          "nivel_bloom": "Aplicar",
+          "pre_requisitos": ["UC 1.4A"],
+          "objetivo": "Mapear e cronogramar as entradas futuras de recursos de acordo com as formas de pagamento oferecidas e prazos de liquidação.",
+          "slides": [
+            {
+              "title": "Construindo o Mapa de Recebíveis",
+              "content": "* Mapear recebimentos por modalidade: PIX (D+0), Cartão de Débito (D+1), Cartão de Crédito (D+30) e Boletos.\n* Descontar taxas de intermediação antes de projetar o saldo em conta.",
+              "speakerNotes": "Oriente os alunos a nunca lançar o valor bruto da venda de cartão no contas a receber, mas sim o valor líquido das taxas."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "aula_num": "Aula 05",
+      "titulo": "Aula 05: Instrumentos de Registro e Tecnologia",
+      "resumo": "Diferenciação do controle fiscal para o gerencial e a régua de evolução das ferramentas de registro.",
+      "ucs": [
+        {
+          "uc_codigo": "UC 1.5A",
+          "uc_titulo": "Registro Fiscal vs. Registro Gerencial",
+          "nivel_bloom": "Compreender",
+          "pre_requisitos": ["UC 1.2A"],
+          "objetivo": "Separar as exigências e dados necessários para a contabilidade/fisco dos registros e relatórios de uso exclusivo da gestão diária da empresa.",
+          "slides": [
+            {
+              "title": "Duas Visões do Mesmo Negócio",
+              "content": "* **Contabilidade Fiscal:** Foco no passado, cumprimento de impostos e obrigações legais.\n* **Contabilidade Gerencial:** Foco no presente e futuro, decisões de caixa e margem de lucro.",
+              "speakerNotes": "Explique que o contador não é o gestor financeiro da empresa. O empresário é o dono das decisões."
+            }
+          ]
+        },
+        {
+          "uc_codigo": "UC 1.5B",
+          "uc_titulo": "Planilhas Eletrônicas Aplicadas às Finanças",
+          "nivel_bloom": "Aplicar",
+          "pre_requisitos": ["UC 1.5A"],
+          "objetivo": "Operar planilhas para o registro ordenado de dados de caixa, contas a pagar, contas a receber e cálculo de custos.",
+          "slides": [
+            {
+              "title": "A Estrutura de Uma Planilha Funcional",
+              "content": "* Padronização de colunas: Data | Descrição | Categoria | Entrada/Saída | Status (Pago/Pendente).\n* A importância da disciplina de alimentação diária.",
+              "speakerNotes": "Demonstre na prática a importância de não mesclar células nem quebrar o padrão de datas nas colunas."
+            }
+          ]
+        },
+        {
+          "uc_codigo": "UC 1.5C",
+          "uc_titulo": "Introdução à Automação: Sistemas ERP e Dashboards (Power BI)",
+          "nivel_bloom": "Lembrar",
+          "pre_requisitos": ["UC 1.5B"],
+          "objetivo": "Reconhecer os conceitos de sistemas integrados de gestão e painéis visuais de dados, identificando o momento correto de migrar da planilha para um software.",
+          "slides": [
+            {
+              "title": "A Régua de Maturidade Digital",
+              "content": "* **Fase 1:** Caderno/Livro Caixa $\\rightarrow$ **Fase 2:** Planilhas Conectadas $\\rightarrow$ **Fase 3:** Sistema ERP Integrado $\\rightarrow$ **Fase 4:** Dashboards em BI.\n* **Sinal de Transição:** Quando o tempo gasto alimentando planilhas é maior do que o tempo analisando dados.",
+              "speakerNotes": "Conclua o Módulo 1 motivando os alunos a dominarem a fase atual antes de contratarem softwares complexos."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

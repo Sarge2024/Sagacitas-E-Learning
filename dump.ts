@@ -11,17 +11,10 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  const { data, error } = await supabase.rpc('run_sql', { sql_query: `
-    SELECT pol.polname, pol.polcmd, pol.polqual, pol.polwithcheck
-    FROM pg_policy pol
-    JOIN pg_class tbl ON pol.polrelid = tbl.oid
-    WHERE tbl.relname = 'courses';
-  ` });
-  
-  if (error) {
-    console.error('RPC Error:', error);
-  } else {
-    console.log('Courses policies:', data);
+  const { data: ucs, error } = await supabase.from('knowledge_units').select('id, tenant_id');
+  if (ucs && ucs.length > 0) {
+    console.log('Unique tenant IDs in knowledge_units:', [...new Set(ucs.map(u => u.tenant_id))]);
   }
 }
+
 run();

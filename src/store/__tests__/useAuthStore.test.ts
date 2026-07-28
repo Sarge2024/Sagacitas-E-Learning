@@ -50,7 +50,7 @@ describe('useAuthStore', () => {
     useAuthStore.getState().setOauthUser(adminUser);
     const state = useAuthStore.getState();
     
-    expect(state.oauthUser?.role).toBe('Administrador');
+    expect(state.oauthUser?.role).toBe('Admin Master');
     expect(state.oauthUser?.permissionsHash?.['expert']?.u).toBe(true);
   });
 

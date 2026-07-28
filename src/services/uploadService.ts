@@ -40,5 +40,32 @@ export const uploadService = {
 
     console.log('[uploadService] URL gerada:', publicUrlData.publicUrl);
     return publicUrlData.publicUrl;
+  },
+
+  /**
+   * Exclui um arquivo da bucket `media` usando sua URL pública.
+   * @param publicUrl A URL pública do arquivo a ser excluído
+   */
+  async deleteFile(publicUrl: string): Promise<void> {
+    try {
+      if (!publicUrl || !publicUrl.includes('supabase.co')) return;
+      
+      const urlParts = publicUrl.split('/media/');
+      if (urlParts.length < 2) return;
+      
+      const filePath = urlParts[1];
+      
+      const { error } = await supabase.storage
+        .from('media')
+        .remove([filePath]);
+        
+      if (error) {
+        console.error('[uploadService] Erro ao excluir arquivo:', error);
+      } else {
+        console.log('[uploadService] Arquivo excluído com sucesso:', filePath);
+      }
+    } catch (e) {
+      console.error('[uploadService] Falha na exclusão do arquivo', e);
+    }
   }
 };

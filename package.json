@@ -10,7 +10,9 @@
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "archify:generate": "node docs/archify/generate-reports.mjs"
+    "archify:generate": "node docs/archify/generate-reports.mjs",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -40,6 +42,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
+    "@vitest/ui": "^4.1.10",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
     "jsdom": "^29.1.1",

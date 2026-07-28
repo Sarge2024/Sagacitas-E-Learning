@@ -269,6 +269,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   
   const [trainingType, setTrainingType] = useState<'avulso' | 'sistema' | 'formador' | 'empresarial'>('avulso');
+  const [trainingStatus, setTrainingStatus] = useState<'active' | 'blocked' | 'cancelled'>('active');
   const [trainingCompanyId, setTrainingCompanyId] = useState('');
   const [trainingSystemName, setTrainingSystemName] = useState('');
   const [companiesList, setCompaniesList] = useState<any[]>([]);
@@ -284,6 +285,12 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
 
   // Course UC Composer state
   const [composingCourse, setComposingCourse] = useState<Course | null>(null);
+
+  // JSON Import State
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [importJsonText, setImportJsonText] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
+  const [importError, setImportError] = useState('');
 
   // Categories management state
   const [categories, setCategories] = useState<string[]>([
@@ -318,6 +325,54 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
     }
     loadCompanies();
   }, []);
+
+  const [localUnidades, setLocalUnidades] = useState<UnidadeConhecimento[]>([]);
+
+  useEffect(() => {
+    async function loadKnowledgeUnits() {
+      try {
+        const ucs = await dbService.getKnowledgeUnits();
+        const mappedUcs: UnidadeConhecimento[] = ucs.map(dbUc => {
+          let codeStr = dbUc.signatures && dbUc.signatures.length > 0 ? dbUc.signatures[0].code : undefined;
+          let titleStr = dbUc.title;
+          
+          if (!codeStr && dbUc.title.includes(':')) {
+            const parts = dbUc.title.split(':');
+            codeStr = parts[0]?.trim();
+            titleStr = parts.slice(1).join(':').trim();
+          }
+
+          return {
+            id: dbUc.id,
+            tenant_id: dbUc.tenant_id,
+            codigo: codeStr,
+            signatures: dbUc.signatures,
+            subgroups: dbUc.subgroups,
+            titulo: titleStr,
+            descricao_curta: dbUc.description,
+            meta_bloom: dbUc.bloom_level === 1 ? 'CONHECIMENTO' : 
+                        dbUc.bloom_level === 2 ? 'COMPREENSAO' : 
+                        dbUc.bloom_level === 3 ? 'APLICACAO_SIMPLES' : 
+                        dbUc.bloom_level === 4 ? 'ANALISE' : 
+                        dbUc.bloom_level === 5 ? 'SINTESE' : 'COMPREENSAO',
+            duracao_estimada_minutos: dbUc.estimated_duration_minutes,
+            status: dbUc.status as any,
+            created_at: dbUc.created_at,
+            updated_at: dbUc.updated_at,
+            topico: dbUc.topic,
+            topico_complexidade: dbUc.topic_complexity as any || 'CONHECIMENTO',
+            area: dbUc.area || 'SAG',
+            context: dbUc.context || 'GLOBAL',
+            layout_template: { version: '1.0', components: [] }
+          };
+        });
+        setLocalUnidades(mappedUcs);
+      } catch (err) {
+        console.error('Erro ao carregar UCs no ManagerToolsView:', err);
+      }
+    }
+    loadKnowledgeUnits();
+  }, [composingCourse]);
 
   // Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -495,6 +550,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
     setTrainingCompanyId('');
     setTrainingSystemName('');
     setTrainingImageUrl('');
+    setTrainingStatus('active');
     setIsTrainingModalOpen(true);
   };
 
@@ -509,6 +565,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
     setTrainingCompanyId(course.company_id || '');
     setTrainingSystemName(course.system_name || '');
     setTrainingImageUrl(course.image || '');
+    setTrainingStatus((course.status as any) || 'active');
     setIsTrainingModalOpen(true);
   };
 
@@ -532,10 +589,10 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           description: trainingDescription,
           level: trainingLevel,
           category: trainingCategory,
-          status: editingCourse.status || 'active',
+          status: trainingStatus,
           course_type: trainingType,
-          company_id: (trainingType === 'empresarial' || trainingType === 'sistema') ? trainingCompanyId : null,
-          system_name: trainingType === 'sistema' ? trainingSystemName : null,
+          company_id: (trainingType === 'empresarial' || trainingType === 'sistema') ? trainingCompanyId : undefined,
+          system_name: trainingType === 'sistema' ? trainingSystemName : undefined,
           image_url: trainingImageUrl
         });
 
@@ -545,10 +602,13 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           description: dbUpdated.description || '',
           level: dbUpdated.level as any,
           category: dbUpdated.category || trainingCategory,
+          status: dbUpdated.status as any,
           course_type: dbUpdated.course_type,
           company_id: dbUpdated.company_id,
           system_name: dbUpdated.system_name,
-          image: dbUpdated.image_url || editingCourse.image
+          image: dbUpdated.image_url !== undefined && dbUpdated.image_url !== null 
+            ? dbUpdated.image_url 
+            : editingCourse.image
         };
 
         const updated = courses.map((c) =>
@@ -602,8 +662,8 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           status: 'active',
           category: trainingCategory,
           course_type: trainingType,
-          company_id: (trainingType === 'empresarial' || trainingType === 'sistema') ? trainingCompanyId : null,
-          system_name: trainingType === 'sistema' ? trainingSystemName : null,
+          company_id: (trainingType === 'empresarial' || trainingType === 'sistema') ? trainingCompanyId : undefined,
+          system_name: trainingType === 'sistema' ? trainingSystemName : undefined,
           image_url: trainingImageUrl || undefined,
           modules: initialModules as any,
           presentation: undefined
@@ -613,8 +673,8 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           id: dbCreated.id,
           title: dbCreated.title,
           category: dbCreated.category || trainingCategory,
-          description: dbCreated.description || '',
           course_type: dbCreated.course_type,
+          status: dbCreated.status as any,
           company_id: dbCreated.company_id,
           system_name: dbCreated.system_name,
           progress: 0,
@@ -656,9 +716,11 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
 
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.indexOf('image') !== -1) {
-        const file = items[i].getAsFile();
-        if (file) {
+        const blob = items[i].getAsFile();
+        if (blob) {
           e.preventDefault();
+          // Create a new File to guarantee a valid name
+          const file = new File([blob], `pasted-image-${Date.now()}.png`, { type: items[i].type });
           handleCourseImageUpload(file);
           break;
         }
@@ -696,13 +758,59 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   const handleDeleteCourseConfirm = async () => {
     if (!courseToDelete) return;
     try {
+      if (courseToDelete.image && courseToDelete.image.includes('supabase.co')) {
+        await uploadService.deleteFile(courseToDelete.image);
+      }
       await dbService.deleteCourse(courseToDelete.id);
       const newCourses = courses.filter((c) => c.id !== courseToDelete.id);
-      useCourseStore.setState({ courses: newCourses });
+      if (onUpdateCourses) onUpdateCourses(newCourses);
       setCourseToDelete(null);
     } catch (err) {
       console.error(err);
       alert('Erro ao excluir curso.');
+    }
+  };
+
+  const handleImportCourseJSON = async () => {
+    try {
+      setImportError('');
+      setIsImporting(true);
+      
+      let payload;
+      try {
+        payload = JSON.parse(importJsonText);
+      } catch(e) {
+        throw new Error('Formato JSON inválido. Verifique se copiou corretamente.');
+      }
+      
+      if (!payload.curso || !payload.curso.titulo) {
+        throw new Error('O JSON precisa ter um objeto "curso" com um "titulo".');
+      }
+      if (!payload.aulas || !Array.isArray(payload.aulas)) {
+        throw new Error('O JSON precisa ter um array de "aulas".');
+      }
+
+      await dbService.importCourseFromJSON(payload, companiesList[0]?.id);
+      
+      showToast(`Treinamento "${payload.curso.titulo}" importado com sucesso!`);
+      setIsImportModalOpen(false);
+      setImportJsonText('');
+      
+      // Reload courses
+      const updatedCourses = await dbService.getCourses();
+      const mappedCourses: Course[] = updatedCourses.map(c => ({
+        ...c,
+        category: c.category || 'Outros',
+        image: c.image_url || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800',
+        progress: 0,
+        modules: (c.presentation as any)?.modules || []
+      })) as Course[];
+      if (onUpdateCourses) onUpdateCourses(mappedCourses);
+    } catch (err: any) {
+      console.error('Import error:', err);
+      setImportError(err.message || 'Erro desconhecido ao importar.');
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -711,14 +819,14 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
     
     // Optimistic update
     const newCourses = courses.map(c => c.id === course.id ? { ...c, status: newStatus as Course['status'] } : c);
-    useCourseStore.setState({ courses: newCourses });
+    if (onUpdateCourses) onUpdateCourses(newCourses);
 
     try {
       await dbService.updateCourse(course.id, { status: newStatus as any });
     } catch (err) {
       console.error(err);
       // Revert on error
-      useCourseStore.setState({ courses });
+      if (onUpdateCourses) onUpdateCourses(courses);
       alert('Erro ao atualizar status do curso.');
     }
   };
@@ -736,7 +844,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
       <>
         <CourseUCComposerView
           course={composingCourse}
-          unidades={unidades}
+          unidades={localUnidades.length > 0 ? localUnidades : unidades}
           onBack={() => setComposingCourse(null)}
           onOpenSlideEditor={(course, filteredUcIds) => {
             setSelectedCourseForSlides(course);
@@ -772,7 +880,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                 showToast("Erro ao persistir slides no banco.");
               }
             }}
-            unidades={unidades}
+            unidades={localUnidades.length > 0 ? localUnidades : unidades}
             initialUcId={selectedUcIdForSlides}
           />
         )}
@@ -1091,13 +1199,26 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
               </div>
             </div>
 
-            <button
-              onClick={handleOpenNewTrainingModal}
-              className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Criar Novo Treinamento</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setImportJsonText('');
+                  setImportError('');
+                  setIsImportModalOpen(true);
+                }}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs shrink-0"
+              >
+                <UploadCloud className="w-4 h-4" />
+                <span>Importar JSON</span>
+              </button>
+              <button
+                onClick={handleOpenNewTrainingModal}
+                className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Criar Novo Treinamento</span>
+              </button>
+            </div>
           </div>
 
           {/* Trainings Cards Grid */}
@@ -1137,8 +1258,10 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                       <span className="font-bold">{course.modules?.length || 4} Módulos</span>
                     </div>
                     <div className="bg-slate-50 p-2 rounded border border-slate-200 flex items-center gap-2">
-                      <Users className="w-3.5 h-3.5 text-[#1890ff]" />
-                      <span className="font-bold">18 Alunos</span>
+                      <BookOpen className="w-3.5 h-3.5 text-[#1890ff]" />
+                      <span className="font-bold">
+                        {course.modules?.reduce((acc, mod) => acc + (mod.lessons?.length || 0), 0) || course.totalLessons || 0} Aulas
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1591,6 +1714,55 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
         </div>
       )}
 
+      {/* MODAL 1.8: Importar Curso via JSON */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-md p-6 max-w-2xl w-full flex flex-col max-h-[90vh]">
+            <div className="flex items-center gap-3 text-indigo-600 mb-4">
+              <UploadCloud className="w-6 h-6 shrink-0" />
+              <h3 className="font-black text-slate-900 text-base">Importar Formação via JSON</h3>
+            </div>
+            
+            <p className="text-xs text-slate-600 mb-4">
+              Cole abaixo o JSON gerado pelo agente. A estrutura deve conter <strong>curso</strong>, <strong>modulo</strong>, e <strong>aulas</strong> (com suas <strong>ucs</strong>).
+            </p>
+
+            <textarea
+              value={importJsonText}
+              onChange={(e) => setImportJsonText(e.target.value)}
+              placeholder='{\n  "curso": { ... },\n  "modulo": { ... },\n  "aulas": [ ... ]\n}'
+              className="flex-1 min-h-[300px] w-full bg-slate-50 border border-slate-200 rounded p-3 text-xs text-slate-800 font-mono outline-none focus:border-[#1890ff] resize-none mb-4"
+            />
+
+            {importError && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded text-xs font-bold mb-4">
+                {importError}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => { setIsImportModalOpen(false); setImportError(''); }}
+                disabled={isImporting}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-bold cursor-pointer disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleImportCourseJSON}
+                disabled={isImporting || !importJsonText.trim()}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold uppercase tracking-wider shadow-xs cursor-pointer flex items-center gap-2 disabled:opacity-50"
+              >
+                {isImporting && <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
+                {isImporting ? 'Importando...' : 'Validar & Importar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL 2: Criar / Editar Treinamento */}
       {isTrainingModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
@@ -1704,7 +1876,46 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                 </div>
               </div>
 
-              <div>
+              <div className="mt-3">
+                <label className="block text-xs font-black text-slate-700 mb-1">Status do Treinamento</label>
+                <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded p-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="trainingStatus" 
+                      value="active" 
+                      checked={trainingStatus === 'active'}
+                      onChange={() => setTrainingStatus('active')}
+                      className="accent-[#1890ff]"
+                    />
+                    <span className="text-xs font-medium text-slate-700">Ativo</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="trainingStatus" 
+                      value="cancelled" 
+                      checked={trainingStatus === 'cancelled'}
+                      onChange={() => setTrainingStatus('cancelled')}
+                      className="accent-rose-500"
+                    />
+                    <span className="text-xs font-medium text-slate-700">Inativo</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="trainingStatus" 
+                      value="blocked" 
+                      checked={trainingStatus === 'blocked'}
+                      onChange={() => setTrainingStatus('blocked')}
+                      className="accent-amber-500"
+                    />
+                    <span className="text-xs font-medium text-slate-700">Bloqueado</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="mt-3">
                 <label className="block text-xs font-black text-slate-700 mb-1">Descrição / Ementa</label>
                 <textarea
                   value={trainingDescription}
@@ -1732,7 +1943,12 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                       <img src={trainingImageUrl} alt="Capa" className="w-full max-h-[160px] object-cover rounded shadow-sm border border-slate-200" />
                       <button
                         type="button"
-                        onClick={() => setTrainingImageUrl('')}
+                        onClick={async () => {
+                          if (trainingImageUrl.includes('supabase.co')) {
+                            await uploadService.deleteFile(trainingImageUrl);
+                          }
+                          setTrainingImageUrl('');
+                        }}
                         className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded hover:bg-red-600 shadow cursor-pointer"
                         title="Remover Imagem"
                       >
@@ -1876,7 +2092,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
               showToast("Erro ao persistir slides no banco.");
             }
           }}
-          unidades={unidades}
+          unidades={localUnidades.length > 0 ? localUnidades : unidades}
           initialUcId={selectedUcIdForSlides}
         />
       )}

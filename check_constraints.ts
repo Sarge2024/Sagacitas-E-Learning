@@ -11,17 +11,19 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  const { data, error } = await supabase.rpc('run_sql', { sql_query: `
-    SELECT pol.polname, pol.polcmd, pol.polqual, pol.polwithcheck
-    FROM pg_policy pol
-    JOIN pg_class tbl ON pol.polrelid = tbl.oid
-    WHERE tbl.relname = 'courses';
-  ` });
-  
+  const { data, error } = await supabase.rpc('get_foreign_keys');
   if (error) {
-    console.error('RPC Error:', error);
+    // Let's just query pg_constraint
+    const { data: constraints, error: cErr } = await supabase.rpc('run_sql', { sql_query: `
+      SELECT conname, pg_get_constraintdef(c.oid)
+      FROM pg_constraint c
+      JOIN pg_namespace n ON n.oid = c.connamespace
+      WHERE n.nspname = 'public' AND conrelid = 'course_knowledge_units'::regclass;
+    ` });
+    console.log(constraints || cErr);
   } else {
-    console.log('Courses policies:', data);
+    console.log(data);
   }
 }
+
 run();

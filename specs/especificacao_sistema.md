@@ -24,7 +24,8 @@ A plataforma adota um modelo híbrido para atender clientes de diferentes portes
 O sistema implementa uma sincronização de ciclo de vida entre o Firebase Auth (provedor de identidade) e as tabelas relacionais do Supabase / Firestore.
 
 ### 2.1. Classificação de Perfis (Roles)
-- **Administrador (Admin Master / Gestor)**: Acesso completo às ferramentas de gestão, faturamento, auditoria de segurança e compositor de cursos.
+- **Administrador Master (Soberano)**: Acesso ilimitado e irrestrito. Bypassa todas as políticas de Row Level Security (RLS) do banco de dados para garantir auditoria, suporte técnico e gestão total da plataforma (SaaS global admin).
+- **Administrador (Gestor)**: Acesso completo às ferramentas de gestão, faturamento e compositor de cursos da sua instância.
 - **Instrutor**: Visualização e gestão da Carteira de Instrutor, acompanhamento de progresso de alunos de suas turmas.
 - **Aluno**: Acesso ao painel do aluno, simuladores (DRE), player de aulas e chat com Tutor de IA.
 - **Visitante**: Perfil padrão para novos usuários cadastrados no sistema. Fica em estado pendente até que um Administrador aprove e o associe a um perfil específico de Aluno ou Instrutor.
@@ -102,7 +103,11 @@ Catálogo de cursos da plataforma.
 - `course_code` (VARCHAR(10), UNIQUE, Nullable): Código de identificação do curso.
 - `modules` (JSONB, Nullable): Árvore curricular contendo módulos e aulas dinâmicas cadastradas pelo gestor.
 - `presentation` (JSONB, Nullable): Arquivo do deck de slides de autoria salvos no editor de slides.
-- `category` (TEXT, Nullable): Nome direto da categoria para visualização simples no catálogo.
+- `category` (TEXT, Nullable): Categoria principal ('Curso' ou 'Treinamentos'). Treinamentos são específicos de empresas (company_id) ou sistemas (system_name).
+- `course_type` (TEXT, Nullable): Tipo do curso ('padrao', 'empresarial', 'sistema').
+- `company_id` (UUID, Nullable): ID da empresa proprietária do treinamento.
+- `system_name` (TEXT, Nullable): Nome do sistema referente ao treinamento.
+- `image_url` (TEXT, Nullable): URL da imagem de capa armazenada no bucket `media` do Supabase.
 
 #### Tabela `course_knowledge_units`
 Tabela intermediária que mapeia as Unidades de Conhecimento (UCs) a um determinado Curso.
@@ -181,3 +186,13 @@ O sistema segue as regras de estilização consolidadas no arquivo [padrao_forma
   - `emerald-500` (Verde) para conquistas, acertos e lucro DRE.
   - `amber-500` (Laranja) para alertas e CMV no limite.
   - `red-500` (Vermelho) para prejuízo operacional e erros de resposta.
+  - **Menu Lateral (Sidebar)**: Padronização rígida do estilo *Núcleo Expert*, agrupando abas de negócio sob *Relatórios* (ex: *Central de Inteligência*, *Relatórios B2B*).
+
+---
+
+## 6. Protocolo Rigoroso de Testes e Qualidade (Zero Máscaras)
+
+Para garantir estabilidade contínua, o projeto integra um protocolo restrito de **Fail Fast**:
+- **Testes Automatizados**: A suite de testes utiliza `vitest` e `@testing-library/react` (comando: `npm test` e `npm run test:ui`).
+- **Diretiva Zero Máscaras**: É terminantemente proibido o mascaramento de falhas estruturais (ex: ocultar falhas de banco de dados injetando dados estáticos via short-circuits não intencionais). Falhas devem quebrar ruidosamente (console/logs) ou serem tratadas via retornos explícitos na interface.
+- **Upload Inteligente de Arquivos**: Suporte padronizado de uplaods (ex: capa de curso, UCs) validando arquivos via seletor nativo, Drag & Drop, e `Ctrl+V` (Clipboard API), garantindo integridade e extração de Blobs válidos para persistência no bucket `media`.
