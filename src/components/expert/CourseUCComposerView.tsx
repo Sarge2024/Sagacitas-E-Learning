@@ -161,16 +161,77 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
     [unidades]
   );
 
+  const createAutoSlideForLesson = (globalIndex: number, lessonTitle: string) => {
+    if (!course.presentation) {
+      course.presentation = { id: `pres-${Date.now()}`, title: course.title, slides: [] } as any;
+    }
+    if (!course.presentation!.slides) {
+      course.presentation!.slides = [];
+    }
+    course.presentation!.slides.push({
+      id: `slide-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      aula_group: globalIndex,
+      title: `Slide Inicial: ${lessonTitle}`,
+      background: { type: 'color', value: '#12171c' },
+      elements: [
+        {
+          id: `elem-${Date.now()}-txt`,
+          type: 'text',
+          x: 10,
+          y: 10,
+          width: 80,
+          height: 20,
+          zIndex: 10,
+          content: {
+            text: 'Texto Base da Aula',
+            style: { fontSize: '1.8rem', fontWeight: '800', color: '#0a6ed1' }
+          },
+          animation: { effect: 'fadeIn', duration: 0.8, delay: 0.1, order: 1 }
+        },
+        {
+          id: `elem-${Date.now()}-vid`,
+          type: 'video',
+          x: 20,
+          y: 40,
+          width: 60,
+          height: 40,
+          zIndex: 11,
+          content: {
+            src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+            mediaSettings: { autoPlay: false, controls: true }
+          },
+          animation: { effect: 'fadeIn', duration: 0.8, delay: 0.2, order: 2 }
+        }
+      ]
+    } as any);
+  };
+
   // --- CRUD Módulos ---
   const handleAddModule = () => {
     const nextModNum = modules.length + 1;
+    const moduleId = `mod-${Date.now()}-${nextModNum}`;
+    
+    const newLesson: Lesson = {
+      id: `aula-${Date.now()}-1`,
+      number: '01',
+      title: `Aula 01: Nova Aula`,
+      duration: '15:00',
+      completed: false,
+      active: true,
+      description: 'Descrição breve dos objetivos didáticos desta aula.'
+    };
+    
     const newModule: Module = {
-      id: `mod-${Date.now()}-${nextModNum}`,
+      id: moduleId,
       title: `Módulo ${nextModNum}: Novo Módulo`,
       focus: 'Foco de aprendizado do módulo.',
       duration: '1h 30min',
-      lessons: []
+      lessons: [newLesson]
     };
+    
+    const globalIndex = modules.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) + 1;
+    createAutoSlideForLesson(globalIndex, 'Aula 01: Nova Aula');
+    
     setModules([...modules, newModule]);
   };
 
@@ -189,15 +250,27 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
     setModules(modules.map(m => {
       if (m.id !== moduleId) return m;
       const nextNum = m.lessons.length + 1;
+      const lessonTitle = `Aula ${String(nextNum).padStart(2, '0')}: Nova Aula`;
       const newLesson: Lesson = {
         id: `aula-${Date.now()}-${nextNum}`,
         number: String(nextNum).padStart(2, '0'),
-        title: `Aula ${String(nextNum).padStart(2, '0')}: Nova Aula`,
+        title: lessonTitle,
         duration: '15:00',
         completed: false,
-        active: nextNum === 1,
+        active: true,
         description: 'Descrição breve dos objetivos didáticos desta aula.'
       };
+
+      let globalIndex = 0;
+      for (const mod of modules) {
+        if (mod.id === moduleId) {
+          globalIndex += mod.lessons.length + 1;
+          break;
+        }
+        globalIndex += mod.lessons.length;
+      }
+      createAutoSlideForLesson(globalIndex, lessonTitle);
+
       return {
         ...m,
         lessons: [...m.lessons, newLesson]
@@ -433,7 +506,10 @@ export const CourseUCComposerView: React.FC<CourseUCComposerViewProps> = ({
       // 3. Atualizar módulos e aulas estruturais do curso
       const { error: courseError } = await supabase
         .from('courses')
-        .update({ modules })
+        .update({ 
+          modules, 
+          presentation: course.presentation 
+        })
         .eq('id', course.id);
 
       if (courseError) throw courseError;

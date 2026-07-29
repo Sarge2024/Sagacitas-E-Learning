@@ -21,6 +21,7 @@ export interface KnowledgeUnitPayload {
   topico_complexidade?: string;
   area?: string;
   context?: string;
+  pre_requisitos?: string[];
 }
 
 /**
@@ -65,6 +66,7 @@ export interface DBKnowledgeUnit {
   context: string;
   created_at: string;
   updated_at: string;
+  pre_requisitos?: string[];
   signatures?: DBKnowledgeUnitSignature[];
   subgroups?: DBKnowledgeUnitSubgroup[];
 }
@@ -511,6 +513,7 @@ export const dbService = {
         topic_complexity: ucData.topico_complexidade ?? '',
         area: ucData.area ?? 'SAG',
         context: ucData.context ?? 'GLOBAL',
+        pre_requisitos: ucData.pre_requisitos ?? [],
         tenant_id: tenantId
       })
       .select('*')
@@ -574,7 +577,8 @@ export const dbService = {
         topic: ucData.topico ?? '',
         topic_complexity: ucData.topico_complexidade ?? '',
         area: ucData.area ?? 'SAG',
-        context: ucData.context ?? 'GLOBAL'
+        context: ucData.context ?? 'GLOBAL',
+        pre_requisitos: ucData.pre_requisitos ?? []
       })
       .eq('id', ucId)
       .eq('tenant_id', tenantId);

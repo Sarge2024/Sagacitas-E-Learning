@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, HelpCircle, CheckCircle2, XCircle, Sparkles, Gauge } from 'lucide-react';
@@ -202,18 +203,26 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
               wordBreak: 'break-word',
             }}
           >
-            <p className="whitespace-pre-line leading-relaxed w-full">{content.text}</p>
+            <p 
+              className="whitespace-pre-line leading-relaxed w-full" 
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content.text || '') }} 
+            />
           </div>
         );
 
       case 'image':
-        return (
+        return content.src ? (
           <img
-            src={content.src || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800'}
-            alt="Slide visual element"
+            src={content.src}
+            alt={content.alt || 'Slide visual element'}
             className="w-full h-full object-cover rounded-md shadow-2xs border border-white/10"
             style={content.style}
           />
+        ) : (
+          <div className="w-full h-full bg-slate-900/80 border border-white/10 rounded-md flex flex-col items-center justify-center text-slate-400">
+            <span className="text-[24px] mb-2 opacity-50">🖼️</span>
+            <span className="text-xs font-mono">Imagem não carregada</span>
+          </div>
         );
 
       case 'video':
@@ -395,8 +404,10 @@ export const SlidePlayer: React.FC<SlidePlayerProps> = ({
         style={{
           backgroundColor: slide.background.type === 'color' ? slide.background.value : '#0f172a',
           backgroundImage:
-            slide.background.type === 'image' ? `url(${slide.background.value})` : undefined,
-          backgroundSize: 'cover',
+            slide.background.type === 'image' 
+              ? `url(${slide.background.value})` 
+              : (slide.background.pattern ? slide.background.pattern : undefined),
+          backgroundSize: slide.background.type === 'image' ? 'cover' : 'auto',
           backgroundPosition: 'center',
         }}
       >

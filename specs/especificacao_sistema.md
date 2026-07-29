@@ -163,8 +163,10 @@ Interface avançada de autoria e organização curricular estruturada em:
 
 ### 4.4. Editor e Player de Slides (`CourseSlideEditorModal`)
 Editor WYSIWYG que permite aos gestores criarem apresentações multimídia interativas vinculadas às aulas do curso:
-- **Canvas Central**: Renderiza a tela de pintura e posicionamento dos slides em proporção (16:9).
-- **Padronização de Componentes**: A barra de ferramentas lateral importa e cria elementos seguindo estritamente a tipagem unificada de UCs (`text`, `image`, `video`, `audio`, `question` e `simulation`).
+- **Canvas Central**: Renderiza a tela de pintura e posicionamento dos slides em proporção (16:9). Possui suporte a controle deslizante de zoom (escala de 50% a 150%) para diagramação precisa de elementos de tela.
+- **Segurança (Sanitização XSS)**: Higienização rigorosa automática de conteúdos de texto rico (`dangerouslySetInnerHTML` e salvamento de dados) usando a biblioteca `DOMPurify` para evitar vulnerabilidades de script.
+- **Compositor de Rich Text**: Novo mecanismo de formatação avançada de texto sob a moderna **Selection API + Range API** nativa (substituindo execCommand). Fornece ferramentas flutuantes para formatações de estilo (Negrito, Itálico, Sublinhado), atalhos de teclado (Ctrl+B/I/U), alinhamento de texto (Esquerda, Centro, Direita), inserção de links (com caixa de prompt de URL) e listas (marcadas ou numéricas).
+- **Acessibilidade (WCAG 2.1 AA)**: Validador de contraste em tempo real baseado na luminância relativa W3C. Exibe aviso visual se a relação de contraste entre a cor do texto e a cor sólida de fundo do slide atende aos parâmetros recomendados (mínimo de 4.5:1). Adiciona suporte à inserção de textos alternativos (`alt`) em elementos de imagem para suporte a leitores de tela.
 - **Níveis de Camada (Z-Index)**: Suporte nativo para configuração de camadas (`zIndex`) de cada elemento no PropertyInspector para evitar sobreposição indesejada.
 - **Persistência & Roteamento Dinâmico**: A apresentação de slides completa é salva na coluna `presentation` do curso. No player de aula do aluno (`LessonPlayerView`), os slides são carregados e filtrados em tempo real de acordo com a numeração sequencial (`aula_group`) da aula selecionada.
 

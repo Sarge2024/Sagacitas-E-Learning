@@ -532,8 +532,8 @@ Responda de forma direta e estruturada (2 a 4 parágrafos) focando em aplicaçã
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Sagacitas E-Learning Server running on http://0.0.0.0:${PORT}`);
+  app.listen(PORT, "localhost", () => {
+    console.log(`Sagacitas E-Learning Server running on http://localhost:${PORT}`);
   });
 }
 

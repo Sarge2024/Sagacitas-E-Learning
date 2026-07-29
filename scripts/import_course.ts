@@ -31,27 +31,52 @@ async function runImport() {
   const { data: companies } = await supabase.from('companies').select('id').limit(1);
   const companyId = companies?.[0]?.id;
 
-  // 1. Criar Curso
-  console.log(`📦 Criando Curso: ${payload.curso.titulo}`);
-  const newCourse = {
-    tenant_id: tenantId,
-    title: payload.curso.titulo,
-    description: payload.curso.descricao,
-    company_id: companyId,
-    course_type: 'empresarial',
-    status: 'active',
-    image_url: ''
-  };
-
-  const { data: course, error: courseError } = await supabase
+  // 1. Verificar se o Curso já existe
+  console.log(`🔍 Verificando se o curso já existe: ${payload.curso.titulo}`);
+  const { data: existingCourse, error: checkCourseError } = await supabase
     .from('courses')
-    .insert(newCourse)
-    .select('id')
-    .single();
+    .select('id, modules, presentation')
+    .eq('title', payload.curso.titulo)
+    .eq('tenant_id', tenantId)
+    .maybeSingle();
 
-  if (courseError) {
-    console.error('❌ Erro no Curso:', courseError);
+  if (checkCourseError) {
+    console.error('❌ Erro ao verificar curso existente:', checkCourseError);
     return;
+  }
+
+  let courseId = '';
+  let existingModules: any[] = [];
+  let existingPresentation: any = null;
+
+  if (existingCourse) {
+    console.log(`👉 Curso existente encontrado (ID: ${existingCourse.id}). Reusando.`);
+    courseId = existingCourse.id;
+    existingModules = existingCourse.modules || [];
+    existingPresentation = existingCourse.presentation || null;
+  } else {
+    console.log(`📦 Criando Novo Curso: ${payload.curso.titulo}`);
+    const newCourse = {
+      tenant_id: tenantId,
+      title: payload.curso.titulo,
+      description: payload.curso.descricao,
+      company_id: companyId,
+      course_type: 'empresarial',
+      status: 'active',
+      image_url: ''
+    };
+
+    const { data: createdCourse, error: courseError } = await supabase
+      .from('courses')
+      .insert(newCourse)
+      .select('id')
+      .single();
+
+    if (courseError) {
+      console.error('❌ Erro no Curso:', courseError);
+      return;
+    }
+    courseId = createdCourse.id;
   }
 
   // 2. Montar Módulos e Aulas para a Presentation do Course
@@ -63,7 +88,15 @@ async function runImport() {
     lessons: [] as any[]
   };
 
-  let lessonIndex = 1;
+  // Calcular offset do index das aulas baseado em outros módulos já existentes
+  let lessonOffset = 0;
+  existingModules.forEach((m: any) => {
+    if (m.id !== moduleObj.id) {
+      lessonOffset += m.lessons?.length || 0;
+    }
+  });
+
+  let lessonIndex = lessonOffset + 1;
   const ucSlotsToInsert: any[] = [];
   const ucsToInsert: any[] = [];
 
@@ -143,11 +176,25 @@ async function runImport() {
           continue;
         }
         ucId = uc.id;
+
+        // Criar a assinatura para a UC
+        if (ucData.uc_codigo) {
+          const { error: sigError } = await supabase
+            .from('uc_pmest_signatures')
+            .insert({
+              uc_id: ucId,
+              code: ucData.uc_codigo,
+              tenant_id: tenantId
+            });
+          if (sigError) {
+            console.error(`⚠️ Erro ao inserir assinatura para UC ${ucData.uc_codigo}:`, sigError);
+          }
+        }
       }
 
       // Adicionar slot da UC na aula
       ucSlotsToInsert.push({
-        course_id: course.id,
+        course_id: courseId,
         uc_id: ucId,
         aula_group: lessonIndex, // The index matches the lesson inside the module
         sequence_order: i + 1
@@ -157,17 +204,41 @@ async function runImport() {
     lessonIndex++;
   }
 
-  // Atualizar Presentation do Curso
+  // Mesclar módulos existentes com o novo/atualizado
+  let updatedModules = [...existingModules];
+  const modIdx = updatedModules.findIndex((m: any) => m.id === moduleObj.id);
+  if (modIdx !== -1) {
+    updatedModules[modIdx] = moduleObj;
+  } else {
+    updatedModules.push(moduleObj);
+  }
+
+  // Atualizar Presentation e Modules do Curso
   const presentationPayload = {
-    id: `pres-${course.id}`,
+    id: `pres-${courseId}`,
     theme: 'default',
-    modules: [moduleObj]
+    slides: existingPresentation?.slides || [],
+    modules: updatedModules
   };
 
   await supabase
     .from('courses')
-    .update({ presentation: presentationPayload })
-    .eq('id', course.id);
+    .update({ 
+      presentation: presentationPayload,
+      modules: updatedModules
+    })
+    .eq('id', courseId);
+
+  // Limpar slots antigos destas mesmas aulas para evitar duplicidade
+  const newAulaGroups = ucSlotsToInsert.map(s => s.aula_group);
+  if (newAulaGroups.length > 0) {
+    console.log(`🧹 Limpando slots existentes para as aulas: ${newAulaGroups.join(', ')}`);
+    await supabase
+      .from('course_knowledge_units')
+      .delete()
+      .eq('course_id', courseId)
+      .in('aula_group', newAulaGroups);
+  }
 
   console.log('📦 Inserindo Relacionamentos (CourseKnowledgeUnits)...');
   const { error: slotsError } = await supabase
@@ -179,7 +250,7 @@ async function runImport() {
   }
 
   console.log('✅ Carga completa importada com sucesso!');
-  console.log(`👉 Curso ID: ${course.id}`);
+  console.log(`👉 Curso ID: ${courseId}`);
 }
 
 runImport().catch(console.error);

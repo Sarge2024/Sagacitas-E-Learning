@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ViewMode } from '../types';
 import { useAuthStore } from '../store/useAuthStore';
+import { APP_VERSION } from '../config/version';
 import {
   LayoutDashboard,
   GraduationCap,
@@ -589,8 +590,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
       </nav>
 
-      {/* Footer Pro Upgrade */}
-      <div className="p-3 border-t border-slate-200/80">
+      {/* Footer Pro Upgrade e Versão */}
+      <div className="p-3 border-t border-slate-200/80 flex flex-col gap-2">
         <button
           id="upgrade-pro-btn"
           onClick={onOpenProModal}
@@ -602,6 +603,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Sparkles className="w-4 h-4 shrink-0" />
           {!isCollapsed && <span className="truncate">Sagacitas Pro</span>}
         </button>
+        <div className={`text-center transition-all ${isCollapsed ? 'text-[8px]' : 'text-[10px]'} text-slate-400 font-mono font-medium tracking-widest mt-1`}>
+          {APP_VERSION}
+        </div>
       </div>
     </aside>
   );

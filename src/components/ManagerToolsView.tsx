@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Course, Certificate, OAuthUser, Module } from '../types';
+import { Course, Certificate, OAuthUser, Module, DBCourseCategory } from '../types';
 import { dbService } from '../services/dbService';
 import { uploadService } from '../services/uploadService';
 import {
@@ -261,7 +261,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   const [isTrainingModalOpen, setIsTrainingModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [trainingTitle, setTrainingTitle] = useState('');
-  const [trainingCategory, setTrainingCategory] = useState('Finanças & DRE');
+  const [trainingCategory, setTrainingCategory] = useState('');
   const [trainingLevel, setTrainingLevel] = useState<'Iniciante' | 'Intermediário' | 'Avançado'>('Intermediário');
   const [trainingWorkload, setTrainingWorkload] = useState('20h');
   const [trainingDescription, setTrainingDescription] = useState('');
@@ -293,16 +293,41 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   const [importError, setImportError] = useState('');
 
   // Categories management state
-  const [categories, setCategories] = useState<string[]>([
-    'Finanças & DRE',
-    'Engenharia de Cardápio',
-    'Gestão de Custos & CMV',
-    'Gestão de Equipes',
-    'Treinamentos'
-  ]);
+  const [dbCategories, setDbCategories] = useState<DBCourseCategory[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const dbCats = await dbService.getCategories();
+        setDbCategories(dbCats);
+        if (dbCats.length > 0) {
+          setCategories(prev => {
+            const dbNames = dbCats.map(c => c.name);
+            return Array.from(new Set([...prev, ...dbNames]));
+          });
+        }
+      } catch (err) {
+        console.error('Erro ao carregar categorias do banco:', err);
+      }
+    }
+    loadCategories();
+  }, []);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
+
+  // Levels management state
+  const [levelsList, setLevelsList] = useState<string[]>([
+    'Iniciante',
+    'Intermediário',
+    'Avançado'
+  ]);
+  const [isLevelModalOpen, setIsLevelModalOpen] = useState(false);
+  const [newLevelName, setNewLevelName] = useState('');
+  const [editingLevel, setEditingLevel] = useState<string | null>(null);
+
+
 
   useEffect(() => {
     if (courses && courses.length > 0) {
@@ -311,6 +336,14 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
         const merged = Array.from(new Set([...prev, ...existingCats]));
         return merged;
       });
+
+      const existingLevels = Array.from(new Set(courses.map(c => c.level).filter(Boolean) as string[]));
+      setLevelsList(prev => {
+        const merged = Array.from(new Set([...prev, ...existingLevels]));
+        return merged;
+      });
+
+
     }
   }, [courses]);
 
@@ -542,7 +575,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   const handleOpenNewTrainingModal = () => {
     setEditingCourse(null);
     setTrainingTitle('');
-    setTrainingCategory('Finanças & DRE');
+    setTrainingCategory(categories.length > 0 ? categories[0] : '');
     setTrainingLevel('Intermediário');
     setTrainingWorkload('20h');
     setTrainingDescription('');
@@ -557,7 +590,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
   const handleOpenEditTrainingModal = (course: Course) => {
     setEditingCourse(course);
     setTrainingTitle(course.title);
-    setTrainingCategory(course.category || 'Finanças & DRE');
+    setTrainingCategory(course.category || (categories.length > 0 ? categories[0] : ''));
     setTrainingLevel((course.level as any) || 'Intermediário');
     setTrainingWorkload('24h');
     setTrainingDescription(course.description || '');
@@ -589,6 +622,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           description: trainingDescription,
           level: trainingLevel,
           category: trainingCategory,
+
           status: trainingStatus,
           course_type: trainingType,
           company_id: (trainingType === 'empresarial' || trainingType === 'sistema') ? trainingCompanyId : undefined,
@@ -661,6 +695,7 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           level: trainingLevel,
           status: 'active',
           category: trainingCategory,
+
           course_type: trainingType,
           company_id: (trainingType === 'empresarial' || trainingType === 'sistema') ? trainingCompanyId : undefined,
           system_name: trainingType === 'sistema' ? trainingSystemName : undefined,
@@ -1178,24 +1213,28 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                 />
               </div>
 
-              <div className="flex items-center gap-1.5 w-full sm:w-auto">
-                <select
-                  value={trainingCategoryFilter}
-                  onChange={(e) => setTrainingCategoryFilter(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium w-full sm:w-auto"
-                >
-                  <option value="Todas">Todas as Categorias</option>
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => setIsCategoryModalOpen(true)}
-                  title="Cadastrar Nova Categoria"
-                  className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded border border-slate-200 transition-colors cursor-pointer shrink-0"
-                >
-                  <FolderPlus className="w-4.5 h-4.5" />
-                </button>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 w-full sm:w-auto">
+                <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                  <select
+                    value={trainingCategoryFilter}
+                    onChange={(e) => {
+                      setTrainingCategoryFilter(e.target.value);
+                    }}
+                    className="bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium w-full sm:w-auto"
+                  >
+                    <option value="Todas">Todas as Categorias</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => setIsCategoryModalOpen(true)}
+                    title="Cadastrar Nova Categoria"
+                    className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded border border-slate-200 transition-colors cursor-pointer shrink-0"
+                  >
+                    <FolderPlus className="w-4.5 h-4.5" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1850,10 +1889,23 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-black text-slate-700 mb-1">Categoria</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-black text-slate-700">Categoria</label>
+                    <button
+                      type="button"
+                      onClick={() => setIsCategoryModalOpen(true)}
+                      title="Gerenciar Categorias"
+                      className="p-1 hover:bg-slate-200 text-slate-400 hover:text-indigo-600 rounded cursor-pointer transition-colors"
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                   <select
                     value={trainingCategory}
-                    onChange={(e) => setTrainingCategory(e.target.value)}
+                    onChange={(e) => {
+                      setTrainingCategory(e.target.value);
+
+                    }}
                     className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
                   >
                     {categories.map(cat => (
@@ -1863,18 +1915,29 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black text-slate-700 mb-1">Nível</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-black text-slate-700">Nível</label>
+                    <button
+                      type="button"
+                      onClick={() => setIsLevelModalOpen(true)}
+                      title="Gerenciar Níveis"
+                      className="p-1 hover:bg-slate-200 text-slate-400 hover:text-[#1890ff] rounded cursor-pointer transition-colors"
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                   <select
                     value={trainingLevel}
                     onChange={(e: any) => setTrainingLevel(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded p-2.5 text-xs text-slate-800 outline-none focus:border-[#1890ff] cursor-pointer font-medium"
                   >
-                    <option value="Iniciante">Iniciante</option>
-                    <option value="Intermediário">Intermediário</option>
-                    <option value="Avançado">Avançado</option>
+                    {levelsList.map(lvl => (
+                      <option key={lvl} value={lvl}>{lvl}</option>
+                    ))}
                   </select>
                 </div>
               </div>
+
 
               <div className="mt-3">
                 <label className="block text-xs font-black text-slate-700 mb-1">Status do Treinamento</label>
@@ -2129,48 +2192,76 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                 Cancelar
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
                   const trimmed = newCategoryName.trim();
+
                   if (!trimmed) {
                     showToast('O nome da categoria não pode ser vazio.');
                     return;
                   }
 
-                  if (editingCategory) {
-                    if (editingCategory === trimmed) {
+                  try {
+                    // Função para gerar código sequencial automático
+                    const generateNextCode = () => {
+                      const numericCodes = dbCategories
+                        .map(c => parseInt(c.code, 10))
+                        .filter(n => !isNaN(n));
+                      const maxCode = numericCodes.length > 0 ? Math.max(...numericCodes) : 0;
+                      return (maxCode + 1).toString().padStart(3, '0');
+                    };
+
+                    if (editingCategory) {
+                      if (editingCategory === trimmed) {
+                        setEditingCategory(null);
+                        setNewCategoryName('');
+                        return;
+                      }
+
+                      if (categories.includes(trimmed)) {
+                        showToast(`A categoria "${trimmed}" já existe!`);
+                        return;
+                      }
+
+                      const dbCat = dbCategories.find(c => c.name === editingCategory);
+                      if (dbCat) {
+                        await dbService.updateCategory(dbCat.id, { name: trimmed });
+                        setDbCategories(prev => prev.map(c => c.id === dbCat.id ? { ...c, name: trimmed } : c));
+                      } else {
+                        const newCode = generateNextCode();
+                        const newDbCat = await dbService.createCategory(trimmed, newCode);
+                        setDbCategories(prev => [...prev, newDbCat]);
+                      }
+
+                      // 1. Update categories list
+                      setCategories(prev => prev.map(c => c === editingCategory ? trimmed : c));
+
+                      // 2. Update courses utilizing this category
+                      if (courses && onUpdateCourses) {
+                        const updatedCourses = courses.map(c => 
+                          c.category === editingCategory ? { ...c, category: trimmed } : c
+                        );
+                        onUpdateCourses(updatedCourses);
+                      }
+
+                      showToast(`Categoria alterada de "${editingCategory}" para "${trimmed}" com sucesso!`);
                       setEditingCategory(null);
                       setNewCategoryName('');
-                      return;
+                    } else {
+                      if (categories.includes(trimmed)) {
+                        showToast(`A categoria "${trimmed}" já existe!`);
+                        return;
+                      }
+
+                      const newCode = generateNextCode();
+                      const newDbCat = await dbService.createCategory(trimmed, newCode);
+                      setDbCategories(prev => [...prev, newDbCat]);
+
+                      setCategories(prev => [...prev, trimmed]);
+                      showToast(`Categoria "${trimmed}" cadastrada com sucesso!`);
+                      setNewCategoryName('');
                     }
-
-                    if (categories.includes(trimmed)) {
-                      showToast(`A categoria "${trimmed}" já existe!`);
-                      return;
-                    }
-
-                    // 1. Update categories list
-                    setCategories(prev => prev.map(c => c === editingCategory ? trimmed : c));
-
-                    // 2. Update courses utilizing this category
-                    if (courses && onUpdateCourses) {
-                      const updatedCourses = courses.map(c => 
-                        c.category === editingCategory ? { ...c, category: trimmed } : c
-                      );
-                      onUpdateCourses(updatedCourses);
-                    }
-
-                    showToast(`Categoria alterada de "${editingCategory}" para "${trimmed}" com sucesso!`);
-                    setEditingCategory(null);
-                    setNewCategoryName('');
-                  } else {
-                    if (categories.includes(trimmed)) {
-                      showToast(`A categoria "${trimmed}" já existe!`);
-                      return;
-                    }
-
-                    setCategories(prev => [...prev, trimmed]);
-                    showToast(`Categoria "${trimmed}" cadastrada com sucesso!`);
-                    setNewCategoryName('');
+                  } catch (err: any) {
+                    showToast('Erro ao salvar categoria: ' + err.message);
                   }
                 }}
                 className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded-md cursor-pointer"
@@ -2186,16 +2277,37 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
                 {categories.map((cat) => (
                   <div key={cat} className="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-100 text-xs font-semibold text-slate-800">
                     <span>{cat}</span>
-                    <button
-                      onClick={() => {
-                        setEditingCategory(cat);
-                        setNewCategoryName(cat);
-                      }}
-                      title="Editar Categoria"
-                      className="p-1 hover:bg-slate-200 text-[#1890ff] hover:text-[#116ebc] rounded transition-colors cursor-pointer"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const dbCat = dbCategories.find(c => c.name === cat);
+                            if (dbCat) {
+                              await dbService.deleteCategory(dbCat.id);
+                              setDbCategories(prev => prev.filter(c => c.id !== dbCat.id));
+                            }
+                            setCategories(prev => prev.filter(c => c !== cat));
+                            showToast(`Categoria "${cat}" excluída!`);
+                          } catch (err: any) {
+                            showToast('Erro ao excluir categoria: ' + err.message);
+                          }
+                        }}
+                        title="Excluir Categoria"
+                        className="p-1 hover:bg-slate-200 text-rose-500 hover:text-rose-700 rounded transition-colors cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingCategory(cat);
+                          setNewCategoryName(cat);
+                        }}
+                        title="Editar Categoria"
+                        className="p-1 hover:bg-slate-200 text-[#1890ff] hover:text-[#116ebc] rounded transition-colors cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -2203,6 +2315,126 @@ export const ManagerToolsView: React.FC<ManagerToolsViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Modal Cadastro de Novo Nível */}
+      {isLevelModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-md p-5 max-w-sm w-full text-slate-950 shadow-2xs space-y-4">
+            <div>
+              <h3 className="text-sm font-black text-slate-900">
+                {editingLevel ? 'Editar Nível' : 'Cadastrar Novo Nível'}
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {editingLevel ? 'Altere o nome do nível selecionado abaixo.' : 'Insira o nome do novo nível de complexidade.'}
+              </p>
+            </div>
+            
+            <input
+              type="text"
+              value={newLevelName}
+              onChange={(e) => setNewLevelName(e.target.value)}
+              placeholder="Ex: Expert, Básico, etc."
+              className="w-full bg-slate-50 border border-slate-200 rounded-md p-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#1890ff] font-medium"
+            />
+
+            <div className="flex justify-end gap-2 text-xs font-bold">
+              <button
+                onClick={() => {
+                  setIsLevelModalOpen(false);
+                  setNewLevelName('');
+                  setEditingLevel(null);
+                }}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  const trimmed = newLevelName.trim();
+                  if (!trimmed) {
+                    showToast('O nome do nível não pode ser vazio.');
+                    return;
+                  }
+
+                  if (editingLevel) {
+                    if (editingLevel === trimmed) {
+                      setEditingLevel(null);
+                      setNewLevelName('');
+                      return;
+                    }
+
+                    if (levelsList.includes(trimmed)) {
+                      showToast(`O nível "${trimmed}" já existe!`);
+                      return;
+                    }
+
+                    // 1. Update levels list
+                    setLevelsList(prev => prev.map(l => l === editingLevel ? trimmed : l));
+
+                    // 2. Update courses utilizing this level
+                    if (courses && onUpdateCourses) {
+                      const updatedCourses = courses.map(c => 
+                        c.level === editingLevel ? { ...c, level: trimmed as any } : c
+                      );
+                      onUpdateCourses(updatedCourses);
+                    }
+
+                    showToast(`Nível alterado de "${editingLevel}" para "${trimmed}" com sucesso!`);
+                    setEditingLevel(null);
+                    setNewLevelName('');
+                  } else {
+                    if (levelsList.includes(trimmed)) {
+                      showToast(`O nível "${trimmed}" já existe!`);
+                      return;
+                    }
+
+                    setLevelsList(prev => [...prev, trimmed]);
+                    showToast(`Nível "${trimmed}" cadastrado com sucesso!`);
+                    setNewLevelName('');
+                  }
+                }}
+                className="px-4 py-2 bg-[#1890ff] hover:bg-[#096dd9] text-white rounded-md cursor-pointer"
+              >
+                {editingLevel ? 'Salvar Alteração' : 'Salvar'}
+              </button>
+            </div>
+
+            {/* List of existing levels */}
+            <div className="border-t border-slate-100 pt-4 space-y-2">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Níveis Cadastrados</span>
+              <div className="max-h-40 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+                {levelsList.map((lvl) => (
+                  <div key={lvl} className="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-100 text-xs font-semibold text-slate-800">
+                    <span>{lvl}</span>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => {
+                          setLevelsList(prev => prev.filter(l => l !== lvl));
+                        }}
+                        title="Excluir Nível"
+                        className="p-1 hover:bg-slate-200 text-rose-500 hover:text-rose-700 rounded transition-colors cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingLevel(lvl);
+                          setNewLevelName(lvl);
+                        }}
+                        title="Editar Nível"
+                        className="p-1 hover:bg-slate-200 text-[#1890ff] hover:text-[#116ebc] rounded transition-colors cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

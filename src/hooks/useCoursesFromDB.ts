@@ -12,13 +12,14 @@ function mapDBModulesToModules(dbModules: DBModule[] | undefined): Module[] {
     id: m.id,
     title: m.title,
     focus: m.focus,
-    lessons: (m.lessons || []).map((l, idx) => ({
+    lessons: (m.lessons || []).map((l: any, idx) => ({
       id: l.id,
-      number: String(idx + 1).padStart(2, '0'),
+      number: l.number || String(idx + 1).padStart(2, '0'),
       title: l.title,
-      duration: '45 min',
-      completed: false,
-      description: l.objectives || '',
+      duration: l.duration || '45 min',
+      completed: l.completed || false,
+      active: l.active !== undefined ? l.active : true,
+      description: l.description || l.objectives || '',
     })),
   }));
 }

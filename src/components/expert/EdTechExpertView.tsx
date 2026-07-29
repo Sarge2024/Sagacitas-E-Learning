@@ -107,6 +107,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
           topico_complexidade: dbUc.topic_complexity as any || 'CONHECIMENTO',
           area: dbUc.area || 'SAG',
           context: dbUc.context || 'GLOBAL',
+          pre_requisitos: dbUc.pre_requisitos || [],
           layout_template: { version: '1.0', components: [] }
         }));
 
@@ -166,6 +167,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
   const [isTaxonomyModalOpen, setIsTaxonomyModalOpen] = useState(false);
   const [taxCategory, setTaxCategory] = useState<'AREA' | 'CONTEXT'>('AREA');
   const [taxNewCode, setTaxNewCode] = useState('');
+  const [editingTaxId, setEditingTaxId] = useState<string | null>(null);
   const [taxNewName, setTaxNewName] = useState('');
 
   const [baseSignature, setBaseSignature] = useState('');
@@ -182,6 +184,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
   const [ucTopicoComplexidade, setUcTopicoComplexidade] = useState<BloomLevel>('CONHECIMENTO');
   const [ucArea, setUcArea] = useState('');
   const [ucContext, setUcContext] = useState('');
+  const [ucPreRequisitos, setUcPreRequisitos] = useState<string[]>([]);
   const [ucComponents, setUcComponents] = useState<Array<{
     type: 'text' | 'image' | 'video' | 'audio' | 'question' | 'simulation';
     title: string;
@@ -215,6 +218,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
     setUcTopicoComplexidade('CONHECIMENTO');
     setUcArea('');
     setUcContext('');
+    setUcPreRequisitos([]);
     setUcComponents([
       { type: 'text', title: 'Introdução do Conteúdo', body: 'Escreva a explicação geral aqui...', bloomLevel: 2 }
     ]);
@@ -266,6 +270,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
     setUcTopicoComplexidade(uc.topico_complexidade || 'CONHECIMENTO');
     setUcArea(uc.area || '');
     setUcContext(uc.context || '');
+    setUcPreRequisitos(uc.pre_requisitos || []);
     if (uc.subgroups && uc.subgroups.length > 0) {
       const flattened = uc.subgroups.flatMap(sg => 
         (sg.content_payload || []).map((c: any) => ({ ...c, bloomLevel: sg.bloom_level_required }))
@@ -327,7 +332,8 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
       topico: ucTopico,
       topico_complexidade: ucTopicoComplexidade,
       area: ucArea,
-      context: ucContext
+      context: ucContext,
+      pre_requisitos: ucPreRequisitos
     };
 
     try {
@@ -362,6 +368,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
         topico_complexidade: dbUc.topic_complexity as any || 'CONHECIMENTO',
         area: dbUc.area || 'SAG',
         context: dbUc.context || 'GLOBAL',
+        pre_requisitos: dbUc.pre_requisitos || [],
         layout_template: { version: '1.0', components: [] }
       }));
       setUnidades(mappedUcs);
@@ -379,6 +386,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
     setTaxCategory(category);
     setTaxNewCode('');
     setTaxNewName('');
+    setEditingTaxId(null);
     setIsTaxonomyModalOpen(true);
   };
 
@@ -388,20 +396,28 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
       return;
     }
     try {
-      await dbService.createTaxonomyOption({
-        category: taxCategory,
-        code: taxNewCode,
-        name: taxNewName
-      });
+      if (editingTaxId) {
+        await dbService.updateTaxonomyOption(editingTaxId, {
+          code: taxNewCode,
+          name: taxNewName
+        });
+      } else {
+        await dbService.createTaxonomyOption({
+          category: taxCategory,
+          code: taxNewCode,
+          name: taxNewName
+        });
+      }
       // Refetch
       const updated = await dbService.getTaxonomyOptions(taxCategory);
       if (taxCategory === 'AREA') setAreasList(updated || []);
       else setContextsList(updated || []);
       setTaxNewCode('');
       setTaxNewName('');
+      setEditingTaxId(null);
     } catch (err: any) {
       console.error(err);
-      alert('Erro ao criar taxonomia: ' + err.message);
+      alert('Erro ao salvar taxonomia: ' + err.message);
     }
   };
 
@@ -808,6 +824,67 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
 
                 {/* Column 2 & 3: Elementos Didaticos (AST) */}
                 <div className="lg:col-span-2 space-y-4 border-l border-slate-100 pl-0 lg:pl-6">
+                  {/* Pré-requisitos Recomendados */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-md p-3.5 space-y-3">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
+                      ⛓️ Pré-requisitos Recomendados (Base de Aprendizado)
+                    </span>
+                    {ucPreRequisitos.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {ucPreRequisitos.map((req, idx) => (
+                          <span 
+                            key={idx} 
+                            className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-[#1890ff]/10 text-[#1890ff] border border-[#1890ff]/20 flex items-center gap-1.5"
+                          >
+                            <span>{req}</span>
+                            <button
+                              type="button"
+                              onClick={() => setUcPreRequisitos(prev => prev.filter((_, i) => i !== idx))}
+                              className="text-xs hover:text-rose-500 transition-colors ml-0.5 font-bold cursor-pointer"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400 block italic">Nenhum pré-requisito cadastrado.</span>
+                    )}
+                    
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Adicionar código da UC (ex: UC 1.1A)..."
+                        id="new-prereq-input"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const val = e.currentTarget.value.trim();
+                            if (val && !ucPreRequisitos.includes(val)) {
+                              setUcPreRequisitos([...ucPreRequisitos, val]);
+                              e.currentTarget.value = '';
+                            }
+                          }
+                        }}
+                        className="flex-1 p-1.5 rounded border border-slate-200 text-xs focus:ring-1 focus:ring-[#1890ff] focus:border-[#1890ff]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const input = document.getElementById('new-prereq-input') as HTMLInputElement;
+                          const val = input?.value.trim();
+                          if (val && !ucPreRequisitos.includes(val)) {
+                            setUcPreRequisitos([...ucPreRequisitos, val]);
+                            if (input) input.value = '';
+                          }
+                        }}
+                        className="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded cursor-pointer"
+                      >
+                        + Add
+                      </button>
+                    </div>
+                  </div>
+
                    <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Conteúdo & Subgrupos Bloom</span>
                   </div>
@@ -1269,7 +1346,7 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
           );
         }
 
-        const topicos = Array.from(new Set(unidades.map(u => u.topico || 'Outros')));
+        const areas = Array.from(new Set(unidades.map(u => u.area || 'Outros')));
         
         return (
           <div className="space-y-8">
@@ -1277,8 +1354,8 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
               <div className="flex items-start gap-3">
                 <Sparkles className="w-5 h-5 text-[#1890ff] shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold block text-sm">Estrutura Atômica Independente & Tópicos de Conhecimento</span>
-                  Cada Unidade de Conhecimento (UC) é um bloco autônomo. O agrupamento de UCs elementares produz um <strong>Tópico</strong>, que é classificado pelo seu nível ou grau máximo de complexidade cognitiva da Taxonomia de Bloom.
+                  <span className="font-bold block text-sm">Estrutura Atômica Independente & Áreas de Conhecimento</span>
+                  As Unidades de Conhecimento (UCs) são blocos autônomos de aprendizado agrupados por sua respectiva Personalidade / Área (P).
                 </div>
               </div>
               <button 
@@ -1290,26 +1367,27 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
               </button>
             </div>
 
-            {topicos.map((topicoNome) => {
-              const ucsDoTopico = unidades.filter(u => (u.topico || 'Outros') === topicoNome);
-              const complexidade = ucsDoTopico[0]?.topico_complexidade || 'CONHECIMENTO';
+            {areas.map((areaCodigo) => {
+              const ucsDaArea = unidades.filter(u => (u.area || 'Outros') === areaCodigo);
+              const areaObj = areasList.find(a => a.code === areaCodigo);
+              const areaNome = areaObj ? `${areaObj.name} (${areaCodigo})` : (areaCodigo === 'Outros' ? 'Outras Áreas' : areaCodigo);
               
               return (
-                <div key={topicoNome} className="space-y-4">
+                <div key={areaCodigo} className="space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                     <div className="flex items-center gap-3">
-                      <h2 className="text-base font-extrabold text-slate-800">{topicoNome}</h2>
+                      <h2 className="text-base font-extrabold text-slate-800">{areaNome}</h2>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
-                        Complexidade do Tópico: {complexidade}
+                        Área de Conhecimento (P)
                       </span>
                     </div>
                     <span className="text-xs text-slate-500 font-medium">
-                      {ucsDoTopico.length} {ucsDoTopico.length === 1 ? 'Unidade' : 'Unidades'} de Conhecimento
+                      {ucsDaArea.length} {ucsDaArea.length === 1 ? 'Unidade' : 'Unidades'} de Conhecimento
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {ucsDoTopico.map((uc) => (
+                    {ucsDaArea.map((uc) => (
                       <div 
                         key={uc.id} 
                         onClick={() => setSelectedUcForModal(uc)}
@@ -1634,6 +1712,23 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
               </div>
             </div>
 
+            {/* Pré-requisitos */}
+            {selectedUcForModal.pre_requisitos && selectedUcForModal.pre_requisitos.length > 0 && (
+              <div className="space-y-1.5">
+                <span className="text-[#94a3b8] block font-medium uppercase tracking-wider text-[10px]">⛓️ PRÉ-REQUISITOS RECOMENDADOS</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedUcForModal.pre_requisitos.map((req, idx) => (
+                    <span 
+                      key={idx} 
+                      className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#1890ff]/20 text-[#2fd9f4] border border-[#2fd9f4]/20"
+                    >
+                      {req}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Didactic Elements list */}
             <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
               <span className="text-[#94a3b8] block font-medium uppercase tracking-wider text-[10px]">ELEMENTOS DIDÁTICOS DA UNIDADE</span>
@@ -1881,13 +1976,28 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                       className="w-full p-2 rounded-md border border-slate-300 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                     />
                   </div>
-                  <button 
-                    onClick={handleSaveTaxonomy}
-                    className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors flex items-center justify-center"
-                    title="Adicionar"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+                  <div className="flex gap-1">
+                    <button 
+                      onClick={handleSaveTaxonomy}
+                      className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors flex items-center justify-center"
+                      title={editingTaxId ? "Salvar Alteração" : "Adicionar"}
+                    >
+                      {editingTaxId ? <Edit3 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                    </button>
+                    {editingTaxId && (
+                       <button
+                         onClick={() => {
+                           setEditingTaxId(null);
+                           setTaxNewCode('');
+                           setTaxNewName('');
+                         }}
+                         className="p-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md transition-colors flex items-center justify-center"
+                         title="Cancelar Edição"
+                       >
+                         <XCircle className="w-4 h-4" />
+                       </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2 mt-4">
@@ -1898,12 +2008,26 @@ export const EdTechExpertView: React.FC<EdTechExpertViewProps> = ({
                         <span className="inline-block w-16 text-xs font-bold text-slate-800">{tax.code}</span>
                         <span className="text-xs text-slate-600">{tax.name}</span>
                       </div>
-                      <button 
-                        onClick={() => handleDeleteTaxonomy(tax.id, taxCategory)}
-                        className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-1">
+                        <button 
+                          onClick={() => {
+                            setEditingTaxId(tax.id);
+                            setTaxNewCode(tax.code);
+                            setTaxNewName(tax.name);
+                          }}
+                          className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
+                          title="Editar"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteTaxonomy(tax.id, taxCategory)}
+                          className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-colors"
+                          title="Excluir"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                   {(taxCategory === 'AREA' ? areasList : contextsList).length === 0 && (

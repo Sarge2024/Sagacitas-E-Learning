@@ -15,10 +15,13 @@ export interface SlideElement {
   width: number;  // Largura em %
   height: number; // Altura em %
   zIndex: number;
+  role?: string;  // Papel semântico do widget (ex: 'title', 'bodyText', 'caption')
   content: {
+    sourceId?: string;
     text?: string;
     style?: Record<string, string>; // Classes Tailwind ou estilos embutidos
     src?: string;                   // URL de imagem/vídeo
+    alt?: string;                   // Texto alternativo para acessibilidade (WCAG)
     quizData?: {
       question: string;
       options: string[];
@@ -41,9 +44,25 @@ export interface Slide {
   background: {
     type: 'color' | 'image';
     value: string;
+    pattern?: string;
   };
   elements: SlideElement[];
   aula_group?: number;
+  layoutName?: string; // Nome do layout de container ativo no slide
+}
+
+export interface LayoutPreset {
+  name: string;
+  elements: SlideElement[];
+}
+
+export interface ColorPalette {
+  id: string;
+  name: string;
+  background: string;
+  titleColor: string;
+  bodyColor: string;
+  accentColor: string;
 }
 
 export interface Presentation {
